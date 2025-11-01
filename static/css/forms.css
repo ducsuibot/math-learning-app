@@ -1,0 +1,101 @@
+/* File: /static/css/forms.css */
+.form-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #e0f7fa; /* Nền xanh nhạt */
+}
+
+.form-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.form-container h2 {
+    color: var(--doraemon-blue, #009EE3);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left; /* Căn lề trái cho label và input */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #555;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    box-sizing: border-box; /* Quan trọng */
+}
+.form-control:focus {
+    border-color: var(--doraemon-blue, #009EE3);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 158, 227, 0.2);
+}
+
+.error-message {
+    color: var(--doraemon-red, #D7000F);
+    font-size: 0.9em;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Nút Submit */
+.form-group .button-primary {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1em;
+}
+
+/* Link chuyển trang */
+.form-container p {
+    margin-top: 25px;
+    color: #666;
+}
+.form-container a {
+    color: var(--doraemon-blue, #009EE3);
+    text-decoration: none;
+    font-weight: 700;
+}
+.form-container a:hover {
+    text-decoration: underline;
+}
+
+/* Thông báo Flash */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: bold;
+}
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}

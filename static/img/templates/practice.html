@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luyện Tập Đếm Số với AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Luyện Tập Đếm Số với Doraemon</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/practice">Luyện tập AI</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container practice-page">
+        <h2>Bé hãy giơ ngón tay để đếm số nào!</h2>
+        <p>Hệ thống sẽ nhận diện và đếm số ngón tay bé giơ lên.</p>
+        
+        <div class="ai-interaction-area">
+            <div class="video-container">
+                <video id="webcam" autoplay playsinline></video>
+                <canvas id="output_canvas"></canvas>
+            </div>
+            <div class="result-box">
+                <p>Số ngón tay được nhận diện:</p>
+                <h2 id="finger_count">0</h2>
+            </div>
+        </div>
+
+        <div class="math-challenge">
+            <h3>Thử thách Toán học: Đếm và Nhập số</h3>
+            <p>Giơ tay để trả lời câu hỏi: <strong>Có bao nhiêu con mèo?</strong></p>
+            
+            <div id="apple_container" class="challenge-content">
+                </div>
+
+             <button id="check_answer_btn" class="button-primary">Kiểm tra đáp án</button>
+             <p id="feedback_message"></p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Học Toán Cùng Doraemon. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/hand_counter.js"></script> 
+</body>
+</html>

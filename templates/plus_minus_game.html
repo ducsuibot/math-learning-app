@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Cộng Trừ - Học Toán Cùng Doraemon</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="game-body-space">
+    
+    <header>
+        <div class="container">
+            <div class="header-title">
+                <img src="/static/img/doraemon_icon.png" alt="Doraemon"> 
+                <h1>HỌC TOÁN CÙNG DORAEMON</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/learning">Học bài</a></li>
+                    <li><a href="/practice">Luyện tập AI</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="game-container-space">
+            <div class="game-stats-bar">
+                <div class="stat-box">
+                    <span>LEVEL</span>
+                    <div id="level">1</div>
+                </div>
+                <div class="stat-box">
+                    <span>THỜI GIAN</span>
+                    <div id="timer">60</div>
+                </div>
+                <div class="stat-box">
+                    <span>ĐIỂM</span>
+                    <div id="score">0</div>
+                </div>
+            </div>
+
+            <div class="question-area">
+                <span id="num1">5</span>
+                <span id="operator">+</span>
+                <span id="num2">3</span>
+                <span>=</span>
+                <span>?</span>
+            </div>
+
+            <div class="options-area">
+                <button class="option-button"></button>
+                <button class="option-button"></button>
+                <button class="option-button"></button>
+                <button class="option-button"></button>
+            </div>
+        </div>
+    </main>
+
+    <div id="chaien-feedback-modal" class="modal-overlay">
+        <div class="modal-content chaien-modal">
+            <img id="chaien-image" src="/static/img/gian.png" alt="Chaien">
+            <p id="feedback-text"></p>
+            <button id="close-feedback-btn" class="button-primary">OK</button>
+        </div>
+    </div>
+
+    <script src="/static/js/plus_minus_game.js"></script> 
+</body>
+</html>

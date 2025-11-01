@@ -1,0 +1,25 @@
+# Bỏ qua thư mục môi trường ảo Python
+venv/
+
+# Bỏ cache biên dịch Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Bỏ file cấu hình IDE
+.vscode/
+.idea/
+
+# Bỏ file hệ thống
+.DS_Store
+
+# Bỏ file dữ liệu, log, và model lớn (Tùy chọn, giữ lại nếu cần)
+*.log
+*.csv
+# *.onnx
+# *.pth
+# *.h5
+
+# Bỏ file Jupyter checkpoint
+.ipynb_checkpoints/

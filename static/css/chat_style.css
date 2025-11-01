@@ -1,0 +1,128 @@
+/* File: /static/css/chat_style.css */
+body.chat-page { 
+    background-color: #e0f7fa;
+    display: flex;
+    flex-direction: column; 
+    min-height: 100vh;
+}
+
+body.chat-page main.container {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-grow: 1; 
+   padding-top: 20px;
+   padding-bottom: 40px;
+}
+
+.chat-container {
+    width: 100%;
+    max-width: 550px; 
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 70vh; 
+    border: 1px solid #ddd;
+}
+
+.chat-header {
+    background-color: var(--doraemon-blue, #009EE3);
+    color: white;
+    padding: 15px 20px;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 700;
+    text-align: center;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto; 
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Tăng khoảng cách */
+    border-bottom: 1px solid #eee; 
+}
+
+/* === THAY ĐỔI CHO BONG BÓNG CHAT VÀ AVATAR === */
+.message {
+    display: flex; /* Dùng flexbox để xếp avatar và text */
+    align-items: flex-end; /* Căn avatar và text theo đáy */
+    max-width: 85%; /* Tăng độ rộng tối đa */
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-right: 10px;
+    margin-bottom: 5px; /* Căn chỉnh với bong bóng */
+}
+
+.message .text { /* Bọc text vào div riêng */
+    padding: 12px 18px; /* Tăng padding */
+    border-radius: 20px;
+    word-wrap: break-word;
+    line-height: 1.45; /* Tăng khoảng cách dòng */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Thêm bóng nhẹ */
+}
+
+.message.user {
+    align-self: flex-end; /* Đẩy cả message user sang phải */
+}
+.message.user .text {
+    background-color: #DCF8C6; /* Màu xanh lá nhạt như iMessage */
+    color: #333;
+    border-bottom-right-radius: 5px;
+}
+
+.message.bot {
+    align-self: flex-start; /* Đẩy cả message bot sang trái */
+}
+.message.bot .text {
+    background-color: var(--doraemon-blue, #009EE3);
+    color: white;
+    border-bottom-left-radius: 5px;
+}
+/* === KẾT THÚC THAY ĐỔI === */
+
+.chat-input {
+    display: flex;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+#user-input {
+    flex-grow: 1;
+    padding: 12px 18px; 
+    border: 1px solid #ddd;
+    border-radius: 25px; 
+    margin-right: 10px;
+    font-size: 1em;
+    outline: none; 
+}
+ #user-input:focus {
+    border-color: var(--doraemon-blue, #009EE3); 
+ }
+
+#send-button {
+    padding: 12px 25px;
+    background-color: var(--doraemon-red, #D7000F);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+}
+
+#send-button:hover {
+    background-color: #b8000c;
+}

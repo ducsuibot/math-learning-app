@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat với Doraemon - Học Toán Cùng Doraemon</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/style.css"> <link rel="stylesheet" href="/static/css/chat_style.css"> </head>
+<body>
+    <header>
+         <div class="container">
+            <div class="header-title">
+                <img src="/static/img/doraemon_icon.png" alt="Doraemon"> 
+                <h1>HỌC TOÁN CÙNG DORAEMON</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/learning">Học bài</a></li>
+                    <li><a href="/practice">Luyện tập AI</a></li>
+                    <li><a href="/chatbot">Chat với Doraemon</a></li> </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>Chat Toán với Doraemon</h2>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot">
+                    <img src="/static/img/doraemon_avatar.png" alt="D" class="avatar">
+                    <div class="text">Chào cậu! Hỏi tớ phép toán nào!</div>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Nhập phép toán hoặc lời chào...">
+                <button id="send-button">Gửi</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Học Toán Cùng Doraemon. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/chat_script.js"></script> 
+</body>
+</html>
+<body class="chat-page"></body>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bắt Đầu Học - Học Toán Cùng Doraemon</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-title">
+                <img src="/static/img/doraemon_icon.png" alt="Doraemon"> 
+                <h1>HỌC TOÁN CÙNG DORAEMON</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Trang chủ</a></li>
+                    <li><a href="/practice">Luyện tập AI</a></li>
+                    <li><a href="#" id="about-link">Về chúng tôi</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="learning-menu">
+            <h3>Bé muốn học gì hôm nay?</h3>
+            
+            <div class="main-categories">
+                <div class="category-card" data-target="submenu-hoc-so" id="cat-hoc-so">
+                    <img src="/static/img/hoc_so_icon.png" alt="Học số">
+                    <span>Học số cùng Xeko</span>
+                </div>
+                <div class="category-card" data-target="submenu-so-sanh" id="cat-so-sanh">
+                    <img src="/static/img/so_sanh_icon.png" alt="So sánh">
+                    <span>So sánh cùng Shizuka và Nobita</span>
+                </div>
+                <div class="category-card" data-target="submenu-luyen-tap" id="cat-luyen-tap">
+                    <img src="/static/img/luyen_tap_icon.png" alt="Luyện tập tính toán">
+                    <span>Luyện tập cùng Chaien</span>
+                </div>
+                <div class="category-card" data-target="submenu-tro-choi" id="cat-tro-choi">
+                    <img src="/static/img/tro_choi_icon.png" alt="Trò chơi">
+                    <span>Trò chơi cùng Doraemon</span>
+                </div>
+            </div>
+
+            <div class="submenus-container">
+                <div id="submenu-hoc-so" class="submenu">
+                    <a href="#" class="submenu-item">Ghép số với hình</a>
+                    <a href="#" class="submenu-item">Sắp xếp số</a>
+                    <a href="#" class="submenu-item">Chẵn lẻ</a>
+                    <a href="#" class="submenu-item">Đếm hình</a>
+                </div>
+                <div id="submenu-so-sanh" class="submenu">
+                    <a href="#" class="submenu-item">So sánh số</a>
+                    <a href="/compare-images" class="submenu-item">So sánh hình</a>
+                </div>
+                <div id="submenu-luyen-tap" class="submenu">
+                    <a href="/plus-minus-game" class="submenu-item">Trò chơi cộng trừ</a>
+                    <a href="#" class="submenu-item">Câu hỏi trắc nghiệm</a>
+                </div>
+                <div id="submenu-tro-choi" class="submenu">
+                    <a href="/practice" class="submenu-item">Đếm số bằng AI</a>
+                    <a href="#" class="submenu-item">Chạy nào Doremon</a>
+                    <a href="#" class="submenu-item"> Cỗ máy thời gian</a>
+                    <a href="/ocean-rescue" class="submenu-item">Giải cứu Mimi</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Học Toán Cùng Doraemon. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div id="about-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Về chúng tôi</h2>
+            <p>
+                <b>Sinh viên thực hiện:</b><br>
+                Nguyễn Minh Đức<br>
+                Phạm Trung Dũng<br><br>
+                <b>Giáo viên hướng dẫn:</b><br>
+                Thầy Hoàng Quang Huy BME
+            </p>
+        </div>
+    </div>
+
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
