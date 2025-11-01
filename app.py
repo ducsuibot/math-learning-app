@@ -1,9 +1,8 @@
 # === 1. IMPORT THƯ VIỆN ===
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO
+# from flask_socketio import SocketIO # <-- ĐÃ XÓA
 from flask_wtf import FlaskForm
-# Import các trường và validators từ wtforms MỘT LẦN ở đầu file
 from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional, NumberRange
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -14,31 +13,24 @@ import random
 import os
 from datetime import datetime
 
-# === 2. KHỞI TẠO FLASK APP, DB, SOCKETIO, LOGINMANAGER ===
+# === 2. KHỞI TẠO FLASK APP, DB, LOGINMANAGER ===
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'thay_the_bang_chuoi_bi_mat_rat_kho_doan_cua_ban' # !! NHỚ THAY ĐỔI !!
 
-# === CẤU HÌNH DATABASE (ĐÃ SỬA ĐỂ HỖ TRỢ POSTGRESQL TRÊN RENDER) ===
-# Lấy URL database từ biến môi trường (Render sẽ cung cấp)
+# === CẤU HÌNH DATABASE (Hỗ trợ Render Postgres và Local SQLite) ===
 DATABASE_URL = os.environ.get('DATABASE_URL') 
-
 if DATABASE_URL:
-    # Nếu đang chạy trên Render (có biến DATABASE_URL)
-    # Sửa lỗi tiền tố 'postgres://' (nếu có) thành 'postgresql://'
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 else:
-    # Nếu đang chạy LOCAL (không có biến DATABASE_URL)
-    # Vẫn dùng file SQLite cũ
     basedir = os.path.abspath(os.path.dirname(__file__))
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'doraemon_math.db')
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # === KẾT THÚC CẤU HÌNH DATABASE ===
 
-socketio = SocketIO(app)
+# socketio = SocketIO(app) # <-- ĐÃ XÓA
 
 # Cấu hình Flask-Login
 login_manager = LoginManager()
@@ -49,6 +41,7 @@ login_manager.login_message_category = "info"
 
 # === 3. ĐỊNH NGHĨA MODEL USER ===
 class User(UserMixin, db.Model):
+    # ... (code model User giữ nguyên) ...
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -58,15 +51,9 @@ class User(UserMixin, db.Model):
     age = db.Column(db.Integer, nullable=True)
     hobbies = db.Column(db.Text, nullable=True)
     scores = db.relationship('GameScore', backref='player', lazy=True)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-    def __repr__(self):
-        return f'<User {self.username}>'
+    def set_password(self, password): self.password_hash = generate_password_hash(password)
+    def check_password(self, password): return check_password_hash(self.password_hash, password)
+    def __repr__(self): return f'<User {self.username}>'
 
 # === 4. HÀM USER LOADER ===
 @login_manager.user_loader
@@ -75,39 +62,37 @@ def load_user(user_id):
 
 # === 5. ĐỊNH NGHĨA MODEL GAME SCORE ===
 class GameScore(db.Model):
+    # ... (code model GameScore giữ nguyên) ...
     id = db.Column(db.Integer, primary_key=True)
     game_name = db.Column(db.String(100), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) 
-
-    def __repr__(self):
-        return f'<GameScore {self.game_name}: {self.score}>'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    def __repr__(self): return f'<GameScore {self.game_name}: {self.score}>'
 
 # === 6. ĐỊNH NGHĨA CÁC FORM ===
 class RegistrationForm(FlaskForm):
+    # ... (code form giữ nguyên) ...
     username = StringField('Tên đăng nhập', validators=[DataRequired(), Length(min=4, max=80)])
     email = StringField('Email', validators=[DataRequired(), Email(message='Địa chỉ email không hợp lệ.')])
     password = PasswordField('Mật khẩu', validators=[DataRequired(), Length(min=6, message='Mật khẩu phải có ít nhất 6 ký tự.')])
     confirm_password = PasswordField('Xác nhận mật khẩu', validators=[DataRequired(), EqualTo('password', message='Mật khẩu xác nhận phải khớp.')])
     submit = SubmitField('Đăng ký')
-
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('Tên đăng nhập này đã có người sử dụng. Vui lòng chọn tên khác.')
-
+        if user: raise ValidationError('Tên đăng nhập đã tồn tại.')
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('Địa chỉ email này đã được đăng ký.')
+        if user: raise ValidationError('Email đã tồn tại.')
 
 class LoginForm(FlaskForm):
+    # ... (code form giữ nguyên) ...
     username = StringField('Tên đăng nhập', validators=[DataRequired()])
     password = PasswordField('Mật khẩu', validators=[DataRequired()])
     submit = SubmitField('Đăng nhập')
 
 class EditProfileForm(FlaskForm):
+    # ... (code form giữ nguyên) ...
     username = StringField('Tên đăng nhập', validators=[DataRequired(), Length(min=4, max=80)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     full_name = StringField('Tên đầy đủ', validators=[Optional(), Length(max=120)])
@@ -115,32 +100,24 @@ class EditProfileForm(FlaskForm):
     age = IntegerField('Tuổi', validators=[Optional(), NumberRange(min=3, max=120, message='Tuổi không hợp lệ.')])
     hobbies = TextAreaField('Sở thích', validators=[Optional(), Length(max=500)])
     submit = SubmitField('Cập nhật thông tin')
-
-    # Lưu username/email gốc để so sánh khi validate
     def __init__(self, original_username, original_email, *args, **kwargs):
         super(EditProfileForm, self).__init__(*args, **kwargs)
         self.original_username = original_username
         self.original_email = original_email
-
     def validate_username(self, username):
         if username.data != self.original_username:
             user = User.query.filter_by(username=username.data).first()
-            if user:
-                raise ValidationError('Tên đăng nhập này đã có người sử dụng.')
-
+            if user: raise ValidationError('Tên đăng nhập đã tồn tại.')
     def validate_email(self, email):
         if email.data != self.original_email:
             user = User.query.filter_by(email=email.data).first()
-            if user:
-                raise ValidationError('Địa chỉ email này đã được đăng ký.')
+            if user: raise ValidationError('Email đã tồn tại.')
 
-# === 7. CẤU HÌNH GROQ API VÀ HÀM CHATBOT (ĐÃ SỬA AN TOÀN) ===
-# Lấy API Key từ biến môi trường
+# === 7. CẤU HÌNH GROQ API VÀ HÀM CHATBOT ===
+# ... (Toàn bộ code Groq và hàm ask_groq_doraemon giữ nguyên) ...
 GROQ_API_KEY = os.getenv('GROQ_API_KEY') 
-
-client = None
-groq_configured = False
-
+client = None 
+groq_configured = False 
 if GROQ_API_KEY:
     try:
         client = Groq(api_key=GROQ_API_KEY)
@@ -168,7 +145,7 @@ def ask_groq_doraemon(user_message):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
             ],
-            model="openai/gpt-oss-20b", # Model bạn đã xác nhận hoạt động
+            model="openai/gpt-oss-20b",
         )
         reply = chat_completion.choices[0].message.content
         return reply.strip()
@@ -183,13 +160,11 @@ def ask_groq_doraemon(user_message):
              return "Từ từ thôi Nobita, tớ đang trả lời hơi nhiều, đợi chút nhé!"
         return "Ối, tớ đang gặp chút trục trặc kỹ thuật mất rồi..."
 
+
 # === 8. ĐỊNH NGHĨA CÁC ROUTE ===
-# (Tất cả các route @app.route(...) của bạn giữ nguyên ở đây)
-
+# ... (Tất cả các route @app.route(...) của bạn giữ nguyên ở đây) ...
 @app.route('/')
-def index():
-    return render_template('index.html')
-
+def index(): return render_template('index.html')
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated: return redirect(url_for('index'))
@@ -227,8 +202,7 @@ def logout():
 
 @app.route('/profile')
 @login_required
-def profile():
-    return render_template('profile.html', title='Thông Tin Cá Nhân', user=current_user)
+def profile(): return render_template('profile.html', title='Thông Tin Cá Nhân', user=current_user)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -255,8 +229,7 @@ def edit_profile():
 
 @app.route('/learning')
 @login_required
-def learning():
-    return render_template('learning.html')
+def learning(): return render_template('learning.html')
 
 @app.route('/save_score', methods=['POST'])
 @login_required
@@ -294,9 +267,10 @@ def ask_doraemon():
     bot_reply = ask_groq_doraemon(user_message)
     return jsonify({"reply": bot_reply})
 
-# === 9. CHẠY SERVER (ĐÃ VÔ HIỆU HÓA ĐỂ DEPLOY) ===
-# if __name__ == '__main__':
-#     with app.app_context():
-#         db.create_all() # Tạo bảng nếu chưa có
-#     print("Khởi động server...")
-#     socketio.run(app, debug=True, port=5000)
+# === 9. CHẠY SERVER (ĐÃ SỬA LẠI ĐỂ CHẠY LOCAL) ===
+#if __name__ == '__main__':
+#    with app.app_context():
+#        db.create_all() # Tạo bảng nếu chưa có
+#    print("Khởi động server...")
+    # Dùng app.run() tiêu chuẩn thay vì socketio.run()
+#    app.run(debug=True, port=5000)
