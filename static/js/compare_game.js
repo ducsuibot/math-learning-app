@@ -18,12 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let isClickable = true;
 
     // ==========================================================
-    // === THAY ĐỔI 1: TẠO MỘT DANH SÁCH CÁC HÌNH ẢNH ===
+    // === CẬP NHẬT 1: THÊM NHIỀU ẢNH HƠN VÀO ĐÂY ===
     // ==========================================================
+    // (Hãy thêm các file ảnh của bạn vào /static/img/ và thêm vào danh sách này)
     const availableImages = [
         '/static/img/cat_icon.png',
-        '/static/img/dog_icon.png', // Thêm ảnh chú chó
-        // Thêm bao nhiêu ảnh bạn muốn vào đây
+        '/static/img/dog_icon.png', 
+        '/static/img/apple.png',
+        '/static/img/doraemon_icon.png', 
     ];
     // ==========================================================
 
@@ -35,36 +37,29 @@ document.addEventListener('DOMContentLoaded', () => {
         leftNumber = Math.floor(Math.random() * 10) + 1;
         rightNumber = Math.floor(Math.random() * 10) + 1;
         
-        // ==========================================================
-        // === THAY ĐỔI 2: CHỌN NGẪU NHIÊN 2 ẢNH KHÁC NHAU ===
-        // ==========================================================
-        // Chọn ảnh thứ nhất
+        // 2. Chọn ngẫu nhiên 2 ảnh khác nhau
         let index1 = Math.floor(Math.random() * availableImages.length);
         let leftImageSrc = availableImages[index1];
 
-        // Chọn ảnh thứ hai, đảm bảo nó khác ảnh thứ nhất
         let index2;
         do {
             index2 = Math.floor(Math.random() * availableImages.length);
-        } while (index1 === index2);
+        } while (index1 === index2 && availableImages.length > 1); // Đảm bảo khác nhau nếu có > 1 ảnh
         let rightImageSrc = availableImages[index2];
-        // ==========================================================
 
-        // Hàm phụ để tạo hình ảnh, đã được cập nhật
+        // Hàm phụ để tạo hình ảnh
         const populatePanel = (panel, number, imageUrl) => {
             panel.innerHTML = '';
             for (let i = 0; i < number; i++) {
                 const img = document.createElement('img');
-                img.src = imageUrl; // Sử dụng URL ảnh được truyền vào
+                img.src = imageUrl; 
                 panel.appendChild(img);
             }
         };
 
-        // Gọi hàm với URL ảnh tương ứng
         populatePanel(leftPanel, leftNumber, leftImageSrc);
         populatePanel(rightPanel, rightNumber, rightImageSrc);
 
-        // Reset giao diện
         answerBox.innerText = '?';
         feedbackDisplay.innerText = '';
         isClickable = true;
@@ -97,12 +92,49 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(generateQuestion, 1500);
     }
     
+    // ==========================================================
+    // === CẬP NHẬT 2: THÊM HÀM LƯU ĐIỂM ===
+    // ==========================================================
+    /**
+     * Hàm gửi điểm số lên server
+     * @param {string} gameName - Tên game, ví dụ: 'compare_images'
+     * @param {number} finalScore - Điểm số cuối cùng
+     */
+    async function sendScoreToBackend(gameName, finalScore) {
+        try {
+            const response = await fetch('/save_score', { // Gọi đến route /save_score trong app.py
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    game_name: gameName,
+                    score: finalScore
+                }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Server response:', result.message); // In ra "Lưu điểm thành công!"
+            } else {
+                console.error('Không thể lưu điểm lên server.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gửi điểm:', error);
+        }
+    }
+    // ==========================================================
+
     /**
      * Hàm xử lý khi hết giờ
      */
     function endGame() {
         clearInterval(timerInterval);
         isClickable = false;
+
+        // === CẬP NHẬT 3: GỌI HÀM LƯU ĐIỂM KHI HẾT GIỜ ===
+        sendScoreToBackend('compare_images', score);
+        // ===========================================
         
         gameContainer.innerHTML = `
             <div class="game-over-screen">
@@ -110,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p>Điểm cuối cùng của bé là:</p>
                 <div class="final-score">${score}</div>
                 <button id="restart-btn" class="button-primary">Chơi lại</button>
+                <a href="/learning" class="button-secondary" style="margin-top: 15px;">Quay lại</a>
             </div>
         `;
 

@@ -231,17 +231,30 @@ def edit_profile():
 @login_required
 def learning(): return render_template('learning.html')
 
+# Thêm route này vào app.py, cùng với các route khác
+
 @app.route('/save_score', methods=['POST'])
-@login_required
+@login_required # Yêu cầu người dùng phải đăng nhập mới được lưu điểm
 def save_score():
-    data = request.get_json()
+    data = request.get_json() # Lấy dữ liệu (JSON) mà JavaScript gửi lên
+    
     game_name = data.get('game_name')
     score_value = data.get('score')
+
+    # Kiểm tra xem có đủ thông tin không
     if game_name and score_value is not None:
         try:
-            new_score = GameScore(game_name=game_name, score=int(score_value), player=current_user)
+            # Tạo một bản ghi điểm mới
+            new_score = GameScore(
+                game_name=game_name, 
+                score=int(score_value), 
+                player=current_user # Tự động gán điểm này cho user đang đăng nhập
+            )
+            
+            # Lưu vào database
             db.session.add(new_score)
             db.session.commit()
+            
             return jsonify({"message": "Lưu điểm thành công!"}), 201
         except Exception as e:
             db.session.rollback()
@@ -278,9 +291,9 @@ def suneo_shopping_game():
 
 
 # === 9. CHẠY SERVER (ĐÃ SỬA LẠI ĐỂ CHẠY LOCAL) ===
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() # Tạo bảng nếu chưa có
-    print("Khởi động server...")
+#if __name__ == '__main__':
+#    with app.app_context():
+#        db.create_all() # Tạo bảng nếu chưa có
+#    print("Khởi động server...")
     # Dùng app.run() tiêu chuẩn thay vì socketio.run()
-    app.run(debug=True, port=5000)
+#    app.run(debug=True, port=5000)
