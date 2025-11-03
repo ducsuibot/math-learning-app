@@ -1184,3 +1184,49 @@ body {
     padding: 25px;
     text-align: center;
 }
+
+/* === DORAEMON CHẠY NGHỊCH NGỢM === */
+/* === DORAEMON CHẠY NGHỊCH NGỢM (CẬP NHẬT) === */
+/* === DORAEMON CHẠY NGHỊCH NGỢM (CẬP NHẬT) === */
+/* === DORAEMON CHẠY NGHỊCH NGỢM (ĐÃ SỬA LỖI LẶP VÀ ĐI NGƯỢC) === */
+.doraemon-runner {
+    position: fixed; 
+    width: 120px;  
+    height: 120px;
+    background-image: url('/static/img/doraemon_run.gif'); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 9999; 
+    pointer-events: none; 
+    opacity: 0;
+    
+    /* Xóa dòng 'transition' vì animation sẽ xử lý transform */
+}
+
+/* Thêm class 'running' để bắt đầu chạy */
+.doraemon-runner.running {
+    opacity: 1; 
+    animation-timing-function: linear;
+    /* XÓA: animation-fill-mode: forwards; (Đây là lỗi gây ra không lặp lại) */
+}
+
+/* --- Các kiểu chạy (Cần cả 2) --- */
+
+/* 1. Chạy từ trái sang phải */
+@keyframes run-across-left {
+    from { 
+        transform: translateX(0) scaleX(-1); /* Giữ scaleX(1) khi chạy */
+    }
+    to { 
+        transform: translateX(120vw) scaleX(-1); /* Giữ scaleX(1) khi chạy */
+    }
+}
+/* 2. Chạy từ phải sang trái */
+@keyframes run-across-right {
+    from { 
+        transform: translateX(0) scaleX(1); /* Giữ scaleX(-1) khi chạy */
+    }
+    to { 
+        transform: translateX(-120vw) scaleX(1); /* Giữ scaleX(-1) khi chạy */
+    }
+}

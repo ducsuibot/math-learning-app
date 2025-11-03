@@ -199,3 +199,83 @@ if (userMenuToggle && userDropdown && userMenuContainer) {
     });
 }
 // === KẾT THÚC USER DROPDOWN MENU ===
+
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO NHIỀU DORAEMON CHẠY NGHỊCH NGỢM (NÂNG CẤP) ===
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO NHIỀU DORAEMON CHẠY NGHỊCH NGỢM (ĐÃ SỬA LỖI LẶP) ===
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO NHIỀU DORAEMON CHẠY NGHỊCH NGỢM (ĐÃ SỬA LỖI LẶP) ===
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO NHIỀU DORAEMON CHẠY NGHỊCH NGỢM (NÂNG CẤP) ===
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // === CÁC THAY ĐỔI Ở ĐÂY ===
+    const NUM_DORAEMONS = 6; // Số lượng Doraemon bạn muốn (tăng từ 3 lên 6)
+    const MIN_RUN_SPEED = 6; // Tốc độ chạy tối thiểu (giây)
+    const MAX_RUN_SPEED = 12; // Tốc độ chạy tối đa (giây)
+    const MIN_DELAY_BETWEEN_RUNS = 500; // Độ trễ tối thiểu (giảm từ 2000ms xuống 500ms)
+    const MAX_DELAY_BETWEEN_RUNS = 2000; // Độ trễ tối đa (giảm từ 6000ms xuống 2000ms)
+    // ===========================
+
+    const MIN_BOTTOM_PERCENT = 5; 
+    const MAX_BOTTOM_PERCENT = 40; 
+
+    for (let i = 0; i < NUM_DORAEMONS; i++) {
+        createDoraemonRunner();
+    }
+
+    function createDoraemonRunner() {
+        const doraemon = document.createElement('div');
+        doraemon.classList.add('doraemon-runner'); 
+        document.body.appendChild(doraemon);
+
+        function runDoraemon() {
+            // 1. Random vị trí (chiều cao)
+            const randomBottom = Math.random() * (MAX_BOTTOM_PERCENT - MIN_BOTTOM_PERCENT) + MIN_BOTTOM_PERCENT; 
+            doraemon.style.bottom = `${randomBottom}%`;
+            
+            // 2. Random tốc độ
+            const randomSpeed = Math.random() * (MAX_RUN_SPEED - MIN_RUN_SPEED) + MIN_RUN_SPEED; 
+            doraemon.style.animationDuration = `${randomSpeed}s`;
+            
+            // 3. Random hướng chạy VÀ Xoay ảnh đúng hướng
+            if (Math.random() > 0.5) {
+                // --- Chạy từ TRÁI sang PHẢI ---
+                doraemon.style.left = '-120px'; 
+                doraemon.style.right = 'auto'; 
+                doraemon.style.transform = 'scaleX(1)'; // Quay mặt sang phải
+                doraemon.style.animationName = 'run-across-left';
+            } else {
+                // --- Chạy từ PHẢI sang TRÁI ---
+                doraemon.style.right = '-120px'; 
+                doraemon.style.left = 'auto'; 
+                doraemon.style.transform = 'scaleX(-1)'; // Lật ngược ảnh, quay mặt sang trái
+                doraemon.style.animationName = 'run-across-right';
+            }
+            
+            // 4. Thêm class 'running' để bắt đầu chạy
+            doraemon.classList.add('running');
+            doraemon.style.opacity = 1; 
+        }
+
+        // 5. Lắng nghe khi Doraemon chạy xong
+        doraemon.addEventListener('animationend', () => {
+            doraemon.classList.remove('running'); 
+            doraemon.style.opacity = 0; 
+            
+            // Đợi ngẫu nhiên rồi chạy lại
+            const randomDelay = Math.random() * (MAX_DELAY_BETWEEN_RUNS - MIN_DELAY_BETWEEN_RUNS) + MIN_DELAY_BETWEEN_RUNS; 
+            setTimeout(runDoraemon, randomDelay);
+        });
+
+        // 6. Bắt đầu chạy lần đầu tiên sau một độ trễ ngẫu nhiên ban đầu
+        const initialDelay = Math.random() * 2000; 
+        setTimeout(runDoraemon, initialDelay);
+    }
+});
+// === KẾT THÚC LOGIC NHIỀU DORAEMON CHẠY ===
