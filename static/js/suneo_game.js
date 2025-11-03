@@ -23,14 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let correctAnswer = 0;
     let timerInterval; // Biến giữ bộ đếm
     let isClickable = true; // Biến cờ ngăn click nhiều lần
+    let gameEnded = false; // Cờ kiểm tra game đã kết thúc chưa
 
     /**
      * Hàm tạo câu hỏi mới
      */
     function generateQuestion() {
+        if (gameEnded) return; // Không tạo câu hỏi mới nếu đã hết giờ
+
         currentCount = 0;
         cartCountDisplay.innerText = currentCount;
         isClickable = true; // Cho phép click lại
+        checkoutBtn.disabled = false; // Mở lại nút
         
         const isAddition = Math.random() > 0.3;
         let num1, num2;
@@ -54,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Hàm xử lý khi nhấp vào món đồ chơi
      */
     function pickItem() {
-        if (!isClickable) return; // Không cho click nếu đang chờ phản hồi
+        if (!isClickable || gameEnded) return; // Không cho click nếu đang chờ phản hồi hoặc game hết giờ
         currentCount++;
         cartCountDisplay.innerText = currentCount;
     }
@@ -63,8 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * Hàm xử lý khi nhấn nút "Thanh Toán"
      */
     function checkAnswer() {
-        if (!isClickable) return; // Không cho click nếu đã click
+        if (!isClickable || gameEnded) return; 
         isClickable = false; // Khóa click
+        checkoutBtn.disabled = true; // Khóa nút thanh toán
         
         feedbackModal.classList.add('active');
 
@@ -73,57 +78,109 @@ document.addEventListener('DOMContentLoaded', () => {
             score += 10; // Cộng 10 điểm
             scoreDisplay.innerText = score;
             suneoText.innerText = "Chuẩn luôn! Tớ sẽ khoe đống này với Nobita!";
-            suneoImage.src = "/static/img/suneo.png";
+            suneoImage.src = "/static/img/suneo_happy.png"; // Ảnh Xeko vui
             nextQuestionBtn.style.display = 'block';
             retryBtn.style.display = 'none';
-        } else if (currentCount < correctAnswer) {
-            // === SAI (Thiếu) ===
-            suneoText.innerText = `Trời ơi! Cần ${correctAnswer} món mà cậu lấy có ${currentCount} món! Thiếu rồi! Làm lại đi!`;
-            suneoImage.src = "/static/img/suneo.png";
-            nextQuestionBtn.style.display = 'none';
-            retryBtn.style.display = 'block';
         } else {
-            // === SAI (Thừa) ===
-            suneoText.innerText = `ôi! Tớ chỉ mang đủ tiền mua ${correctAnswer} món thôi! Lấy dư rồi! cậu Làm lại đi!`;
-            suneoImage.src = "/static/img/suneo.png";
+            // === SAI (Thiếu hoặc Thừa) ===
+            let message = '';
+            let imageSrc = "/static/img/suneo_sad.png"; // Ảnh Xeko buồn
+            
+            if (currentCount < correctAnswer) {
+                message = `Trời ơi! Cần ${correctAnswer} món mà cậu lấy có ${currentCount} món! Thiếu rồi! Làm lại đi!`;
+            } else {
+                message = `Thôi chết! Tớ chỉ mang đủ tiền mua ${correctAnswer} món thôi! Lấy dư ${currentCount} món rồi! Làm lại mau!`;
+            }
+
+            suneoText.innerText = message;
+            suneoImage.src = imageSrc;
             nextQuestionBtn.style.display = 'none';
             retryBtn.style.display = 'block';
+            retryBtn.innerText = "Làm lại"; // Đổi chữ nút
         }
     }
+
+    // ==========================================================
+    // === THÊM HÀM LƯU ĐIỂM VÀO ĐÂY ===
+    // ==========================================================
+    /**
+     * Hàm gửi điểm số lên server
+     * @param {string} gameName - Tên game
+     * @param {number} finalScore - Điểm số cuối cùng
+     */
+    async function sendScoreToBackend(gameName, finalScore) {
+        try {
+            const response = await fetch('/save_score', { // Gọi đến route /save_score trong app.py
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    game_name: gameName,
+                    score: finalScore
+                }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Server response:', result.message); // In ra "Lưu điểm thành công!"
+            } else {
+                console.error('Không thể lưu điểm lên server.');
+            }
+        } catch (error) {
+            // Không làm gì nếu bị lỗi (ví dụ: user chưa đăng nhập), để game tiếp tục
+            console.error('Lỗi khi gửi điểm:', error);
+        }
+    }
+    // ==========================================================
 
     /**
      * Hàm xử lý khi hết giờ
      */
     function endGame() {
-        clearInterval(timerInterval); // Dừng đồng hồ
-        isClickable = false; // Khóa game
-        feedbackModal.classList.add('active'); // Hiện pop-up
+        clearInterval(timerInterval); 
+        isClickable = false; 
+        gameEnded = true; 
+        checkoutBtn.disabled = true; 
         
-        // Hiển thị thông báo hết giờ và điểm cuối cùng
+        feedbackModal.classList.add('active');
+        
         suneoText.innerText = `Hết giờ rồi! Điểm cuối cùng của cậu là ${score}. Muốn chơi lại không?`;
         suneoImage.src = "/static/img/suneo.png";
         
-        nextQuestionBtn.style.display = 'none'; // Ẩn nút "Câu tiếp"
-        retryBtn.style.display = 'block'; // Hiện nút "Làm lại"
-        retryBtn.innerText = "Chơi lại"; // Đổi chữ nút
+        nextQuestionBtn.style.display = 'none'; 
+        retryBtn.style.display = 'block'; 
+        retryBtn.innerText = "Chơi lại";
+
+        // === GỌI HÀM LƯU ĐIỂM KHI HẾT GIỜ ===
+        sendScoreToBackend('suneo_shopping_game', score);
+        // ===================================
     }
 
     /**
      * Hàm bắt đầu đếm ngược thời gian
      */
     function startTimer() {
-        timeLeft = 30; // Reset thời gian
-        timerDisplay.innerText = timeLeft;
-        timerDisplay.classList.remove('low-time'); // Xóa class cảnh báo
+        timeLeft = 30; 
+        gameEnded = false; 
+        isClickable = true;
+        checkoutBtn.disabled = false;
         
-        clearInterval(timerInterval); // Xóa đồng hồ cũ (nếu có)
+        timerDisplay.innerText = timeLeft;
+        timerDisplay.classList.remove('low-time'); 
+        
+        clearInterval(timerInterval); 
 
         timerInterval = setInterval(() => {
+            if (gameEnded) { 
+                clearInterval(timerInterval);
+                return;
+            }
             timeLeft--;
             timerDisplay.innerText = timeLeft;
             
             if (timeLeft <= 10) {
-                timerDisplay.classList.add('low-time'); // Thêm class cảnh báo khi còn 10 giây
+                timerDisplay.classList.add('low-time'); 
             }
 
             if (timeLeft <= 0) {
@@ -140,23 +197,22 @@ document.addEventListener('DOMContentLoaded', () => {
     checkoutBtn.addEventListener('click', checkAnswer);
 
     // Nút "Câu tiếp theo" (khi trả lời đúng)
-    nextQuestionBtn.addEventListener('click', generateQuestion);
+    nextQuestionBtn.addEventListener('click', () => {
+        if (gameEnded) return; // Nếu hết giờ rồi thì không làm gì
+        generateQuestion();
+    });
     
-    // Nút "Làm lại" (khi trả lời sai)
+    // Nút "Làm lại" (khi trả lời sai hoặc hết giờ)
     retryBtn.addEventListener('click', () => {
-        if (timeLeft <= 0) {
-            // Nếu hết giờ, "Làm lại" = Chơi lại game mới
+        if (retryBtn.innerText === "Chơi lại") {
+            // Nếu hết giờ, "Chơi lại" = Chơi lại game mới
             score = 0;
             scoreDisplay.innerText = score;
-            generateQuestion();
-            startTimer();
-        } else {
-            // Nếu chưa hết giờ, chỉ reset giỏ hàng
-            currentCount = 0;
-            cartCountDisplay.innerText = currentCount;
-            feedbackModal.classList.remove('active');
-            isClickable = true; // Cho phép click lại
-        }
+            startTimer(); // Bắt đầu lại đồng hồ
+        } 
+        
+        // Luôn tạo câu hỏi mới (hoặc reset giỏ hàng)
+        generateQuestion();
     });
 
     // === BẮT ĐẦU GAME ===
