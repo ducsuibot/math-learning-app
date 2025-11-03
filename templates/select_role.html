@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chọn Vai Trò Đăng Nhập</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="form-page">
+    <div class="form-container role-select-box">
+        <h2 style="color: var(--doraemon-blue);">Bạn đăng nhập với vai trò nào?</h2>
+        <p>Tài khoản: <strong>{{ username }}</strong></p>
+
+        <div class="role-options">
+            <a href="{{ url_for('finalize_login', role='student') }}" class="role-card student-card">
+                <h3>Đăng nhập cho Trẻ</h3>
+                <p>Tiếp tục học tập và chơi game.</p>
+            </a>
+
+            <a href="{{ url_for('finalize_login', role='parent') }}" class="role-card parent-card">
+                <h3>Đăng nhập cho Phụ huynh</h3>
+                <p>Xem thống kê và tiến độ học tập.</p>
+            </a>
+        </div>
+        
+        <p style="margin-top: 30px;"><a href="{{ url_for('login') }}">Quay lại trang Đăng nhập</a></p>
+    </div>
+</body>
+</html>

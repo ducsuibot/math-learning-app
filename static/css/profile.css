@@ -44,3 +44,16 @@
 }
 .alert-success { color: #155724; background-color: #d4edda; border-color: #c3e6cb; }
 /* ... (Thêm các class alert khác nếu cần) ... */
+
+/* Thêm vào /static/css/profile.css */
+.link-child-form {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed #ddd;
+}
+.link-child-form .form-group {
+    margin-bottom: 15px;
+}
+.link-child-form button {
+    margin-top: 0;
+}

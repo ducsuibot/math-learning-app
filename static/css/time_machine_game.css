@@ -1,0 +1,99 @@
+/* File: /static/css/time_machine_game.css */
+
+.game-body-time-machine {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); /* Nền xanh đậm */
+    color: var(--white);
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.time-machine-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.95); /* Nền trắng mờ */
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+.time-machine-container h3 {
+    color: var(--text-dark);
+    font-size: 1.8em;
+    margin-bottom: 30px;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-around;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 40px;
+}
+
+.game-info-box span {
+    font-size: 1em;
+    font-weight: 700;
+    color: #888;
+}
+
+#timer {
+    color: var(--doraemon-red); /* Màu đỏ cảnh báo */
+}
+
+#timer, #score, #level {
+    font-size: 2.5em;
+    font-weight: 800;
+    color: var(--doraemon-blue);
+}
+
+#instruction-text {
+    font-size: 1.5em;
+    color: var(--doraemon-red);
+    font-weight: 800;
+    margin-bottom: 40px;
+}
+
+/* Khu vực sắp xếp số */
+.number-sort-area {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 40px;
+    height: 150px;
+    background-color: #f0f2f5;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px dashed #ccc;
+}
+
+.sortable-number {
+    width: 100px;
+    height: 100px;
+    background-color: var(--doraemon-yellow);
+    color: var(--text-dark);
+    font-size: 3em;
+    font-weight: 800;
+    border-radius: 10px;
+    cursor: grab;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.1s;
+    user-select: none;
+}
+
+/* Hiệu ứng khi kéo */
+.sortable-number.dragging {
+    opacity: 0.7;
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+/* Khi sắp xếp đúng */
+.sortable-number.correct {
+    background-color: #A5D6A7;
+    color: white;
+    box-shadow: 0 0 15px #388E3C;
+}

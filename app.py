@@ -266,11 +266,21 @@ def ask_doraemon():
     if not user_message: return jsonify({"reply": "Cậu chưa nói gì cả!"})
     bot_reply = ask_groq_doraemon(user_message)
     return jsonify({"reply": bot_reply})
+# Thêm vào file app.py
+@app.route('/time-machine-game')
+def time_machine_game():
+    return render_template('time_machine_game.html')
+# Thêm vào file app.py
+@app.route('/suneo-shopping-game')
+@login_required # Bạn có thể thêm @login_required nếu muốn
+def suneo_shopping_game():
+    return render_template('suneo_shopping.html')
+
 
 # === 9. CHẠY SERVER (ĐÃ SỬA LẠI ĐỂ CHẠY LOCAL) ===
-#if __name__ == '__main__':
-#    with app.app_context():
-#        db.create_all() # Tạo bảng nếu chưa có
-#    print("Khởi động server...")
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all() # Tạo bảng nếu chưa có
+    print("Khởi động server...")
     # Dùng app.run() tiêu chuẩn thay vì socketio.run()
-#    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000)

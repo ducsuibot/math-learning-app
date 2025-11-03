@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trò Chơi Cộng Trừ - Học Toán Cùng Doraemon</title>
+    <title>Siêu Thị Của Xeko - Học Toán Cùng Doraemon</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body class="game-body-space">
-    
+    <link rel="stylesheet" href="/static/css/suneo_game.css"> </head>
+<body class="game-body-suneo">
     <header>
         <div class="container">
             <div class="header-title">
@@ -25,7 +24,6 @@
                     <li><a href="{{ url_for('learning') }}">Học bài</a></li> 
                     <li><a href="{{ url_for('practice') }}">Luyện tập AI</a></li>
                     <li><a href="{{ url_for('chatbot_page') }}">Chat với Doraemon</a></li>
-                    
                     {% if current_user.is_authenticated %}
                         <li class="user-menu-container">
                             <a href="#" class="nav-username" id="user-menu-toggle"> 
@@ -34,7 +32,7 @@
                             <ul class="user-dropdown-menu" id="user-dropdown"> 
                                 <li><a href="{{ url_for('profile') }}">Thông tin người dùng</a></li> 
                                 <li><a href="{{ url_for('edit_profile') }}">Cập nhật thông tin</a></li> 
-                                <li><hr></li> {/* Đường kẻ ngăn cách */}
+                                <li><hr></li>
                                 <li><a href="{{ url_for('logout') }}">Đăng xuất</a></li>
                             </ul>
                         </li>
@@ -42,7 +40,6 @@
                         <li><a href="{{ url_for('login') }}">Đăng nhập</a></li>
                         <li><a href="{{ url_for('register') }}">Đăng ký</a></li>
                     {% endif %}
-                    
                     <li><a href="#" id="about-link">Về chúng tôi</a></li> 
                 </ul>
             </nav>
@@ -50,47 +47,51 @@
     </header>
 
     <main class="container">
-        <div class="game-container-space">
-            <div class="game-stats-bar">
-                <div class="stat-box">
-                    <span>LEVEL</span>
-                    <div id="level">1</div>
-                </div>
-                <div class="stat-box">
-                    <span>THỜI GIAN</span>
-                    <div id="timer">60</div>
-                </div>
-                <div class="stat-box">
-                    <span>ĐIỂM</span>
-                    <div id="score">0</div>
+        <div class="suneo-game-container">
+            <div class="game-header">
+            <div class="game-info-box">
+                <span>Thời gian</span>
+                <div id="timer">30</div>
+            </div>
+            <div class="game-info-box">
+                <span>Điểm</span>
+                <div id="score">0</div>
+            </div>
+        </div>
+            <div class="question-panel">
+                <img src="/static/img/suneo.png" alt="Xeko">
+                <div class="bubble">
+                    Tớ muốn mua chính xác <strong id="question-text">2 + 3</strong> món đồ chơi!
                 </div>
             </div>
 
-            <div class="question-area">
-                <span id="num1">5</span>
-                <span id="operator">+</span>
-                <span id="num2">3</span>
-                <span>=</span>
-                <span>?</span>
+            <div class="toy-shelf">
+                <div class="toy-item" data-id="1"><img src="/static/img/toy_robot.png" alt="Robot"></div>
+                <div class="toy-item" data-id="2"><img src="/static/img/toy_car.png" alt="Xe hơi"></div>
+                <div class="toy-item" data-id="3"><img src="/static/img/toy_train.png" alt="Tàu hỏa"></div>
+                <div class="toy-item" data-id="4s"><img src="/static/img/toy_dinosaur.png" alt="Khủng long"></div>
             </div>
-
-            <div class="options-area">
-                <button class="option-button"></button>
-                <button class="option-button"></button>
-                <button class="option-button"></button>
-                <button class="option-button"></button>
+            
+            <div class="cart-area">
+                <div class="shopping-cart">
+                    <img src="/static/img/cart_icon.png" alt="Giỏ hàng">
+                    <span id="cart-count">0</span>
+                </div>
+                <button id="checkout-btn" class="button-primary">Thanh Toán</button>
             </div>
         </div>
     </main>
 
-    <div id="chaien-feedback-modal" class="modal-overlay">
-        <div class="modal-content chaien-modal">
-            <img id="chaien-image" src="/static/img/gian.png" alt="Chaien">
-            <p id="feedback-text"></p>
-            <button id="close-feedback-btn" class="button-primary">OK</button>
+    <div id="suneo-feedback-modal" class="modal-overlay">
+        <div class="modal-content suneo-modal">
+            <img id="suneo-image" src="/static/img/suneo.png" alt="Xeko">
+            <p id="suneo-text"></p>
+            <button id="next-question-btn" class="button-primary">Câu tiếp theo</button>
+            <button id="retry-btn" class="button-secondary">Làm lại</button>
         </div>
     </div>
 
-    <script src="/static/js/plus_minus_game.js"></script> 
+    <script src="/static/js/suneo_game.js"></script> 
+    <script src="/static/js/script.js"></script> 
 </body>
 </html>

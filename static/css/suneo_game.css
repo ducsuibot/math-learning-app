@@ -1,0 +1,170 @@
+/* File: /static/css/suneo_game.css */
+
+.game-body-suneo {
+    background: linear-gradient(135deg, #FFECB3, #FFF8E1); /* Nền vàng kem */
+}
+
+.suneo-game-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+/* Thêm vào file /static/css/suneo_game.css */
+
+.game-header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px dashed #FFD54F;
+    padding-bottom: 20px;
+}
+
+.game-info-box {
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 10px 25px;
+    border-radius: 12px;
+}
+
+.game-info-box span {
+    font-size: 1em;
+    font-weight: 700;
+    color: #777;
+}
+
+#timer, #score {
+    font-size: 2.5em;
+    font-weight: 800;
+    color: var(--doraemon-blue);
+}
+
+/* Thay đổi màu sắc cho timer khi sắp hết giờ */
+#timer.low-time {
+    color: var(--doraemon-red);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+/* Khu vực câu hỏi (Xeko và bong bóng chat) */
+.question-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.question-panel img {
+    width: 100px;
+    height: auto;
+    border-radius: 50%;
+}
+
+.question-panel .bubble {
+    position: relative;
+    background-color: #E3F2FD;
+    border: 2px solid var(--doraemon-blue);
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+#question-text {
+    font-size: 1.5em;
+    color: var(--doraemon-red);
+}
+
+/* Quầy hàng đồ chơi */
+.toy-shelf {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.toy-item {
+    background-color: var(--white);
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toy-item:hover {
+    transform: scale(1.1);
+    border-color: var(--doraemon-blue);
+}
+
+.toy-item:active {
+    transform: scale(0.9);
+}
+
+.toy-item img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Giỏ hàng */
+.cart-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #fafafa;
+    border-radius: 15px;
+}
+
+.shopping-cart {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.shopping-cart img {
+    width: 60px;
+    height: auto;
+}
+
+#cart-count {
+    font-size: 3em;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+#checkout-btn {
+    font-size: 1.2em;
+    padding: 15px 30px;
+}
+
+/* Pop-up của Xeko */
+.suneo-modal {
+    background-color: #FFF9C4;
+    border: 5px solid #FBC02D;
+}
+.suneo-modal img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid var(--white);
+    margin-bottom: 15px;
+}
+.suneo-modal p {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--text-dark);
+}

@@ -1230,3 +1230,37 @@ body {
         transform: translateX(-120vw) scaleX(1); /* Giữ scaleX(-1) khi chạy */
     }
 }
+
+/* CSS MỚI CHO TRANG OCEAN RESCUE */
+.game-score-info {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 10px;
+}
+
+.info-box {
+    text-align: center;
+    padding: 5px 15px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.info-box span {
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+#score-display, #timer-display {
+    font-size: 1.8em;
+    font-weight: 800;
+    margin: 0;
+}
+
+#timer-display.low-time {
+    color: var(--doraemon-yellow);
+    animation: pulse 1s infinite;
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cỗ Máy Thời Gian - Học Toán Cùng Doraemon</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/time_machine_game.css"> </head>
+<body class="game-body-time-machine">
+    <header>
+        </header>
+
+    <main class="container">
+        <div class="time-machine-container">
+            
+            <div class="game-header">
+                <div class="game-info-box">
+                    <span>CẤP ĐỘ</span>
+                    <div id="level">1</div>
+                </div>
+                <div class="game-info-box">
+                    <span>THỜI GIAN</span>
+                    <div id="timer">30s</div>
+                </div>
+                <div class="game-info-box">
+                    <span>ĐIỂM</span>
+                    <div id="score">0</div>
+                </div>
+            </div>
+
+            <h3 id="instruction-text">Sắp xếp các mốc thời gian TĂNG DẦN!</h3>
+
+            <div class="number-sort-area" id="sort-area">
+                </div>
+            
+            <button id="check-sort-btn" class="button-primary" disabled>Kiểm Tra</button>
+            
+            <p id="feedback-text"></p>
+        </div>
+    </main>
+
+    <div id="game-feedback-modal" class="modal-overlay">
+        <div class="modal-content feedback-modal">
+            <h3 id="modal-title">Chúc mừng!</h3>
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-next-btn" class="button-primary">Câu tiếp theo</button>
+                <a href="/learning" class="button-secondary">Thoát game</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/time_machine_game.js"></script>
+    <script src="/static/js/script.js"></script> 
+</body>
+</html>

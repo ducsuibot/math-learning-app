@@ -99,3 +99,75 @@
     background-color: #d1ecf1;
     border-color: #bee5eb;
 }
+
+/* Thêm vào /static/css/forms.css */
+
+/* --- Trang Chọn Vai Trò --- */
+.role-select-box {
+    max-width: 700px;
+}
+
+.role-options {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    flex-wrap: wrap; /* Cho màn hình nhỏ */
+}
+
+.role-card {
+    text-align: center;
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    flex-basis: 250px; /* Độ rộng cơ sở */
+}
+
+.role-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.role-card h3 {
+    margin-top: 0;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+.role-card p {
+    color: #666;
+    font-size: 1em;
+    margin: 0;
+}
+
+.student-card {
+    background-color: #E8F5E9;
+    border: 2px solid #66BB6A;
+}
+.student-card h3 { color: #388E3C; }
+
+
+.parent-card {
+    background-color: #FFF3E0;
+    border: 2px solid #FFB300;
+}
+.parent-card h3 { color: #FF9800; }
+
+/* --- Ô Radio trong Đăng Ký --- */
+.form-group.role-select {
+    text-align: center;
+}
+.form-group.role-select label {
+    text-align: left;
+    display: block;
+}
+.radio-option {
+    display: inline-block;
+    margin: 10px 15px;
+    font-weight: 700;
+}
+.radio-option input {
+    margin-right: 5px;
+    transform: scale(1.2);
+}
