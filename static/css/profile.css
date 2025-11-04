@@ -57,3 +57,114 @@
 .link-child-form button {
     margin-top: 0;
 }
+
+/* Thêm vào /static/css/profile.css */
+
+/* === Trang Thống Kê (my_stats.html) === */
+
+/* Bố cục 3 biểu đồ */
+
+
+
+/* Thẻ Báo Cáo AI */
+.ai-report-card {
+    display: flex; 
+    align-items: flex-start; 
+    gap: 15px;
+    margin-top: 20px;
+    padding: 25px; /* Padding lớn hơn */
+    background-color: #eaf7ff; /* Nền xanh nhạt của Doraemon */
+    border-radius: 15px; /* Bo tròn góc nhiều hơn */
+    border: 1px solid #b7e4ff; /* Border màu xanh nhạt */
+    box-shadow: 0 6px 15px rgba(0, 158, 227, 0.15); /* Đổ bóng màu xanh */
+}
+.ai-report-avatar {
+    width: 60px; /* Avatar lớn hơn */
+    height: 60px; /* Avatar lớn hơn */
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Đổ bóng cho avatar */
+}
+.ai-report-content {
+    flex-grow: 1;
+    min-height: 60px; /* Tương ứng với avatar */
+}
+.ai-report-content p {
+    margin: 0;
+    line-height: 1.7; /* Dãn dòng hơn */
+    white-space: pre-wrap; 
+    color: #333; /* Màu chữ đậm hơn */
+    font-size: 1.05em; /* Chữ to hơn một chút */
+}
+
+/* Hiệu ứng "đang gõ..." */
+.spinner-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.spinner-container p {
+    font-style: italic;
+    color: #666;
+}
+.typing-indicator {
+    display: flex; /* Đảm bảo các chấm nằm ngang */
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px; /* Khoảng cách giữa các chấm */
+    min-height: 20px; /* Đảm bảo không bị dịch chuyển khi text hiện ra */
+}
+.typing-indicator span {
+    display: inline-block;
+    width: 10px; /* Chấm to hơn */
+    height: 10px; /* Chấm to hơn */
+    border-radius: 50%;
+    background-color: #007bff; /* Màu xanh Doraemon */
+    animation: typing 1.4s infinite;
+}
+.typing-indicator span:nth-child(1) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.4s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes typing {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); } /* Hiệu ứng phồng lên */
+}
+
+/* Thẻ "Không có dữ liệu" */
+.no-stats-container {
+    text-align: center;
+    padding: 40px 20px; /* Padding lớn hơn */
+    background: linear-gradient(145deg, #ffffff, #f0f8ff); /* Gradient nhẹ nhàng */
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+.no-stats-container img {
+    max-width: 180px; /* Ảnh lớn hơn */
+    opacity: 0.8; /* Sáng hơn */
+    margin-bottom: 25px;
+}
+.no-stats-container h4 {
+    font-size: 1.8em; /* Chữ to hơn */
+    color: #007bff; /* Màu xanh Doraemon */
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+.no-stats-container p {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 30px;
+}
+.no-stats-container .button-primary {
+    font-size: 1.1em;
+    padding: 12px 30px;
+    border-radius: 30px;
+    background-color: #28a745; /* Nút màu xanh lá cây hấp dẫn */
+    border-color: #28a745;
+    transition: all 0.3s ease;
+}
+.no-stats-container .button-primary:hover {
+    background-color: #218838;
+    transform: translateY(-2px); /* Hiệu ứng nhấc nhẹ */
+    box-shadow: 0 5px 10px rgba(40, 167, 69, 0.3);
+}

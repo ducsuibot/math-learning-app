@@ -78,13 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
             score += 10; // Cộng 10 điểm
             scoreDisplay.innerText = score;
             suneoText.innerText = "Chuẩn luôn! Tớ sẽ khoe đống này với Nobita!";
-            suneoImage.src = "/static/img/suneo_happy.png"; // Ảnh Xeko vui
+            suneoImage.src = "/static/img/suneo.png"; // Ảnh Xeko vui
             nextQuestionBtn.style.display = 'block';
             retryBtn.style.display = 'none';
         } else {
             // === SAI (Thiếu hoặc Thừa) ===
             let message = '';
-            let imageSrc = "/static/img/suneo_sad.png"; // Ảnh Xeko buồn
+            let imageSrc = "/static/img/suneo.png"; // Ảnh Xeko buồn
             
             if (currentCount < correctAnswer) {
                 message = `Trời ơi! Cần ${correctAnswer} món mà cậu lấy có ${currentCount} món! Thiếu rồi! Làm lại đi!`;

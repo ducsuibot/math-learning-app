@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>{{ title }} - Học Toán Cùng Doraemon</title>
     <link rel="stylesheet" href="/static/css/style.css"> 
-    <link rel="stylesheet" href="/static/css/profile.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="/static/css/profile.css"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,36 +16,43 @@
     <main class="container">
         <h2>Thống Kê Của Bé: {{ current_user.username }}</h2>
         
-        {% if chart_data_avg %} <section class="profile-container" style="margin-top: 20px;">
+        {% if chart_data_avg %} 
+            <section class="profile-container" style="margin-top: 20px;">
                 
                 <div class="charts-grid">
-                    
                     <div class="chart-container">
                         <h4>Điểm trung bình các game</h4>
                         <canvas id="scoreChartAvg"></canvas>
                     </div>
-                    
                     <div class="chart-container">
                         <h4>Tiến độ học tập (10 lần chơi gần nhất)</h4>
                         <canvas id="scoreChartLine"></canvas>
                     </div>
-                    
                     <div class="chart-container pie-chart">
                         <h4>Tỷ lệ chơi các game</h4>
                         <canvas id="scoreChartPie"></canvas>
                     </div>
-                    
                 </div>
+                
                 <h4 style="margin-top: 30px;">Báo cáo từ Doraemon</h4>
                 <button id="generate-report-btn" class="button-primary">Nhờ Doraemon phân tích</button>
-                <div id="ai-report-container" style="display:none; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px; text-align: left;">
-                    <p id="ai-report-text">Doraemon đang xem xét...</p>
+                
+                <div id="ai-report-container" class="ai-report-card" style="display:none;">
+                    <img src="/static/img/doraemon_stand.png" alt="Doraemon" class="ai-report-avatar">
+                    <div class="ai-report-content">
+                        <div class="typing-indicator" id="ai-report-loader">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <p id="ai-report-text"></p>
+                    </div>
                 </div>
                 <div id="data-for-ai" style="display: none;">{{ data_summary_for_ai }}</div>
             </section>
         {% else %}
-            <section class="profile-container" style="margin-top: 20px; text-align: center;">
+            <section class="profile-container no-stats-container" style="margin-top: 20px; text-align: center;">
+                <img src="/static/img/doraemon_stand.png" alt="Nobita buồn"> <h4>Ôi, chưa có dữ liệu nào!</h4>
                 <p>Bé chưa chơi game nào cả! Hãy vào mục "Học bài" để bắt đầu nhé!</p>
+                <a href="{{ url_for('learning') }}" class="button-primary">Học bài ngay!</a>
             </section>
         {% endif %}
     </main>
@@ -52,10 +60,18 @@
     {% include '_footer.html' %}
 
     <script>
-        // 0. Lấy dữ liệu từ Flask (Lỗi linter báo ở đây, nhưng code này ĐÚNG)
+        // 0. Lấy dữ liệu từ Flask
         const chartDataAvg = {{ chart_data_avg | tojson }};
         const chartDataLine = {{ chart_data_line | tojson }};
         const chartDataPie = {{ chart_data_pie | tojson }};
+        // Bảng màu Doraemon
+        const doraColors = [
+            'rgba(0, 158, 227, 0.7)', // Doraemon Blue
+            'rgba(215, 0, 15, 0.7)',   // Doraemon Red
+            'rgba(253, 203, 8, 0.7)',  // Doraemon Yellow
+            'rgba(75, 192, 192, 0.7)', // Teal
+            'rgba(153, 102, 255, 0.7)', // Purple
+        ];
 
         // 1. Script cho Đồ thị Cột (Trung bình)
         if (chartDataAvg && chartDataAvg.labels && chartDataAvg.labels.length > 0) {
@@ -67,7 +83,7 @@
                     datasets: [{
                         label: 'Điểm Trung Bình',
                         data: chartDataAvg.data,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        backgroundColor: doraColors, // Dùng bảng màu
                     }]
                 },
                 options: { scales: { y: { beginAtZero: true } } }
@@ -84,10 +100,10 @@
                     datasets: [{
                         label: 'Điểm số',
                         data: chartDataLine.data,
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        tension: 0.1
+                        backgroundColor: 'rgba(0, 158, 227, 0.2)', // Nền xanh
+                        borderColor: 'rgba(0, 158, 227, 1)', // Viền xanh
+                        borderWidth: 3,
+                        tension: 0.2
                     }]
                 },
                 options: { scales: { y: { beginAtZero: true, max: 100 } } }
@@ -104,30 +120,28 @@
                     datasets: [{
                         label: 'Số lần chơi',
                         data: chartDataPie.data,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.7)',
-                            'rgba(255, 206, 86, 0.7)',
-                            'rgba(153, 102, 255, 0.7)',
-                            'rgba(255, 159, 64, 0.7)'
-                        ],
+                        backgroundColor: doraColors, // Dùng bảng màu
                     }]
                 }
             });
         }
 
-        // Script cho Báo cáo AI
+        // Script cho Báo cáo AI (Đã cập nhật)
         const reportBtn = document.getElementById('generate-report-btn');
         const reportContainer = document.getElementById('ai-report-container');
         const reportText = document.getElementById('ai-report-text');
+        const reportLoader = document.getElementById('ai-report-loader');
         const dataForAI = document.getElementById('data-for-ai').innerText;
 
         if (reportBtn) {
             reportBtn.addEventListener('click', async () => {
-                reportContainer.style.display = 'block';
-                reportText.innerText = "Doraemon đang phân tích dữ liệu...";
+                reportContainer.style.display = 'flex'; // Hiện thẻ báo cáo
+                reportLoader.style.display = 'flex'; // Hiện hiệu ứng gõ
+                reportText.style.display = 'none'; // Ẩn text cũ
                 reportBtn.disabled = true;
+                
                 try {
-                    const response = await fetch('/generate_student_report', { // Sửa tên route
+                    const response = await fetch('/generate_student_report', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ data: dataForAI })
@@ -137,6 +151,8 @@
                 } catch (error) {
                     reportText.innerText = "Lỗi: Không thể tạo báo cáo.";
                 } finally {
+                    reportLoader.style.display = 'none'; // Ẩn hiệu ứng gõ
+                    reportText.style.display = 'block'; // Hiện text kết quả
                     reportBtn.disabled = false;
                 }
             });
