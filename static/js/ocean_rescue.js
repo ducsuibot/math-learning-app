@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === BIẾN GAME MỚI ===
     let gameState = 'loading';
     let score = 0; 
-    let timeLeft = 30;
+    let timeLeft = 40; // Giữ nguyên 40s
     let timerInterval; 
     const worldSpeed = 3;
     const gravity = 0.5;
@@ -109,8 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
             progressFill.style.width = `${progressPercentage}%`;
             
             if (score >= 100) { 
-                clearInterval(timerInterval); // <<< DỪNG ĐỒNG HỒ KHI THẮNG
+                clearInterval(timerInterval); // DỪNG ĐỒNG HỒ KHI THẮNG
                 gameState = 'win';
+                
+                // === GỌI HÀM LƯU ĐIỂM KHI THẮNG ===
+                sendScoreToBackend('ocean_rescue', score);
             } else {
                 player.isJumping = true;
                 player.dy = jumpPower;
@@ -122,34 +125,77 @@ document.addEventListener('DOMContentLoaded', () => {
             timeLeft -= 5; 
             if (timeLeft < 0) timeLeft = 0;
             timerDisplay.innerText = timeLeft;
-            if (timeLeft === 0) { // Nếu hết sạch thời gian
+            
+            // Tự động kiểm tra hết giờ ngay sau khi trừ
+            if (timeLeft <= 0) { 
                 clearInterval(timerInterval);
                 gameState = 'gameOver';
+                // === GỌI HÀM LƯU ĐIỂM KHI THUA (HẾT GIỜ DO TRỪ) ===
+                sendScoreToBackend('ocean_rescue', score); 
                 gameOverModal.style.display = 'flex';
+            } else {
+                gameState = 'running';
             }
-            gameState = 'running';
         }
     }
+    
+    // ==========================================================
+    // === THÊM HÀM LƯU ĐIỂM VÀO ĐÂY ===
+    // ==========================================================
+    /**
+     * Hàm gửi điểm số lên server
+     * @param {string} gameName - Tên game
+     * @param {number} finalScore - Điểm số cuối cùng
+     */
+    async function sendScoreToBackend(gameName, finalScore) {
+        try {
+            const response = await fetch('/save_score', { // Gọi đến route /save_score trong app.py
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    game_name: gameName,
+                    score: finalScore
+                }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Server response:', result.message); 
+            } else {
+                console.error('Không thể lưu điểm lên server.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gửi điểm:', error);
+        }
+    }
+    // ==========================================================
     
     // HÀM ĐẾM NGƯỢC THỜI GIAN
     function startTimer() {
         clearInterval(timerInterval); 
-        timeLeft = 40; // 60 GIÂY
+        timeLeft = 40; // 40 GIÂY
         timerDisplay.innerText = timeLeft;
         timerDisplay.classList.remove('low-time');
 
         timerInterval = setInterval(() => {
-            timeLeft--;
-            timerDisplay.innerText = timeLeft;
+            // Chỉ đếm ngược khi game đang chạy
+            if (gameState === 'running') {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
 
-            if (timeLeft <= 10) {
-                timerDisplay.classList.add('low-time');
-            }
+                if (timeLeft <= 10) {
+                    timerDisplay.classList.add('low-time');
+                }
 
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                gameState = 'gameOver';
-                gameOverModal.style.display = 'flex'; 
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    gameState = 'gameOver';
+                    // === GỌI HÀM LƯU ĐIỂM KHI THUA (HẾT GIỜ) ===
+                    sendScoreToBackend('ocean_rescue', score);
+                    gameOverModal.style.display = 'flex'; 
+                }
             }
         }, 1000);
     }
@@ -228,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                // Xử lý nhảy
                 if (player.isJumping) {
                     player.y += player.dy;
                     player.dy += gravity;

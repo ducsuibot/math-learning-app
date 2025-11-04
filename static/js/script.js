@@ -1,316 +1,281 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // === SETUP ELEMENTS ===
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 800;
-    canvas.height = 400;
+// Đảm bảo mã chạy sau khi trang web đã tải xong
+document.addEventListener('DOMContentLoaded', function() {
 
-    const questionModal = document.getElementById('question-modal');
-    const gameOverModal = document.getElementById('game-over-modal');
-    const winModal = document.getElementById('win-modal');
+    // Lấy các element cần thiết từ HTML
+    const aboutLink = document.getElementById('about-link');
+    const aboutModal = document.getElementById('about-modal');
+    const closeButton = document.querySelector('.close-button');
 
-    const questionText = document.getElementById('question-text');
-    const optionButtonsContainer = document.querySelector('.question-options');
-    const progressFill = document.getElementById('progress-fill');
-    
-    // THÊM ELEMENT MỚI
-    const scoreDisplay = document.getElementById('score-display');
-    const timerDisplay = document.getElementById('timer-display');
-    
-    const restartBtnLose = document.getElementById('restart-btn-lose');
-    const restartBtnWin = document.getElementById('restart-btn-win');
-    const loseButtonsContainer = document.getElementById('lose-buttons');
-    const winButtonsContainer = document.getElementById('win-buttons');
-
-    // Tải ảnh (Giữ nguyên)
-    const playerRunImg = new Image(); playerRunImg.src = '/static/img/doraemon_run.png';
-    const playerJumpImg = new Image(); playerJumpImg.src = '/static/img/doraemon_jump.png';
-    const playerStandImg = new Image(); playerStandImg.src = '/static/img/doraemon_stand.png';
-    const mimiImg = new Image(); mimiImg.src = '/static/img/mimi.png';
-    const obstacleImg = new Image(); obstacleImg.src = '/static/img/obstacle_box.png';
-    const backgroundImg = new Image(); backgroundImg.src = '/static/img/ocean_background.jpg';
-
-    // === BIẾN GAME MỚI ===
-    let gameState = 'loading';
-    let score = 0; 
-    let timeLeft = 40; // Giữ nguyên 40s
-    let timerInterval; 
-    const worldSpeed = 3;
-    const gravity = 0.5;
-    const jumpPower = -12;
-    let winModalShown = false; 
-
-    let player = {
-        x: 100, y: 300,
-        width: 60, height: 80,
-        dy: 0,
-        isJumping: false,
-        image: playerRunImg
-    };
-
-    let obstacles = [];
-    
-    function generateObstacles() {
-        obstacles = [];
-        for (let i = 1; i <= 10; i++) {
-            obstacles.push({
-                x: i * 400 + 300,
-                y: 320,
-                width: 80, height: 80,
-                triggered: false
-            });
-        }
-    }
-
-    function showQuestion() {
-        // [Logic tạo câu hỏi giữ nguyên]
-        gameState = 'paused';
-        const isAddition = Math.random() > 0.5;
-        let num1, num2, correctAnswer;
-        if (isAddition) {
-            num1 = Math.floor(Math.random() * 10) + 1;
-            num2 = Math.floor(Math.random() * 10) + 1;
-            correctAnswer = num1 + num2;
-            questionText.innerText = `${num1} + ${num2} = ?`;
-        } else {
-            num1 = Math.floor(Math.random() * 10) + 5;
-            num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
-            correctAnswer = num1 - num2;
-            questionText.innerText = `${num1} - ${num2} = ?`;
-        }
-        const answers = [correctAnswer];
-        while (answers.length < 3) {
-            let wrongAnswer = correctAnswer + (Math.floor(Math.random() * 5) - 2);
-            if (wrongAnswer >= 0 && !answers.includes(wrongAnswer)) {
-                answers.push(wrongAnswer);
-            }
-        }
-        answers.sort(() => Math.random() - 0.5);
-        optionButtonsContainer.innerHTML = '';
-        answers.forEach(answer => {
-            const button = document.createElement('button');
-            button.className = 'option-button';
-            button.innerText = answer;
-            button.onclick = () => checkAnswer(answer, correctAnswer);
-            optionButtonsContainer.appendChild(button);
+    // Chỉ chạy nếu các element tồn tại
+    if (aboutLink && aboutModal && closeButton) {
+        
+        // Sự kiện: Khi nhấn vào link "Về chúng tôi"
+        aboutLink.addEventListener('click', function(event) {
+            event.preventDefault(); // Ngăn trình duyệt nhảy trang
+            aboutModal.classList.add('active'); // Hiện pop-up
         });
-        questionModal.style.display = 'flex';
+
+        // Sự kiện: Khi nhấn vào nút 'X' để đóng
+        closeButton.addEventListener('click', function() {
+            aboutModal.classList.remove('active'); // Ẩn pop-up
+        });
+
+        // Sự kiện: Khi nhấn vào lớp nền mờ bên ngoài để đóng
+        aboutModal.addEventListener('click', function(event) {
+            if (event.target === aboutModal) {
+                aboutModal.classList.remove('active'); // Ẩn pop-up
+            }
+        });
     }
 
-    function checkAnswer(chosenAnswer, correctAnswer) {
-        questionModal.style.display = 'none';
-        
-        if (chosenAnswer === correctAnswer) {
-            score += 10;
-            scoreDisplay.innerText = score; 
-            
-            // Cập nhật thanh tiến độ
-            const progressPercentage = Math.min(100, (score / 100) * 100); 
-            progressFill.style.width = `${progressPercentage}%`;
-            
-            if (score >= 100) { 
-                clearInterval(timerInterval); // DỪNG ĐỒNG HỒ KHI THẮNG
-                gameState = 'win';
-                
-                // === GỌI HÀM LƯU ĐIỂM KHI THẮNG ===
-                sendScoreToBackend('ocean_rescue', score);
-            } else {
-                player.isJumping = true;
-                player.dy = jumpPower;
-                player.image = playerJumpImg;
-                gameState = 'running';
-            }
-        } else {
-            // Sai: Trừ thời gian
-            timeLeft -= 5; 
-            if (timeLeft < 0) timeLeft = 0;
-            timerDisplay.innerText = timeLeft;
-            
-            // Tự động kiểm tra hết giờ ngay sau khi trừ
-            if (timeLeft <= 0) { 
-                clearInterval(timerInterval);
-                gameState = 'gameOver';
-                // === GỌI HÀM LƯU ĐIỂM KHI THUA (HẾT GIỜ DO TRỪ) ===
-                sendScoreToBackend('ocean_rescue', score); 
-                gameOverModal.style.display = 'flex';
-            } else {
-                gameState = 'running';
-            }
-        }
-    }
-    
-    // ==========================================================
-    // === THÊM HÀM LƯU ĐIỂM VÀO ĐÂY ===
-    // ==========================================================
-    /**
-     * Hàm gửi điểm số lên server
-     * @param {string} gameName - Tên game
-     * @param {number} finalScore - Điểm số cuối cùng
-     */
-    async function sendScoreToBackend(gameName, finalScore) {
-        try {
-            const response = await fetch('/save_score', { // Gọi đến route /save_score trong app.py
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    game_name: gameName,
-                    score: finalScore
-                }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Server response:', result.message); 
-            } else {
-                console.error('Không thể lưu điểm lên server.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gửi điểm:', error);
-        }
-    }
-    // ==========================================================
-    
-    // HÀM ĐẾM NGƯỢC THỜI GIAN
-    function startTimer() {
-        clearInterval(timerInterval); 
-        timeLeft = 40; // 40 GIÂY
-        timerDisplay.innerText = timeLeft;
-        timerDisplay.classList.remove('low-time');
-
-        timerInterval = setInterval(() => {
-            // Chỉ đếm ngược khi game đang chạy
-            if (gameState === 'running') {
-                timeLeft--;
-                timerDisplay.innerText = timeLeft;
-
-                if (timeLeft <= 10) {
-                    timerDisplay.classList.add('low-time');
-                }
-
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    gameState = 'gameOver';
-                    // === GỌI HÀM LƯU ĐIỂM KHI THUA (HẾT GIỜ) ===
-                    sendScoreToBackend('ocean_rescue', score);
-                    gameOverModal.style.display = 'flex'; 
-                }
-            }
-        }, 1000);
-    }
-
-    function resetGame() {
-        score = 0;
-        scoreDisplay.innerText = score;
-        
-        progressFill.style.width = '0%';
-        
-        player.x = 100;
-        player.y = 300;
-        player.dy = 0;
-        player.isJumping = false;
-        player.image = playerRunImg;
-        winModalShown = false;
-        generateObstacles();
-        
-        gameOverModal.style.display = 'none';
-        winModal.style.display = 'none';
-        
-        if (loseButtonsContainer) loseButtonsContainer.style.display = 'none';
-        if (winButtonsContainer) winButtonsContainer.style.display = 'none';
-        
-        startTimer();
-        gameState = 'running';
-        requestAnimationFrame(gameLoop);
-    }
-
-    // Gắn sự kiện cho các nút "Chơi lại"
-    restartBtnLose.addEventListener('click', resetGame);
-    restartBtnWin.addEventListener('click', resetGame);
-
-    function gameLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-
-        // --- XỬ LÝ TRẠNG THÁI WIN ---
-        if (gameState === 'win') {
-            const mimiX = 650;
-            const targetX = mimiX - player.width;
-
-            ctx.drawImage(mimiImg, mimiX, 300, 80, 80);
-
-            if (player.x < targetX) {
-                player.x += worldSpeed;
-                player.image = playerRunImg;
-            } else {
-                player.image = playerStandImg;
-                if (!winModalShown) {
-                    winModal.style.display = 'flex';
-                    winModalShown = true;
-                    // Hiện nút sau 5 giây
-                    if (winButtonsContainer) winButtonsContainer.style.display = 'none';
-                    setTimeout(() => { if (winButtonsContainer) winButtonsContainer.style.display = 'flex'; }, 5000);
-                }
-            }
-            ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
-
-            // Vẽ thông báo
-            ctx.shadowColor = 'white'; ctx.shadowBlur = 15;
-            ctx.fillStyle = '#ff69b4'; ctx.font = '60px Pacifico';
-            ctx.textAlign = 'center'; ctx.fillText('Bé đã giải cứu được Mimi!', canvas.width / 2, 80);
-            ctx.shadowBlur = 0; 
-        
-        // --- XỬ LÝ TRẠNG THÁI CHẠY (RUNNING/PAUSED) ---
-        } else {
-            ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
-
-            if (gameState === 'running') {
-                obstacles.forEach(obs => {
-                    obs.x -= worldSpeed;
-                    if (obs.x < player.x + player.width + 50 && obs.x > player.x && !obs.triggered) {
-                        obs.triggered = true;
-                        showQuestion();
-                    }
-                });
-
-                if (player.isJumping) {
-                    player.y += player.dy;
-                    player.dy += gravity;
-                    if (player.y >= 300) {
-                        player.y = 300;
-                        player.isJumping = false;
-                        player.dy = 0;
-                        player.image = playerRunImg;
-                    }
-                }
-            }
-
-            // Luôn vẽ các chướng ngại vật
-            obstacles.forEach(obs => {
-                ctx.drawImage(obstacleImg, obs.x, obs.y, obs.width, obs.height);
-            });
-        }
-        
-        // Tiếp tục vòng lặp
-        if (gameState !== 'gameOver' && !winModalShown) {
-            requestAnimationFrame(gameLoop);
-        }
-    } 
-
-    // Chờ tất cả ảnh tải xong mới bắt đầu game
-    let imagesLoaded = 0;
-    const totalImages = 6;
-    [playerRunImg, playerJumpImg, playerStandImg, mimiImg, obstacleImg, backgroundImg].forEach(img => {
-        img.onload = () => {
-            imagesLoaded++;
-            if (imagesLoaded === totalImages) {
-                generateObstacles();
-                startTimer();
-                gameState = 'running'; 
-                requestAnimationFrame(gameLoop); 
-            }
-        };
-        img.onerror = () => { console.error(`Không thể tải ảnh: ${img.src}`); }
-    });
 });
+// Đảm bảo mã chạy sau khi trang web đã tải xong
+document.addEventListener('DOMContentLoaded', function() {
+
+    // === LOGIC CHO POP-UP "VỀ CHÚNG TÔI" ===
+    const aboutLink = document.getElementById('about-link');
+    const aboutModal = document.getElementById('about-modal');
+    
+    // Chỉ chạy logic này nếu tìm thấy element của pop-up
+    if (aboutLink && aboutModal) {
+        const closeButton = aboutModal.querySelector('.close-button');
+
+        aboutLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            aboutModal.classList.add('active');
+        });
+        
+        closeButton.addEventListener('click', function() {
+            aboutModal.classList.remove('active');
+        });
+
+        aboutModal.addEventListener('click', function(event) {
+            if (event.target === aboutModal) {
+                aboutModal.classList.remove('active');
+            }
+        });
+    }
+
+    // === LOGIC CHO MENU HỌC TẬP (CHỈ CHẠY TRÊN TRANG LEARNING.HTML) ===
+    const categoryCards = document.querySelectorAll('.category-card');
+    const submenus = document.querySelectorAll('.submenu');
+
+    // Chỉ chạy logic này nếu tìm thấy các thẻ danh mục
+    if (categoryCards.length > 0 && submenus.length > 0) {
+        categoryCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const targetId = card.dataset.target;
+                const targetSubmenu = document.getElementById(targetId);
+
+                categoryCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                submenus.forEach(submenu => submenu.classList.remove('active'));
+                if (targetSubmenu) {
+                    targetSubmenu.classList.add('active');
+                }
+            });
+        });
+    }
+});
+
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO HERO SLIDER (PHIÊN BẢN LẶP VÔ TẬN - SỬA LỖI & 1 GIÂY) ===
+const sliderContainer = document.querySelector('#hero'); 
+const slidesContainer = document.querySelector('.hero-slides');
+let slides = document.querySelectorAll('.hero-slide'); 
+const dotsContainer = document.querySelector('.hero-dots');
+let dots = document.querySelectorAll('.dot'); 
+
+let currentSlide = 0;
+const slideInterval = 2000; // <<< THAY ĐỔI: Chuyển thành 1000ms (1 giây)
+let slideTimer;
+const transitionDuration = 500; // Thời gian chuyển slide CSS (0.5s) - Giữ nguyên
+
+// Chỉ thực hiện nếu có slider
+if (slidesContainer && slides.length > 1) {
+    const numOriginalSlides = slides.length;
+
+    // 1. Clone slide đầu tiên và thêm vào cuối
+    const firstSlideClone = slides[0].cloneNode(true);
+    firstSlideClone.classList.remove('active'); 
+    slidesContainer.appendChild(firstSlideClone);
+
+    // Cập nhật lại danh sách slides 
+    slides = document.querySelectorAll('.hero-slide'); 
+    const numTotalSlidesIncludingClone = slides.length;
+
+    // 2. Cập nhật CSS Widths (Quan trọng - Phải khớp với CSS)
+    slidesContainer.style.width = `${numTotalSlidesIncludingClone * 100}%`;
+    slides.forEach(slide => {
+        slide.style.width = `${100 / numTotalSlidesIncludingClone}%`;
+    });
+
+    function goToSlide(slideIndex, instant = false) {
+        // Tắt/bật transition CSS
+        slidesContainer.style.transition = instant ? 'none' : `transform ${transitionDuration / 1000}s ease-in-out`;
+        
+        // Di chuyển container
+        slidesContainer.style.transform = `translateX(-${slideIndex * (100 / numTotalSlidesIncludingClone)}%)`;
+
+        // Cập nhật dấu chấm active (chỉ cho slide gốc)
+        if (dots.length > 0) { // Check if dots exist
+            dots.forEach(dot => dot.classList.remove('active'));
+            const dotIndex = slideIndex % numOriginalSlides; 
+            if (dots[dotIndex]) {
+                dots[dotIndex].classList.add('active');
+            }
+        }
+
+        currentSlide = slideIndex;
+    }
+
+    function nextSlide() {
+        let nextIndex = currentSlide + 1;
+        
+        // Chuyển đến slide tiếp theo (kể cả clone)
+        goToSlide(nextIndex); 
+
+        // Xử lý bước nhảy lặp vô tận:
+        // Khi transition đến slide clone KẾT THÚC...
+        if (nextIndex === numOriginalSlides) { 
+            // ...đợi đúng bằng thời gian transition...
+            setTimeout(() => {
+                // ...rồi nhảy tức thì về slide gốc đầu tiên mà không có hiệu ứng chuyển động.
+                goToSlide(0, true); 
+            }, transitionDuration); 
+        }
+    }
+
+    function startSlider() {
+       // Xóa timer cũ (nếu có) trước khi tạo timer mới
+       clearInterval(slideTimer); 
+       slideTimer = setInterval(nextSlide, slideInterval);
+    }
+
+    // Dừng slider khi di chuột vào
+    sliderContainer.addEventListener('mouseenter', () => clearInterval(slideTimer));
+    // Khởi động lại khi di chuột ra
+    sliderContainer.addEventListener('mouseleave', () => startSlider());
+
+    // Xử lý khi nhấn vào dấu chấm
+    if (dotsContainer) { // Check if dots exist
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideIndex = parseInt(dot.dataset.slide);
+                goToSlide(slideIndex);
+                // Reset timer sau khi nhấn dot
+                startSlider(); 
+            });
+        });
+    }
+
+    // Khởi động slider ban đầu
+    startSlider();
+}
+// === KẾT THÚC LOGIC HERO SLIDER ===
+
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO USER DROPDOWN MENU ===
+const userMenuToggle = document.getElementById('user-menu-toggle');
+const userDropdown = document.getElementById('user-dropdown');
+const userMenuContainer = document.querySelector('.user-menu-container');
+
+if (userMenuToggle && userDropdown && userMenuContainer) {
+    userMenuToggle.addEventListener('click', function(event) {
+        event.preventDefault(); // Ngăn link # nhảy trang
+        // Thêm/xóa class 'open' để hiện/ẩn menu và xoay mũi tên
+        userMenuContainer.classList.toggle('open'); 
+    });
+
+    // Đóng menu nếu click ra ngoài
+    document.addEventListener('click', function(event) {
+        // Kiểm tra xem click có nằm ngoài container của menu không
+        if (!userMenuContainer.contains(event.target)) {
+            userMenuContainer.classList.remove('open');
+        }
+    });
+}
+// === KẾT THÚC USER DROPDOWN MENU ===
+
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO NHIỀU DORAEMON CHẠY NGHỊCH NGỢM (NÂNG CẤP) ===
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO NHIỀU DORAEMON CHẠY NGHỊCH NGỢM (ĐÃ SỬA LỖI LẶP) ===
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO NHIỀU DORAEMON CHẠY NGHỊCH NGỢM (ĐÃ SỬA LỖI LẶP) ===
+// Thêm vào cuối file /static/js/script.js
+
+// === LOGIC CHO NHIỀU DORAEMON CHẠY NGHỊCH NGỢM (NÂNG CẤP) ===
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // === CÁC THAY ĐỔI Ở ĐÂY ===
+    const NUM_DORAEMONS = 6; // Số lượng Doraemon bạn muốn (tăng từ 3 lên 6)
+    const MIN_RUN_SPEED = 6; // Tốc độ chạy tối thiểu (giây)
+    const MAX_RUN_SPEED = 12; // Tốc độ chạy tối đa (giây)
+    const MIN_DELAY_BETWEEN_RUNS = 500; // Độ trễ tối thiểu (giảm từ 2000ms xuống 500ms)
+    const MAX_DELAY_BETWEEN_RUNS = 2000; // Độ trễ tối đa (giảm từ 6000ms xuống 2000ms)
+    // ===========================
+
+    const MIN_BOTTOM_PERCENT = 5; 
+    const MAX_BOTTOM_PERCENT = 40; 
+
+    for (let i = 0; i < NUM_DORAEMONS; i++) {
+        createDoraemonRunner();
+    }
+
+    function createDoraemonRunner() {
+        const doraemon = document.createElement('div');
+        doraemon.classList.add('doraemon-runner'); 
+        document.body.appendChild(doraemon);
+
+        function runDoraemon() {
+            // 1. Random vị trí (chiều cao)
+            const randomBottom = Math.random() * (MAX_BOTTOM_PERCENT - MIN_BOTTOM_PERCENT) + MIN_BOTTOM_PERCENT; 
+            doraemon.style.bottom = `${randomBottom}%`;
+            
+            // 2. Random tốc độ
+            const randomSpeed = Math.random() * (MAX_RUN_SPEED - MIN_RUN_SPEED) + MIN_RUN_SPEED; 
+            doraemon.style.animationDuration = `${randomSpeed}s`;
+            
+            // 3. Random hướng chạy VÀ Xoay ảnh đúng hướng
+            if (Math.random() > 0.5) {
+                // --- Chạy từ TRÁI sang PHẢI ---
+                doraemon.style.left = '-120px'; 
+                doraemon.style.right = 'auto'; 
+                doraemon.style.transform = 'scaleX(1)'; // Quay mặt sang phải
+                doraemon.style.animationName = 'run-across-left';
+            } else {
+                // --- Chạy từ PHẢI sang TRÁI ---
+                doraemon.style.right = '-120px'; 
+                doraemon.style.left = 'auto'; 
+                doraemon.style.transform = 'scaleX(-1)'; // Lật ngược ảnh, quay mặt sang trái
+                doraemon.style.animationName = 'run-across-right';
+            }
+            
+            // 4. Thêm class 'running' để bắt đầu chạy
+            doraemon.classList.add('running');
+            doraemon.style.opacity = 1; 
+        }
+
+        // 5. Lắng nghe khi Doraemon chạy xong
+        doraemon.addEventListener('animationend', () => {
+            doraemon.classList.remove('running'); 
+            doraemon.style.opacity = 0; 
+            
+            // Đợi ngẫu nhiên rồi chạy lại
+            const randomDelay = Math.random() * (MAX_DELAY_BETWEEN_RUNS - MIN_DELAY_BETWEEN_RUNS) + MIN_DELAY_BETWEEN_RUNS; 
+            setTimeout(runDoraemon, randomDelay);
+        });
+
+        // 6. Bắt đầu chạy lần đầu tiên sau một độ trễ ngẫu nhiên ban đầu
+        const initialDelay = Math.random() * 2000; 
+        setTimeout(runDoraemon, initialDelay);
+    }
+});
+// === KẾT THÚC LOGIC NHIỀU DORAEMON CHẠY ===

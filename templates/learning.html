@@ -9,19 +9,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header>
         <div class="container">
             <div class="header-title">
-                <img src="/static/img/doraemon_icon.png" alt="Doraemon"> 
+                <img src="{{ url_for('static', filename='img/doraemon_icon.png') }}" alt="Doraemon"> 
                 <h1>HỌC TOÁN CÙNG DORAEMON</h1>
             </div>
             <nav>
                 <ul>
                     <li><a href="{{ url_for('index') }}">Trang chủ</a></li>
-                    <li><a href="{{ url_for('learning') }}">Học bài</a></li> 
+                    <li><a href="{{ url_for('learning') }}">Học bài</a></li>
+                    <li><a href="{{ url_for('my_stats') }}">Báo cáo</a></li> 
                     <li><a href="{{ url_for('practice') }}">Luyện tập AI</a></li>
                     <li><a href="{{ url_for('chatbot_page') }}">Chat với Doraemon</a></li>
                     
@@ -33,7 +34,7 @@
                             <ul class="user-dropdown-menu" id="user-dropdown"> 
                                 <li><a href="{{ url_for('profile') }}">Thông tin người dùng</a></li> 
                                 <li><a href="{{ url_for('edit_profile') }}">Cập nhật thông tin</a></li> 
-                                <li><hr></li> {/* Đường kẻ ngăn cách */}
+                                <li><hr></li> 
                                 <li><a href="{{ url_for('logout') }}">Đăng xuất</a></li>
                             </ul>
                         </li>
@@ -54,36 +55,36 @@
             
             <div class="main-categories">
                 <div class="category-card" data-target="submenu-hoc-so" id="cat-hoc-so">
-                    <img src="/static/img/hoc_so_icon.png" alt="Học số">
+                    <img src="{{ url_for('static', filename='img/hoc_so_icon.png') }}" alt="Học số">
                     <span>Học số cùng Xeko</span>
                 </div>
                 <div class="category-card" data-target="submenu-so-sanh" id="cat-so-sanh">
-                    <img src="/static/img/so_sanh_icon.png" alt="So sánh">
+                    <img src="{{ url_for('static', filename='img/so_sanh_icon.png') }}" alt="So sánh">
                     <span>So sánh cùng Shizuka và Nobita</span>
                 </div>
                 <div class="category-card" data-target="submenu-luyen-tap" id="cat-luyen-tap">
-                    <img src="/static/img/luyen_tap_icon.png" alt="Luyện tập tính toán">
+                    <img src="{{ url_for('static', filename='img/luyen_tap_icon.png') }}" alt="Luyện tập tính toán">
                     <span>Luyện tập cùng Chaien</span>
                 </div>
                 <div class="category-card" data-target="submenu-tro-choi" id="cat-tro-choi">
-                    <img src="/static/img/tro_choi_icon.png" alt="Trò chơi">
+                    <img src="{{ url_for('static', filename='img/tro_choi_icon.png') }}" alt="Trò chơi">
                     <span>Trò chơi cùng Doraemon</span>
                 </div>
             </div>
 
             <div class="submenus-container">
                 <div id="submenu-hoc-so" class="submenu">
-                <a href="{{ url_for('suneo_shopping_game') }}" class="submenu-item">Siêu Thị Của Xeko</a> 
+                    <a href="{{ url_for('suneo_shopping_game') }}" class="submenu-item">Siêu Thị Của Xeko</a> 
                 </div>
                 <div id="submenu-so-sanh" class="submenu">
-                    <a href="/compare-images" class="submenu-item">So sánh hình</a>
+                    <a href="{{ url_for('compare_images') }}" class="submenu-item">So sánh hình</a>
                 </div>
                 <div id="submenu-luyen-tap" class="submenu">
-                    <a href="/plus-minus-game" class="submenu-item">Trò chơi cộng trừ</a>
+                    <a href="{{ url_for('plus_minus_game') }}" class="submenu-item">Trò chơi cộng trừ</a>
                 </div>
                 <div id="submenu-tro-choi" class="submenu">
-                    <a href="/practice" class="submenu-item">Đếm số bằng AI</a>
-                    <a href="/ocean-rescue" class="submenu-item">Giải cứu Mimi</a>
+                    <a href="{{ url_for('practice') }}" class="submenu-item">Đếm số bằng AI</a>
+                    <a href="#" class="submenu-item">Chạy nào Doremon</a> <a href="{{ url_for('time_machine_game') }}" class="submenu-item"> Cỗ máy thời gian</a> <a href="{{ url_for('ocean_rescue_game') }}" class="submenu-item">Giải cứu Mimi</a>
                 </div>
             </div>
         </section>
@@ -109,6 +110,6 @@
         </div>
     </div>
 
-    <script src="/static/js/script.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
