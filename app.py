@@ -290,6 +290,90 @@ def suneo_shopping_game():
     return render_template('suneo_shopping.html')
 
 
+
+# --- Route Trang Thống Kê Của Bé (MỚI) ---
+@app.route('/my_stats')
+@login_required
+def my_stats():
+    # Lấy dữ liệu cho dashboard của user đang đăng nhập
+    chart_data_avg = None
+    chart_data_line = None
+    chart_data_pie = None
+    data_summary_for_ai = "Bé chưa chơi game nào."
+
+    # Query 1: Lấy điểm trung bình
+    scores_avg = db.session.query(
+        GameScore.game_name, 
+        db.func.avg(GameScore.score).label('average_score')
+    ).filter_by(user_id=current_user.id).group_by(GameScore.game_name).all()
+
+    if scores_avg:
+        labels_avg = [s.game_name for s in scores_avg]
+        data_avg = [round(s.average_score, 1) for s in scores_avg]
+        chart_data_avg = {"labels": labels_avg, "data": data_avg}
+        
+        data_summary_for_ai = f"Dữ liệu điểm trung bình của bé {current_user.username}:\n"
+        for s in scores_avg:
+            data_summary_for_ai += f"- {s.game_name}: {round(s.average_score, 1)} điểm\n"
+    
+    # Query 2: Lấy tiến độ điểm theo thời gian
+    scores_over_time = GameScore.query.filter_by(user_id=current_user.id).order_by(GameScore.timestamp.asc()).limit(10).all() # Lấy 10 điểm gần nhất
+    if scores_over_time:
+        labels_line = [s.timestamp.strftime('%d/%m') for s in scores_over_time]
+        data_line = [s.score for s in scores_over_time]
+        chart_data_line = {"labels": labels_line, "data": data_line}
+
+    # Query 3: Lấy tỷ lệ chơi các game
+    game_counts = db.session.query(
+        GameScore.game_name, 
+        db.func.count(GameScore.game_name).label('play_count')
+    ).filter_by(user_id=current_user.id).group_by(GameScore.game_name).all()
+    if game_counts:
+        labels_pie = [g.game_name for g in game_counts]
+        data_pie = [g.play_count for g in game_counts]
+        chart_data_pie = {"labels": labels_pie, "data": data_pie}
+    
+    return render_template('my_stats.html', 
+                           title='Thống Kê Của Bé',
+                           chart_data_avg=chart_data_avg,
+                           chart_data_line=chart_data_line,
+                           chart_data_pie=chart_data_pie,
+                           data_summary_for_ai=data_summary_for_ai)
+# --- Route AI Báo Cáo (MỚI) ---
+@app.route('/generate_student_report', methods=['POST'])
+@login_required
+def generate_student_report():
+    data_summary = request.json.get('data')
+    if not data_summary:
+        return jsonify({"report": "Không có dữ liệu để phân tích."})
+    if not groq_configured or not client: 
+        return jsonify({"report": "Lỗi: Không thể kết nối Groq API."})
+
+    try:
+        system_prompt = f"""
+        Bạn là Doraemon, đang viết báo cáo cho bé Nobita.
+        Dưới đây là dữ liệu điểm trung bình của bé:
+        {data_summary}
+        
+        Hãy viết một báo cáo ngắn gọn (khoảng 3-4 câu) cho bé:
+        1. Khen ngợi chung về tình hình học tập (dựa trên điểm số).
+        2. Chỉ ra bé giỏi nhất game nào (game có điểm cao nhất).
+        3. Động viên bé cố gắng ở game có điểm thấp nhất (nếu có).
+        
+        Viết với giọng văn của Doraemon: thân thiện, hài hước, và động viên, gọi bé là "cậu".
+        """
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": "Hãy viết báo cáo cho tớ!"}
+            ],
+            model="openai/gpt-oss-20b",
+        )
+        reply = chat_completion.choices[0].message.content
+        return jsonify({"report": reply.strip()})
+    except Exception as e:
+        print(f"Lỗi khi gọi Groq API (Báo cáo): {e}")
+        return jsonify({"report": "Ối, tớ đang gặp chút trục trặc khi tạo báo cáo..."}), 500
 # === 9. CHẠY SERVER (ĐÃ SỬA LẠI ĐỂ CHẠY LOCAL) ===
 #if __name__ == '__main__':
 #    with app.app_context():

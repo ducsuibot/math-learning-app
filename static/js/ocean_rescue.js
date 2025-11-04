@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === BIẾN GAME MỚI ===
     let gameState = 'loading';
     let score = 0; 
-    let timeLeft = 40; // Giữ nguyên 40s
+    let timeLeft = 30;
     let timerInterval; 
     const worldSpeed = 3;
     const gravity = 0.5;
@@ -104,14 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
             score += 10;
             scoreDisplay.innerText = score; 
             
+            // Cập nhật thanh tiến độ
             const progressPercentage = Math.min(100, (score / 100) * 100); 
             progressFill.style.width = `${progressPercentage}%`;
             
             if (score >= 100) { 
-                clearInterval(timerInterval);
+                clearInterval(timerInterval); // <<< DỪNG ĐỒNG HỒ KHI THẮNG
                 gameState = 'win';
-                // === GỌI HÀM LƯU ĐIỂM KHI THẮNG ===
-                sendScoreToBackend('ocean_rescue', score);
             } else {
                 player.isJumping = true;
                 player.dy = jumpPower;
@@ -119,69 +118,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState = 'running';
             }
         } else {
+            // Sai: Trừ thời gian
             timeLeft -= 5; 
             if (timeLeft < 0) timeLeft = 0;
             timerDisplay.innerText = timeLeft;
-            
-            // Tự động kiểm tra hết giờ ngay sau khi trừ
-            if (timeLeft <= 0) { 
+            if (timeLeft === 0) { // Nếu hết sạch thời gian
                 clearInterval(timerInterval);
                 gameState = 'gameOver';
-                // === GỌI HÀM LƯU ĐIỂM KHI THUA (HẾT GIỜ DO TRỪ) ===
-                sendScoreToBackend('ocean_rescue', score); 
                 gameOverModal.style.display = 'flex';
-            } else {
-                gameState = 'running';
             }
+            gameState = 'running';
         }
     }
-    
-    // ==========================================================
-    // === THÊM HÀM LƯU ĐIỂM VÀO ĐÂY ===
-    // ==========================================================
-    /**
-     * Hàm gửi điểm số lên server
-     * @param {string} gameName - Tên game
-     * @param {number} finalScore - Điểm số cuối cùng
-     */
-    async function sendScoreToBackend(gameName, finalScore) {
-        try {
-            const response = await fetch('/save_score', { // Gọi đến route /save_score trong app.py
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    game_name: gameName,
-                    score: finalScore
-                }),
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Server response:', result.message); 
-            } else {
-                console.error('Không thể lưu điểm lên server.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gửi điểm:', error);
-        }
-    }
-    // ==========================================================
     
     // HÀM ĐẾM NGƯỢC THỜI GIAN
     function startTimer() {
         clearInterval(timerInterval); 
-        timeLeft = 40; // 40 GIÂY
+        timeLeft = 40; // 60 GIÂY
         timerDisplay.innerText = timeLeft;
         timerDisplay.classList.remove('low-time');
 
         timerInterval = setInterval(() => {
-            if (gameState !== 'running') { // Dừng đếm nếu game đang paused, win, hoặc gameover
-                clearInterval(timerInterval);
-                return;
-            }
-            
             timeLeft--;
             timerDisplay.innerText = timeLeft;
 
@@ -192,8 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 gameState = 'gameOver';
-                // === GỌI HÀM LƯU ĐIỂM KHI THUA (HẾT GIỜ) ===
-                sendScoreToBackend('ocean_rescue', score);
                 gameOverModal.style.display = 'flex'; 
             }
         }, 1000);
@@ -202,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetGame() {
         score = 0;
         scoreDisplay.innerText = score;
+        
         progressFill.style.width = '0%';
         
         player.x = 100;
@@ -218,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (loseButtonsContainer) loseButtonsContainer.style.display = 'none';
         if (winButtonsContainer) winButtonsContainer.style.display = 'none';
         
-        startTimer(); // BẮT ĐẦU LẠI ĐỒNG HỒ
+        startTimer();
         gameState = 'running';
         requestAnimationFrame(gameLoop);
     }
@@ -233,10 +189,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- XỬ LÝ TRẠNG THÁI WIN ---
         if (gameState === 'win') {
-            // ... (Logic thắng giữ nguyên) ...
             const mimiX = 650;
             const targetX = mimiX - player.width;
+
             ctx.drawImage(mimiImg, mimiX, 300, 80, 80);
+
             if (player.x < targetX) {
                 player.x += worldSpeed;
                 player.image = playerRunImg;
@@ -267,16 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     obs.x -= worldSpeed;
                     if (obs.x < player.x + player.width + 50 && obs.x > player.x && !obs.triggered) {
                         obs.triggered = true;
-                        startTimer(); // Tạm dừng đồng hồ khi hiện câu hỏi
                         showQuestion();
                     }
                 });
-                
-                // Tiếp tục đếm ngược nếu game đang chạy
-                if (!timerInterval && timeLeft > 0) {
-                    startTimer();
-                }
 
+                // Xử lý nhảy
                 if (player.isJumping) {
                     player.y += player.dy;
                     player.dy += gravity;
@@ -287,10 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         player.image = playerRunImg;
                     }
                 }
-            } else if (gameState === 'paused') {
-                clearInterval(timerInterval); // Dừng đồng hồ khi game paused
             }
 
+            // Luôn vẽ các chướng ngại vật
             obstacles.forEach(obs => {
                 ctx.drawImage(obstacleImg, obs.x, obs.y, obs.width, obs.height);
             });
@@ -302,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } 
 
-    // Chờ tất cả ảnh tải xong
+    // Chờ tất cả ảnh tải xong mới bắt đầu game
     let imagesLoaded = 0;
     const totalImages = 6;
     [playerRunImg, playerJumpImg, playerStandImg, mimiImg, obstacleImg, backgroundImg].forEach(img => {
@@ -310,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
             imagesLoaded++;
             if (imagesLoaded === totalImages) {
                 generateObstacles();
-                startTimer(); // BẮT ĐẦU ĐỒNG HỒ KHI GAME LOAD
+                startTimer();
                 gameState = 'running'; 
                 requestAnimationFrame(gameLoop); 
             }

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }} - Học Toán Cùng Doraemon</title>
+    <link rel="stylesheet" href="/static/css/style.css"> 
+    <link rel="stylesheet" href="/static/css/profile.css"> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    {% include '_header.html' %} 
+    
+    <main class="container">
+        <h2>Thống Kê Của Bé: {{ current_user.username }}</h2>
+        
+        {% if chart_data_avg %} <section class="profile-container" style="margin-top: 20px;">
+                
+                <div class="charts-grid">
+                    
+                    <div class="chart-container">
+                        <h4>Điểm trung bình các game</h4>
+                        <canvas id="scoreChartAvg"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <h4>Tiến độ học tập (10 lần chơi gần nhất)</h4>
+                        <canvas id="scoreChartLine"></canvas>
+                    </div>
+                    
+                    <div class="chart-container pie-chart">
+                        <h4>Tỷ lệ chơi các game</h4>
+                        <canvas id="scoreChartPie"></canvas>
+                    </div>
+                    
+                </div>
+                <h4 style="margin-top: 30px;">Báo cáo từ Doraemon</h4>
+                <button id="generate-report-btn" class="button-primary">Nhờ Doraemon phân tích</button>
+                <div id="ai-report-container" style="display:none; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px; text-align: left;">
+                    <p id="ai-report-text">Doraemon đang xem xét...</p>
+                </div>
+                <div id="data-for-ai" style="display: none;">{{ data_summary_for_ai }}</div>
+            </section>
+        {% else %}
+            <section class="profile-container" style="margin-top: 20px; text-align: center;">
+                <p>Bé chưa chơi game nào cả! Hãy vào mục "Học bài" để bắt đầu nhé!</p>
+            </section>
+        {% endif %}
+    </main>
+
+    {% include '_footer.html' %}
+
+    <script>
+        // 0. Lấy dữ liệu từ Flask (Lỗi linter báo ở đây, nhưng code này ĐÚNG)
+        const chartDataAvg = {{ chart_data_avg | tojson }};
+        const chartDataLine = {{ chart_data_line | tojson }};
+        const chartDataPie = {{ chart_data_pie | tojson }};
+
+        // 1. Script cho Đồ thị Cột (Trung bình)
+        if (chartDataAvg && chartDataAvg.labels && chartDataAvg.labels.length > 0) {
+            const ctx = document.getElementById('scoreChartAvg').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartDataAvg.labels,
+                    datasets: [{
+                        label: 'Điểm Trung Bình',
+                        data: chartDataAvg.data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        // 2. Script cho Đồ thị Đường (Tiến độ)
+        if (chartDataLine && chartDataLine.labels && chartDataLine.labels.length > 0) {
+            const ctx = document.getElementById('scoreChartLine').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartDataLine.labels,
+                    datasets: [{
+                        label: 'Điểm số',
+                        data: chartDataLine.data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true, max: 100 } } }
+            });
+        }
+        
+        // 3. Script cho Đồ thị Tròn (Tỷ lệ)
+        if (chartDataPie && chartDataPie.labels && chartDataPie.labels.length > 0) {
+            const ctx = document.getElementById('scoreChartPie').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: chartDataPie.labels,
+                    datasets: [{
+                        label: 'Số lần chơi',
+                        data: chartDataPie.data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)'
+                        ],
+                    }]
+                }
+            });
+        }
+
+        // Script cho Báo cáo AI
+        const reportBtn = document.getElementById('generate-report-btn');
+        const reportContainer = document.getElementById('ai-report-container');
+        const reportText = document.getElementById('ai-report-text');
+        const dataForAI = document.getElementById('data-for-ai').innerText;
+
+        if (reportBtn) {
+            reportBtn.addEventListener('click', async () => {
+                reportContainer.style.display = 'block';
+                reportText.innerText = "Doraemon đang phân tích dữ liệu...";
+                reportBtn.disabled = true;
+                try {
+                    const response = await fetch('/generate_student_report', { // Sửa tên route
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ data: dataForAI })
+                    });
+                    const result = await response.json();
+                    reportText.innerText = result.report;
+                } catch (error) {
+                    reportText.innerText = "Lỗi: Không thể tạo báo cáo.";
+                } finally {
+                    reportBtn.disabled = false;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
