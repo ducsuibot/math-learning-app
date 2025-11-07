@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         retryBtn.innerText = "Chơi lại";
 
         // === GỌI HÀM LƯU ĐIỂM KHI HẾT GIỜ ===
-        sendScoreToBackend('suneo_shopping_game', score);
+        sendScoreToBackend('Siêu thị Xeko', score);
         // ===================================
     }
 

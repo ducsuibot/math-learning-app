@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(timerInterval);
                 
                 // === GỌI HÀM LƯU ĐIỂM KHI HẾT GIỜ ===
-                sendScoreToBackend('plus-minus-game', score);
+                sendScoreToBackend('Trò chơi cộng trừ', score);
                 // ===================================
                 
                 // Hiển thị màn hình kết thúc

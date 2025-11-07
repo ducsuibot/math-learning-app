@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isClickable = false;
 
         // === CẬP NHẬT 3: GỌI HÀM LƯU ĐIỂM KHI HẾT GIỜ ===
-        sendScoreToBackend('compare_images', score);
+        sendScoreToBackend('So sánh hình', score);
         // ===========================================
         
         gameContainer.innerHTML = `

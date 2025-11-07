@@ -3,7 +3,8 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from flask_sqlalchemy import SQLAlchemy
 # from flask_socketio import SocketIO # <-- ĐÃ XÓA
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField, TextAreaField
+# Import các trường và validators từ wtforms MỘT LẦN ở đầu file
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField, TextAreaField, RadioField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional, NumberRange
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -15,7 +16,8 @@ from datetime import datetime
 
 # === 2. KHỞI TẠO FLASK APP, DB, LOGINMANAGER ===
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'thay_the_bang_chuoi_bi_mat_rat_kho_doan_cua_ban' # !! NHỚ THAY ĐỔI !!
+# !! QUAN TRỌNG: Thay đổi chuỗi này thành một chuỗi bí mật thực sự, dài và ngẫu nhiên !!
+app.config['SECRET_KEY'] = 'thay_the_bang_chuoi_bi_mat_rat_kho_doan_cua_ban'
 
 # === CẤU HÌNH DATABASE (Hỗ trợ Render Postgres và Local SQLite) ===
 DATABASE_URL = os.environ.get('DATABASE_URL') 
@@ -30,8 +32,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # === KẾT THÚC CẤU HÌNH DATABASE ===
 
-# socketio = SocketIO(app) # <-- ĐÃ XÓA
-
 # Cấu hình Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -39,9 +39,8 @@ login_manager.login_view = 'login'
 login_manager.login_message = "Bạn cần đăng nhập để truy cập trang này."
 login_manager.login_message_category = "info"
 
-# === 3. ĐỊNH NGHĨA MODEL USER ===
+# === 3. ĐỊNH NGHĨA MODEL USER (ĐÃ ĐƠN GIẢN HÓA) ===
 class User(UserMixin, db.Model):
-    # ... (code model User giữ nguyên) ...
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -51,6 +50,7 @@ class User(UserMixin, db.Model):
     age = db.Column(db.Integer, nullable=True)
     hobbies = db.Column(db.Text, nullable=True)
     scores = db.relationship('GameScore', backref='player', lazy=True)
+
     def set_password(self, password): self.password_hash = generate_password_hash(password)
     def check_password(self, password): return check_password_hash(self.password_hash, password)
     def __repr__(self): return f'<User {self.username}>'
@@ -62,7 +62,6 @@ def load_user(user_id):
 
 # === 5. ĐỊNH NGHĨA MODEL GAME SCORE ===
 class GameScore(db.Model):
-    # ... (code model GameScore giữ nguyên) ...
     id = db.Column(db.Integer, primary_key=True)
     game_name = db.Column(db.String(100), nullable=False)
     score = db.Column(db.Integer, nullable=False)
@@ -72,12 +71,13 @@ class GameScore(db.Model):
 
 # === 6. ĐỊNH NGHĨA CÁC FORM ===
 class RegistrationForm(FlaskForm):
-    # ... (code form giữ nguyên) ...
     username = StringField('Tên đăng nhập', validators=[DataRequired(), Length(min=4, max=80)])
-    email = StringField('Email', validators=[DataRequired(), Email(message='Địa chỉ email không hợp lệ.')])
-    password = PasswordField('Mật khẩu', validators=[DataRequired(), Length(min=6, message='Mật khẩu phải có ít nhất 6 ký tự.')])
-    confirm_password = PasswordField('Xác nhận mật khẩu', validators=[DataRequired(), EqualTo('password', message='Mật khẩu xác nhận phải khớp.')])
+    email = StringField('Email', validators=[DataRequired(), Email(message='Email không hợp lệ.')])
+    password = PasswordField('Mật khẩu', validators=[DataRequired(), Length(min=6, message='Tối thiểu 6 ký tự.')])
+    confirm_password = PasswordField('Xác nhận mật khẩu', validators=[DataRequired(), EqualTo('password', message='Mật khẩu phải khớp.')])
+    # Đã xóa ô chọn role
     submit = SubmitField('Đăng ký')
+
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user: raise ValidationError('Tên đăng nhập đã tồn tại.')
@@ -86,13 +86,11 @@ class RegistrationForm(FlaskForm):
         if user: raise ValidationError('Email đã tồn tại.')
 
 class LoginForm(FlaskForm):
-    # ... (code form giữ nguyên) ...
     username = StringField('Tên đăng nhập', validators=[DataRequired()])
     password = PasswordField('Mật khẩu', validators=[DataRequired()])
     submit = SubmitField('Đăng nhập')
 
 class EditProfileForm(FlaskForm):
-    # ... (code form giữ nguyên) ...
     username = StringField('Tên đăng nhập', validators=[DataRequired(), Length(min=4, max=80)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     full_name = StringField('Tên đầy đủ', validators=[Optional(), Length(max=120)])
@@ -114,7 +112,6 @@ class EditProfileForm(FlaskForm):
             if user: raise ValidationError('Email đã tồn tại.')
 
 # === 7. CẤU HÌNH GROQ API VÀ HÀM CHATBOT ===
-# ... (Toàn bộ code Groq và hàm ask_groq_doraemon giữ nguyên) ...
 GROQ_API_KEY = os.getenv('GROQ_API_KEY') 
 client = None 
 groq_configured = False 
@@ -124,13 +121,13 @@ if GROQ_API_KEY:
         groq_configured = True
         print(">>> Đã kết nối Groq API thành công!")
     except Exception as e:
-        print(f"!!!!!!!!!!!!!! LỖI KHỞI TẠO GROQ CLIENT !!!!!!!!!!!!!!\n{e}\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(f"Lỗi Groq Client: {e}")
 else:
-    print("!!!!!!!!!!!!!! CẢNH BÁO: Không tìm thấy GROQ_API_KEY trong biến môi trường! Chatbot có thể không hoạt động. !!!!!!!!!!!!!!")
+    print("CẢNH BÁO: Không tìm thấy GROQ_API_KEY!")
 
 def ask_groq_doraemon(user_message):
     if not groq_configured or not client: 
-        return "Lỗi: Không thể kết nối Groq API. Vui lòng kiểm tra API Key hoặc biến môi trường."
+        return "Lỗi: Không thể kết nối Groq API."
     try:
         system_prompt = """
         Bạn là Doraemon, một chú mèo máy thông minh và tốt bụng đến từ tương lai.
@@ -150,7 +147,7 @@ def ask_groq_doraemon(user_message):
         reply = chat_completion.choices[0].message.content
         return reply.strip()
     except Exception as e:
-        print(f"Lỗi khi gọi Groq API: {e}")
+        print(f"Lỗi gọi Groq API: {e}")
         error_message = str(e).lower()
         if "authentication" in error_message or "api key" in error_message or "invalid" in error_message:
              return "Ối, API key của tớ hình như có vấn đề rồi..."
@@ -160,11 +157,11 @@ def ask_groq_doraemon(user_message):
              return "Từ từ thôi Nobita, tớ đang trả lời hơi nhiều, đợi chút nhé!"
         return "Ối, tớ đang gặp chút trục trặc kỹ thuật mất rồi..."
 
-
 # === 8. ĐỊNH NGHĨA CÁC ROUTE ===
-# ... (Tất cả các route @app.route(...) của bạn giữ nguyên ở đây) ...
 @app.route('/')
-def index(): return render_template('index.html')
+def index(): 
+    return render_template('index.html')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated: return redirect(url_for('index'))
@@ -202,7 +199,8 @@ def logout():
 
 @app.route('/profile')
 @login_required
-def profile(): return render_template('profile.html', title='Thông Tin Cá Nhân', user=current_user)
+def profile(): 
+    return render_template('profile.html', title='Thông Tin Cá Nhân', user=current_user)
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
@@ -229,32 +227,24 @@ def edit_profile():
 
 @app.route('/learning')
 @login_required
-def learning(): return render_template('learning.html')
-
-# Thêm route này vào app.py, cùng với các route khác
+def learning(): 
+    return render_template('learning.html')
 
 @app.route('/save_score', methods=['POST'])
-@login_required # Yêu cầu người dùng phải đăng nhập mới được lưu điểm
+@login_required 
 def save_score():
-    data = request.get_json() # Lấy dữ liệu (JSON) mà JavaScript gửi lên
-    
+    data = request.get_json()
     game_name = data.get('game_name')
     score_value = data.get('score')
-
-    # Kiểm tra xem có đủ thông tin không
     if game_name and score_value is not None:
         try:
-            # Tạo một bản ghi điểm mới
             new_score = GameScore(
                 game_name=game_name, 
                 score=int(score_value), 
-                player=current_user # Tự động gán điểm này cho user đang đăng nhập
+                player=current_user
             )
-            
-            # Lưu vào database
             db.session.add(new_score)
             db.session.commit()
-            
             return jsonify({"message": "Lưu điểm thành công!"}), 201
         except Exception as e:
             db.session.rollback()
@@ -264,38 +254,39 @@ def save_score():
         return jsonify({"error": "Thiếu tên game hoặc điểm số"}), 400
 
 @app.route('/practice')
-def practice(): return render_template('practice.html')
+def practice(): 
+    return render_template('practice.html')
 @app.route('/compare-images')
-def compare_images(): return render_template('compare_images.html')
+def compare_images(): 
+    return render_template('compare-images.html')
 @app.route('/plus-minus-game')
-def plus_minus_game(): return render_template('plus_minus_game.html')
+def plus_minus_game(): 
+    return render_template('plus-minus-game.html')
 @app.route('/ocean-rescue')
-def ocean_rescue_game(): return render_template('ocean_rescue.html')
+def ocean_rescue_game(): 
+    return render_template('ocean_rescue.html')
 @app.route('/chatbot')
-def chatbot_page(): return render_template('chat.html')
+def chatbot_page(): 
+    return render_template('chat.html')
 @app.route('/ask_doraemon', methods=['POST'])
 def ask_doraemon():
     user_message = request.json.get('message')
     if not user_message: return jsonify({"reply": "Cậu chưa nói gì cả!"})
-    bot_reply = ask_groq_doraemon(user_message)
+    bot_reply = ask_groq_doraemon(user_message) 
     return jsonify({"reply": bot_reply})
-# Thêm vào file app.py
+
 @app.route('/time-machine-game')
 def time_machine_game():
     return render_template('time_machine_game.html')
-# Thêm vào file app.py
 @app.route('/suneo-shopping-game')
-@login_required # Bạn có thể thêm @login_required nếu muốn
+@login_required
 def suneo_shopping_game():
     return render_template('suneo_shopping.html')
-
-
 
 # --- Route Trang Thống Kê Của Bé (MỚI) ---
 @app.route('/my_stats')
 @login_required
 def my_stats():
-    # Lấy dữ liệu cho dashboard của user đang đăng nhập
     chart_data_avg = None
     chart_data_line = None
     chart_data_pie = None
@@ -308,16 +299,16 @@ def my_stats():
     ).filter_by(user_id=current_user.id).group_by(GameScore.game_name).all()
 
     if scores_avg:
-        labels_avg = [s.game_name for s in scores_avg]
+        labels_avg = [translate_game_name(s.game_name) for s in scores_avg] # Dùng hàm dịch
         data_avg = [round(s.average_score, 1) for s in scores_avg]
         chart_data_avg = {"labels": labels_avg, "data": data_avg}
         
         data_summary_for_ai = f"Dữ liệu điểm trung bình của bé {current_user.username}:\n"
         for s in scores_avg:
-            data_summary_for_ai += f"- {s.game_name}: {round(s.average_score, 1)} điểm\n"
+            data_summary_for_ai += f"- {translate_game_name(s.game_name)}: {round(s.average_score, 1)} điểm\n" # Dùng hàm dịch
     
     # Query 2: Lấy tiến độ điểm theo thời gian
-    scores_over_time = GameScore.query.filter_by(user_id=current_user.id).order_by(GameScore.timestamp.asc()).limit(10).all() # Lấy 10 điểm gần nhất
+    scores_over_time = GameScore.query.filter_by(user_id=current_user.id).order_by(GameScore.timestamp.asc()).limit(10).all()
     if scores_over_time:
         labels_line = [s.timestamp.strftime('%d/%m') for s in scores_over_time]
         data_line = [s.score for s in scores_over_time]
@@ -329,7 +320,7 @@ def my_stats():
         db.func.count(GameScore.game_name).label('play_count')
     ).filter_by(user_id=current_user.id).group_by(GameScore.game_name).all()
     if game_counts:
-        labels_pie = [g.game_name for g in game_counts]
+        labels_pie = [translate_game_name(g.game_name) for g in game_counts] # Dùng hàm dịch
         data_pie = [g.play_count for g in game_counts]
         chart_data_pie = {"labels": labels_pie, "data": data_pie}
     
@@ -339,6 +330,7 @@ def my_stats():
                            chart_data_line=chart_data_line,
                            chart_data_pie=chart_data_pie,
                            data_summary_for_ai=data_summary_for_ai)
+
 # --- Route AI Báo Cáo (MỚI) ---
 @app.route('/generate_student_report', methods=['POST'])
 @login_required
@@ -351,7 +343,7 @@ def generate_student_report():
 
     try:
         system_prompt = f"""
-        Bạn là Doraemon, đang viết báo cáo cho bé .
+        Bạn là Doraemon, đang viết báo cáo cho bé Nobita.
         Dưới đây là dữ liệu điểm trung bình của bé:
         {data_summary}
         
@@ -374,10 +366,24 @@ def generate_student_report():
     except Exception as e:
         print(f"Lỗi khi gọi Groq API (Báo cáo): {e}")
         return jsonify({"report": "Ối, tớ đang gặp chút trục trặc khi tạo báo cáo..."}), 500
-# === 9. CHẠY SERVER (ĐÃ SỬA LẠI ĐỂ CHẠY LOCAL) ===#
-#if __name__ == '__main__':
-#    with app.app_context():
-#        db.create_all() # Tạo bảng nếu chưa có
-#    print("Khởi động server...")
-    # Dùng app.run() tiêu chuẩn thay vì socketio.run()
-#    app.run(debug=True, port=5000)
+
+# === HÀM PHỤ ĐỂ DỊCH TÊN GAME ===
+# (Cần đặt TRƯỚC route /my_stats)
+GAME_NAME_MAP = {
+    'ocean_rescue': 'Giải cứu Mimi',
+    'compare_images': 'So sánh hình',
+    'plus-minus-game': 'Trò chơi cộng trừ',
+    'suneo_shopping_game': 'Siêu thị Xeko',
+    # Thêm các tên game khác (tên trong DB : tên muốn hiển thị)
+}
+def translate_game_name(db_name):
+    """Hàm dịch tên game từ DB sang tên tiếng Việt"""
+    return GAME_NAME_MAP.get(db_name, db_name) # Trả về tên tiếng Việt, nếu không có thì trả về tên gốc
+
+
+# === 9. CHẠY SERVER (ĐÃ VÔ HIỆU HÓA ĐỂ DEPLOY) ===
+# if __name__ == '__main__':
+#     with app.app_context():
+#         db.create_all() # Tạo bảng nếu chưa có
+#     print("Khởi động server...")
+#     app.run(debug=True, port=5000)
