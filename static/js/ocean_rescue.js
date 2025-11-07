@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameState = 'win';
                 
                 // === GỌI HÀM LƯU ĐIỂM KHI THẮNG ===
-                sendScoreToBackend('ocean_rescue', score);
+                sendScoreToBackend('Giải cứu Mimi', score);
             } else {
                 player.isJumping = true;
                 player.dy = jumpPower;
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(timerInterval);
                 gameState = 'gameOver';
                 // === GỌI HÀM LƯU ĐIỂM KHI THUA (HẾT GIỜ DO TRỪ) ===
-                sendScoreToBackend('ocean_rescue', score); 
+                sendScoreToBackend('Giải cứu Mimi', score); 
                 gameOverModal.style.display = 'flex';
             } else {
                 gameState = 'running';
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     clearInterval(timerInterval);
                     gameState = 'gameOver';
                     // === GỌI HÀM LƯU ĐIỂM KHI THUA (HẾT GIỜ) ===
-                    sendScoreToBackend('ocean_rescue', score);
+                    sendScoreToBackend('Giải cứu Mimi', score);
                     gameOverModal.style.display = 'flex'; 
                 }
             }

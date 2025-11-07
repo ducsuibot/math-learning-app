@@ -359,7 +359,6 @@ def generate_student_report():
         1. Khen ngợi chung về tình hình học tập (dựa trên điểm số).
         2. Chỉ ra bé giỏi nhất game nào (game có điểm cao nhất).
         3. Động viên bé cố gắng ở game có điểm thấp nhất (nếu có).
-        
         Viết với giọng văn của Doraemon: thân thiện, hài hước, và động viên, gọi bé là "cậu".
         """
         chat_completion = client.chat.completions.create(
@@ -374,10 +373,10 @@ def generate_student_report():
     except Exception as e:
         print(f"Lỗi khi gọi Groq API (Báo cáo): {e}")
         return jsonify({"report": "Ối, tớ đang gặp chút trục trặc khi tạo báo cáo..."}), 500
-# === 9. CHẠY SERVER (ĐÃ SỬA LẠI ĐỂ CHẠY LOCAL) ===
-#if __name__ == '__main__':
-#    with app.app_context():
-#        db.create_all() # Tạo bảng nếu chưa có
-#    print("Khởi động server...")
+# === 9. CHẠY SERVER (ĐÃ SỬA LẠI ĐỂ CHẠY LOCAL) ===#
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all() # Tạo bảng nếu chưa có
+    print("Khởi động server...")
     # Dùng app.run() tiêu chuẩn thay vì socketio.run()
-#    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000)
