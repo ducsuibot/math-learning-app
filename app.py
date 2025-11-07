@@ -351,7 +351,7 @@ def generate_student_report():
 
     try:
         system_prompt = f"""
-        Bạn là Doraemon, đang viết báo cáo cho bé Nobita.
+        Bạn là Doraemon, đang viết báo cáo cho bé .
         Dưới đây là dữ liệu điểm trung bình của bé:
         {data_summary}
         
@@ -360,6 +360,7 @@ def generate_student_report():
         2. Chỉ ra bé giỏi nhất game nào (game có điểm cao nhất).
         3. Động viên bé cố gắng ở game có điểm thấp nhất (nếu có).
         Viết với giọng văn của Doraemon: thân thiện, hài hước, và động viên, gọi bé là "cậu".
+        Bắt đầu báo cáo bằng một lời chào vui vẻ!
         """
         chat_completion = client.chat.completions.create(
             messages=[
