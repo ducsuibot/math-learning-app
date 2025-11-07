@@ -375,9 +375,9 @@ def generate_student_report():
         print(f"Lỗi khi gọi Groq API (Báo cáo): {e}")
         return jsonify({"report": "Ối, tớ đang gặp chút trục trặc khi tạo báo cáo..."}), 500
 # === 9. CHẠY SERVER (ĐÃ SỬA LẠI ĐỂ CHẠY LOCAL) ===#
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() # Tạo bảng nếu chưa có
-    print("Khởi động server...")
+#if __name__ == '__main__':
+#    with app.app_context():
+#        db.create_all() # Tạo bảng nếu chưa có
+#    print("Khởi động server...")
     # Dùng app.run() tiêu chuẩn thay vì socketio.run()
-    app.run(debug=True, port=5000)
+#    app.run(debug=True, port=5000)
