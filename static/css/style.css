@@ -1264,3 +1264,75 @@ body {
     color: var(--doraemon-yellow);
     animation: pulse 1s infinite;
 }
+
+/* === MENU NỔI GÓC DƯỚI TRÁI === */
+.floating-menu-left {
+    position: fixed; /* Cố định vị trí so với màn hình */
+    bottom: 30px;
+    left: 30px;
+    z-index: 9999; /* Luôn nổi trên cùng mọi thứ */
+    display: flex;
+    flex-direction: column; /* Xếp dọc */
+    gap: 15px;       
+}
+
+.float-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;     
+    height: 60px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    position: relative; 
+    text-decoration: none;
+    border: 3px solid transparent;
+}
+
+.float-btn img {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+}
+
+/* Hiệu ứng khi di chuột vào */
+.float-btn:hover {
+    transform: scale(1.1) translateY(-3px); 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+/* Màu sắc riêng */
+.shop-float-btn {
+    background-color: #FFF8E1;
+    border-color: #FFC107; /* Viền vàng */
+}
+
+.inventory-float-btn {
+    background-color: #E8F5E9;
+    border-color: #4CAF50; /* Viền xanh lá */
+}
+
+/* --- Tooltip (Chữ hiện ra bên cạnh) --- */
+.float-tooltip {
+    position: absolute;
+    left: 70px; 
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.float-btn:hover .float-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+

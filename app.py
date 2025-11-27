@@ -49,11 +49,25 @@ class User(UserMixin, db.Model):
     gender = db.Column(db.String(10), nullable=True)
     age = db.Column(db.Integer, nullable=True)
     hobbies = db.Column(db.Text, nullable=True)
+    
+    # [MỚI] Trường lưu số điểm hiện có (để tiêu xài)
+    current_points = db.Column(db.Integer, default=0) 
+    
     scores = db.relationship('GameScore', backref='player', lazy=True)
+    # [MỚI] Quan hệ với túi đồ
+    inventory = db.relationship('UserInventory', backref='owner', lazy=True)
 
     def set_password(self, password): self.password_hash = generate_password_hash(password)
     def check_password(self, password): return check_password_hash(self.password_hash, password)
     def __repr__(self): return f'<User {self.username}>'
+
+
+# [MỚI] Model Túi Đồ
+class UserInventory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    item_id = db.Column(db.String(50), nullable=False) # Lưu key của vật phẩm (ví dụ: 'item_chongchong')
+    quantity = db.Column(db.Integer, default=1)        # Số lượng sở hữu
 
 # === 4. HÀM USER LOADER ===
 @login_manager.user_loader
@@ -236,16 +250,26 @@ def save_score():
     data = request.get_json()
     game_name = data.get('game_name')
     score_value = data.get('score')
+    
     if game_name and score_value is not None:
         try:
+            score_int = int(score_value)
+            # 1. Lưu lịch sử điểm số
             new_score = GameScore(
                 game_name=game_name, 
-                score=int(score_value), 
+                score=score_int, 
                 player=current_user
             )
             db.session.add(new_score)
+            
+            # 2. [MỚI] Cộng điểm vào ví tiền của user
+            # Nếu user chưa có trường current_points (do db cũ), hãy xử lý lỗi hoặc set default=0
+            if current_user.current_points is None:
+                current_user.current_points = 0
+            current_user.current_points += score_int
+            
             db.session.commit()
-            return jsonify({"message": "Lưu điểm thành công!"}), 201
+            return jsonify({"message": f"Lưu thành công! Bạn nhận được {score_int} điểm."}), 201
         except Exception as e:
             db.session.rollback()
             print(f"Lỗi khi lưu điểm: {e}")
@@ -258,10 +282,10 @@ def practice():
     return render_template('practice.html')
 @app.route('/compare-images')
 def compare_images(): 
-    return render_template('compare-images.html')
+    return render_template('compare_images.html')
 @app.route('/plus-minus-game')
 def plus_minus_game(): 
-    return render_template('plus-minus-game.html')
+    return render_template('plus_minus_game.html')
 @app.route('/ocean-rescue')
 def ocean_rescue_game(): 
     return render_template('ocean_rescue.html')
@@ -381,9 +405,92 @@ def translate_game_name(db_name):
     return GAME_NAME_MAP.get(db_name, db_name) # Trả về tên tiếng Việt, nếu không có thì trả về tên gốc
 
 
+
+# ... (giữ nguyên các import và cấu hình cũ)
+
+# --- LOGIC CỬA HÀNG VÀ TÚI ĐỒ ---
+
+# Định nghĩa các vật phẩm (có thể lưu trong DB hoặc hardcode đơn giản như này)
+ITEMS_DATA = {
+    'item_chongchong': {'name': 'Chong chóng tre', 'price': 50, 'img': 'item_chongchong.png'},
+    'item_canhcua': {'name': 'Cánh cửa thần kỳ', 'price': 100, 'img': 'item_canhcua.png'},
+    'item_denden': {'name': 'Đèn pin thu nhỏ', 'price': 80, 'img': 'item_denden.png'},
+    'item_banhmi': {'name': 'Bánh mì chuyển ngữ', 'price': 60, 'img': 'item_banhmi.png'},
+    'item_khantraiphu': {'name': 'Khăn trùm thời gian', 'price': 90, 'img': 'item_khantraiphu.png'},
+    'item_co_may': {'name': 'Cỗ máy thời gian', 'price': 200, 'img': 'item_co_may.png'},
+    'item_dai_bang': {'name': 'Mối duyên vương vấn', 'price': 10000, 'img': 'moi_duyen_vuong_van.png'},
+    'item_vong_xuyen': {'name': 'Mối duyên tương ngộ', 'price': 10000, 'img': 'moi_duyen_tuong_ngo.png'},
+    'item_gang_tay': {'name': 'Găng tay sức mạnh', 'price': 60, 'img': 'item_gang_tay.png'},
+    'item_mu_da': {'name': 'Mũ đá cuội', 'price': 40, 'img': 'item_mu_da.png'}
+}
+
+# === CẬP NHẬT ROUTE inventory ===
+@app.route('/inventory')
+@login_required
+def inventory():
+    # Lấy danh sách vật phẩm từ DB của user hiện tại
+    user_inventory = UserInventory.query.filter_by(user_id=current_user.id).all()
+    
+    # Truyền cả danh sách inventory (DB) và thông tin chi tiết vật phẩm (Dictionary)
+    return render_template('inventory.html', 
+                           user_inventory=user_inventory, 
+                           item_data=ITEMS_DATA)
+
+# === CẬP NHẬT ROUTE shop ===
+@app.route('/shop')
+@login_required
+def shop():
+    # Truyền thêm current_points để hiển thị số tiền user đang có
+    return render_template('shop.html', items=ITEMS_DATA, user_points=current_user.current_points)
+
+# === CẬP NHẬT ROUTE buy_item (Logic mua hàng thật sự) ===
+@app.route('/buy_item/<item_id>', methods=['POST'])
+@login_required
+def buy_item(item_id):
+    item_info = ITEMS_DATA.get(item_id)
+    if not item_info:
+        return jsonify({'success': False, 'msg': 'Vật phẩm không tồn tại!'})
+    
+    price = item_info['price']
+    
+    # Kiểm tra điểm
+    if current_user.current_points is None: current_user.current_points = 0
+    
+    if current_user.current_points >= price:
+        try:
+            # 1. Trừ tiền
+            current_user.current_points -= price
+            
+            # 2. Kiểm tra xem user đã có vật phẩm này chưa
+            existing_item = UserInventory.query.filter_by(user_id=current_user.id, item_id=item_id).first()
+            
+            if existing_item:
+                # Nếu có rồi -> Tăng số lượng
+                existing_item.quantity += 1
+            else:
+                # Nếu chưa có -> Tạo mới
+                new_item = UserInventory(user_id=current_user.id, item_id=item_id, quantity=1)
+                db.session.add(new_item)
+            
+            db.session.commit()
+            
+            return jsonify({
+                'success': True, 
+                'msg': f'Đã mua {item_info["name"]} thành công!',
+                'new_balance': current_user.current_points # Trả về số dư mới để update giao diện
+            })
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"Lỗi mua hàng: {e}")
+            return jsonify({'success': False, 'msg': 'Có lỗi xảy ra khi giao dịch.'})
+    else:
+        return jsonify({'success': False, 'msg': 'Bạn không đủ điểm để mua vật phẩm này!'})
+
+# ... (giữ nguyên các route cũ)
 # === 9. CHẠY SERVER (ĐÃ VÔ HIỆU HÓA ĐỂ DEPLOY) ===
-# if __name__ == '__main__':
-#     with app.app_context():
-#         db.create_all() # Tạo bảng nếu chưa có
-#     print("Khởi động server...")
-#     app.run(debug=True, port=5000)
+if __name__ == '__main__':
+     with app.app_context():
+         db.create_all() # Tạo bảng nếu chưa có
+     print("Khởi động server...")
+     app.run(debug=True, port=5000)

@@ -38,4 +38,52 @@
     </div>
 </header>
 
+<!-- MENU NỔI CỐ ĐỊNH -->
+<div class="fixed-menu">
+    <a href="{{ url_for('shop') }}" class="menu-btn shop-btn" title="Cửa Hàng">
+        <img src="{{ url_for('static', filename='img/shop_icon.png') }}" alt="Shop">
+    </a>
+    <a href="{{ url_for('inventory') }}" class="menu-btn inventory-btn" title="Túi Đồ">
+        <img src="{{ url_for('static', filename='img/bag_icon.png') }}" alt="Inventory">
+    </a>
+</div>
+
+<style>
+    .fixed-menu {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .menu-btn {
+        width: 60px;
+        height: 60px;
+        background-color: #fff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+        border: 3px solid var(--doraemon-blue);
+    }
+    .menu-btn:hover {
+        transform: scale(1.1);
+    }
+    .menu-btn img {
+        width: 35px;
+        height: 35px;
+    }
+    .shop-btn {
+        background-color: #FFF9C4; /* Màu vàng nhạt cho Shop */
+    }
+    .inventory-btn {
+        background-color: #E3F2FD; /* Màu xanh nhạt cho Túi */
+    }
+</style>
+
+
 

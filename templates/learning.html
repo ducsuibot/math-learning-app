@@ -21,8 +21,7 @@
             <nav>
                 <ul>
                     <li><a href="{{ url_for('index') }}">Trang chủ</a></li>
-                    <li><a href="{{ url_for('learning') }}">Học bài</a></li>
-                    <li><a href="{{ url_for('my_stats') }}">Báo cáo</a></li> 
+                    <li><a href="{{ url_for('learning') }}">Học bài</a></li> 
                     <li><a href="{{ url_for('practice') }}">Luyện tập AI</a></li>
                     <li><a href="{{ url_for('chatbot_page') }}">Chat với Doraemon</a></li>
                     
@@ -84,7 +83,7 @@
                 </div>
                 <div id="submenu-tro-choi" class="submenu">
                     <a href="{{ url_for('practice') }}" class="submenu-item">Đếm số bằng AI</a>
-                    <a href="#" class="submenu-item">Chạy nào Doremon</a> <a href="{{ url_for('time_machine_game') }}" class="submenu-item"> Cỗ máy thời gian</a> <a href="{{ url_for('ocean_rescue_game') }}" class="submenu-item">Giải cứu Mimi</a>
+                    <a href="{{ url_for('ocean_rescue_game') }}" class="submenu-item">Giải cứu Mimi</a>
                 </div>
             </div>
         </section>

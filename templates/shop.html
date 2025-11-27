@@ -1,0 +1,86 @@
+<body>
+    {% include '_header_2.html' %}
+    
+    <main class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>🏪 Cửa Hàng Bảo Bối</h2>
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        .shop-item {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .shop-item:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+        .shop-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+        .shop-item h4 {
+            color: var(--doraemon-blue);
+            margin-bottom: 5px;
+        }
+        .price-tag {
+            background-color: var(--doraemon-yellow);
+            color: var(--text-dark);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+    </style>
+            <div class="user-wallet" style="background: #E3F2FD; padding: 10px 20px; border-radius: 20px; border: 2px solid var(--doraemon-blue); font-weight: bold;">
+                💰 Điểm của bạn: <span id="user-points">{{ user_points if user_points else 0 }}</span>
+            </div>
+        </div>
+
+        <div class="shop-grid">
+            {% for id, item in items.items() %}
+            <div class="shop-item">
+                <img src="{{ url_for('static', filename='img/' + item.img) }}" alt="{{ item.name }}">
+                <h4>{{ item.name }}</h4>
+                <div class="price-tag">{{ item.price }} điểm</div>
+                <button class="button-primary" onclick="buyItem('{{ id }}')">Mua ngay</button>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    {% include '_footer.html' %}
+
+    <script>
+        function buyItem(itemId) {
+            fetch(`/buy_item/${itemId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.msg);
+                        // [MỚI] Cập nhật số điểm hiển thị ngay lập tức
+                        if (data.new_balance !== undefined) {
+                            document.getElementById('user-points').innerText = data.new_balance;
+                        }
+                    } else {
+                        alert(data.msg); // Thông báo lỗi (ví dụ: không đủ tiền)
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+    </script>
+</body>
+</html>
