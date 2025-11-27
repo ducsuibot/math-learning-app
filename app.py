@@ -487,10 +487,36 @@ def buy_item(item_id):
     else:
         return jsonify({'success': False, 'msg': 'Bạn không đủ điểm để mua vật phẩm này!'})
 
+
+# --- ĐOẠN CODE SỬA LỖI DATABASE (CHẠY 1 LẦN RỒI XÓA) ---
+from sqlalchemy import text
+
+@app.route('/fix_db_now')
+def fix_db_now():
+    try:
+        # 1. Thêm cột current_points
+        with app.app_context():
+            # Kiểm tra xem cột có chưa để tránh lỗi
+            with db.engine.connect() as conn:
+                try:
+                    conn.execute(text('ALTER TABLE "user" ADD COLUMN current_points INTEGER DEFAULT 0;'))
+                    conn.commit()
+                    msg1 = "Đã thêm cột current_points thành công!"
+                except Exception as e:
+                    msg1 = f"Cột current_points có thể đã tồn tại hoặc lỗi: {e}"
+
+            # 2. Tạo bảng UserInventory (nếu chưa có)
+            db.create_all()
+            msg2 = "Đã rà soát và tạo các bảng còn thiếu (UserInventory)."
+            
+        return f"<h1>KẾT QUẢ SỬA LỖI:</h1><p>1. {msg1}</p><p>2. {msg2}</p><p>👉 Giờ bạn có thể quay lại trang chủ chơi game!</p>"
+    except Exception as e:
+        return f"<h1>CÓ LỖI XẢY RA:</h1><p>{str(e)}</p>"
+# --------------------------------------------------------
 # ... (giữ nguyên các route cũ)
 # === 9. CHẠY SERVER (ĐÃ VÔ HIỆU HÓA ĐỂ DEPLOY) ===
-if __name__ == '__main__':
-     with app.app_context():
-         db.create_all() # Tạo bảng nếu chưa có
-     print("Khởi động server...")
-     app.run(debug=True, port=5000)
+#if __name__ == '__main__':
+#     with app.app_context():
+#         db.create_all() # Tạo bảng nếu chưa có
+#     print("Khởi động server...")
+#     app.run(debug=True, port=5000)
