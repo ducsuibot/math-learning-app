@@ -527,8 +527,8 @@ def generate_mission():
     # 2. Nhờ AI (Nobita) bịa chuyện
     prompt = f"""
     cậu là Nobita, đang nói chuyện với Doraemon.
-    Hãy nghĩ ra một lý do cực kỳ khẩn cấp, hài hước để xin Doraemon cho cậu những món bảo bối sau: {item_names_str}.
-    Giọng văn: rõ ràng,  khẩn khoản, gọi người dùng là "Doraemon ơi", xưng là tớ.
+    Hãy nghĩ ra một lý do cực kỳ khẩn cấp để xin Doraemon cho cậu những món bảo bối sau: {item_names_str}.
+    Giọng văn: rõ ràng, chỉnh chu,  khẩn cấp, gọi người dùng là "Doraemon ơi", xưng là tớ.
     Viết ngắn gọn 2, 3 dòng
     """
     
