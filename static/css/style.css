@@ -1336,3 +1336,44 @@ body {
     visibility: visible;
 }
 
+
+/* Style cho nút Nhiệm vụ */
+.mission-btn {
+    background-color: #FFEBEE; /* Màu hồng nhạt */
+    border-color: #ff3c30;     /* Viền đỏ */
+    position: relative;        /* Để căn chỉnh badge */
+    animation: wiggle 2s linear infinite; /* Rung lắc liên tục */
+}
+
+.mission-btn:hover {
+    background-color: #ffcdd2;
+}
+
+/* Dấu chấm than đỏ báo động */
+.notify-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Hiệu ứng rung lắc (Wiggle) */
+@keyframes wiggle {
+    0%, 7% { transform: rotateZ(0); }
+    15% { transform: rotateZ(-15deg); }
+    20% { transform: rotateZ(10deg); }
+    25% { transform: rotateZ(-10deg); }
+    30% { transform: rotateZ(6deg); }
+    35% { transform: rotateZ(-4deg); }
+    40%, 100% { transform: rotateZ(0); }
+}

@@ -52,6 +52,11 @@ class User(UserMixin, db.Model):
     
     # [MỚI] Trường lưu số điểm hiện có (để tiêu xài)
     current_points = db.Column(db.Integer, default=0) 
+
+    # [MỚI] Các vật phẩm phần thưởng đặc biệt
+    buff_time_add = db.Column(db.Integer, default=0)      # Bình tăng thời gian
+    buff_skip_question = db.Column(db.Integer, default=0) # Vé đổi câu hỏi
+    buff_double_score = db.Column(db.Integer, default=0)  # Nhân đôi điểm
     
     scores = db.relationship('GameScore', backref='player', lazy=True)
     # [MỚI] Quan hệ với túi đồ
@@ -488,7 +493,111 @@ def buy_item(item_id):
         return jsonify({'success': False, 'msg': 'Bạn không đủ điểm để mua vật phẩm này!'})
 
 
+# --- Thêm vào app.py ---
 
+# Route giao diện nhiệm vụ
+@app.route('/missions')
+@login_required
+def missions():
+    return render_template('missions.html')
+
+# API: Nobita tạo nhiệm vụ mới
+@app.route('/api/generate_mission', methods=['POST'])
+@login_required
+def generate_mission():
+    # 1. Chọn ngẫu nhiên 1 hoặc 2 bảo bối từ Shop
+    all_item_ids = list(ITEMS_DATA.keys())
+    # Chọn 1-2 món ngẫu nhiên
+    required_items_ids = random.sample(all_item_ids, k=random.randint(1, 2))
+    
+    required_items_info = []
+    item_names_str = ""
+    
+    for i_id in required_items_ids:
+        item = ITEMS_DATA[i_id]
+        qty = random.randint(1, 3) # Số lượng cần: 1 đến 3 cái
+        required_items_info.append({
+            "id": i_id,
+            "name": item['name'],
+            "img": item['img'],
+            "qty": qty
+        })
+        item_names_str += f"{qty} cái {item['name']}, "
+
+    # 2. Nhờ AI (Nobita) bịa chuyện
+    prompt = f"""
+    Bạn là Nobita, đang nói chuyện với Doraemon (người dùng).
+    Hãy bịa ra một lý do cực kỳ khẩn cấp, hài hước, hoặc ngớ ngẩn (bị Chaien bắt nạt, bị chó rượt, quên làm bài tập, muốn trốn mẹ đi chơi...) để xin Doraemon cho bạn: {item_names_str}.
+    Giọng văn: Mè nheo, khẩn khoản, gọi người dùng là "Doraemon ơi".
+    Chỉ viết ngắn gọn trong 2-3 câu.
+    """
+    
+    try:
+        story = ask_groq_doraemon(prompt) # Tái sử dụng hàm chat AI cũ
+    except:
+        story = f"Doraemon ơi cứu tớ! Tớ cần {item_names_str} gấp lắm rồi!"
+
+    # Lưu nhiệm vụ hiện tại vào session để tránh gian lận (tùy chọn, ở đây làm đơn giản trả về client)
+    return jsonify({
+        "story": story,
+        "requirements": required_items_info
+    })
+
+# API: Nộp bài (Trả nhiệm vụ)
+@app.route('/api/submit_mission', methods=['POST'])
+@login_required
+def submit_mission():
+    data = request.json
+    requirements = data.get('requirements', [])
+    
+    if not requirements:
+        return jsonify({"success": False, "msg": "Không có nhiệm vụ nào!"})
+
+    # 1. Kiểm tra túi đồ
+    for req in requirements:
+        item_id = req['id']
+        qty_needed = req['qty']
+        
+        user_item = UserInventory.query.filter_by(user_id=current_user.id, item_id=item_id).first()
+        
+        if not user_item or user_item.quantity < qty_needed:
+            item_name = ITEMS_DATA[item_id]['name']
+            return jsonify({"success": False, "msg": f"Cậu chưa có đủ {qty_needed} cái {item_name}! Ra Shop mua nhanh lên!"})
+
+    # 2. Trừ đồ và Trao thưởng
+    try:
+        # Trừ đồ
+        for req in requirements:
+            item_id = req['id']
+            qty_needed = req['qty']
+            user_item = UserInventory.query.filter_by(user_id=current_user.id, item_id=item_id).first()
+            user_item.quantity -= qty_needed
+            if user_item.quantity == 0:
+                db.session.delete(user_item)
+        
+        # Random phần thưởng
+        reward_type = random.choice(['time', 'skip', 'double'])
+        reward_msg = ""
+        
+        if reward_type == 'time':
+            current_user.buff_time_add = (current_user.buff_time_add or 0) + 1
+            reward_msg = "⏳ 1 Bình Tăng Thời Gian (Dùng trong Game)"
+        elif reward_type == 'skip':
+            current_user.buff_skip_question = (current_user.buff_skip_question or 0) + 1
+            reward_msg = "🎫 1 Vé Đổi Câu Hỏi"
+        else:
+            current_user.buff_double_score = (current_user.buff_double_score or 0) + 1
+            reward_msg = "✨ 1 Huy Hiệu Nhân Đôi Điểm"
+
+        db.session.commit()
+        return jsonify({
+            "success": True, 
+            "msg": f"Cảm ơn Doraemon! Cậu là cứu tinh của tớ! <br><b>Phần thưởng:</b> {reward_msg}"
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "msg": f"Lỗi server: {str(e)}"})
 # --------------------------------------------------------
 # ... (giữ nguyên các route cũ)
 # === 9. CHẠY SERVER (ĐÃ VÔ HIỆU HÓA ĐỂ DEPLOY) ===

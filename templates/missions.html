@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Nhiệm Vụ Của Nobita</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .mission-container {
+            max-width: 800px; margin: 30px auto; background: #fff;
+            border-radius: 20px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 4px solid var(--doraemon-blue);
+        }
+        .nobita-chat {
+            display: flex; gap: 20px; align-items: flex-start; margin-bottom: 30px;
+        }
+        .nobita-avatar {
+            width: 120px; flex-shrink: 0;
+        }
+        .nobita-avatar img { width: 100%; border-radius: 50%; border: 3px solid #333; }
+        
+        .chat-bubble {
+            background: #f0f0f0; padding: 20px; border-radius: 20px;
+            position: relative; font-size: 1.1rem; color: #333; line-height: 1.6;
+            border: 2px solid #ccc; flex-grow: 1;
+        }
+        .chat-bubble::before {
+            content: ''; position: absolute; left: -15px; top: 30px;
+            border-style: solid; border-width: 10px 15px 10px 0;
+            border-color: transparent #ccc transparent transparent;
+        }
+
+        .req-grid {
+            display: flex; justify-content: center; gap: 20px; margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .req-item {
+            border: 2px dashed var(--doraemon-red); border-radius: 15px;
+            padding: 15px; text-align: center; background: #FFF3E0; width: 150px;
+        }
+        .req-item img { width: 60px; height: 60px; object-fit: contain; }
+        
+        .action-area { text-align: center; margin-top: 30px; }
+        .loading { display: none; color: #666; font-style: italic; }
+        
+        /* Hiệu ứng phần thưởng */
+        .reward-box {
+            background: #E8F5E9; border: 2px solid #4CAF50;
+            padding: 15px; margin-top: 20px; border-radius: 10px; display: none;
+        }
+    </style>
+</head>
+<body>
+    {% include '_header.html' %}
+
+    <main class="container">
+        <div class="mission-container">
+            <h2 style="text-align: center; color: var(--doraemon-blue);">🆘 Nhiệm Vụ Khẩn Cấp!</h2>
+            
+            <div class="nobita-chat">
+                <div class="nobita-avatar">
+                    <img src="static/img/nobta_cry.png" alt="Nobita">
+                    <div style="text-align: center; font-weight: bold; margin-top: 5px;">Nobita</div>
+                </div>
+                <div class="chat-bubble" id="nobitaStory">
+                    Doraemon ơi! Ấn nút bên dưới để xem tớ đang gặp rắc rối gì nhé! Tớ cần cậu giúp gấp lắm!
+                </div>
+            </div>
+
+            <div id="missionRequirements" class="req-grid" style="display: none;">
+                </div>
+
+            <div class="action-area">
+                <button id="btnNewMission" class="button-primary" onclick="getNewMission()">📢 Xem Rắc Rối Của Nobita</button>
+                <button id="btnSubmit" class="button-primary" style="background: #4CAF50; display: none;" onclick="submitMission()">✨ Đưa Bảo Bối Cho Nobita</button>
+                <p class="loading" id="loadingText">Nobita đang nghĩ lý do...</p>
+            </div>
+            
+            <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 1rem;">
+            </div>
+                <h4>🎒 Kho Phần Thưởng Của Bạn:</h4>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <span class="badge">⏳ Thêm giờ: {{ current_user.buff_time_add or 0 }}</span>
+                    <span class="badge">🎫 Đổi câu: {{ current_user.buff_skip_question or 0 }}</span>
+                    <span class="badge">✨ X2 Điểm: {{ current_user.buff_double_score or 0 }}</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <style>
+        .badge { background: #333; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem; }
+    </style>
+
+    {% include '_footer.html' %}
+
+    <script>
+        let currentRequirements = [];
+
+        function getNewMission() {
+            document.getElementById('btnNewMission').disabled = true;
+            document.getElementById('loadingText').style.display = 'block';
+            document.getElementById('missionRequirements').style.display = 'none';
+            document.getElementById('btnSubmit').style.display = 'none';
+
+            fetch('/api/generate_mission', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    // Hiển thị kịch bản
+                    typeWriter(data.story, 'nobitaStory');
+                    
+                    // Hiển thị yêu cầu
+                    currentRequirements = data.requirements;
+                    const reqDiv = document.getElementById('missionRequirements');
+                    reqDiv.innerHTML = '';
+                    
+                    data.requirements.forEach(item => {
+                        reqDiv.innerHTML += `
+                            <div class="req-item">
+                                <img src="/static/img/${item.img}">
+                                <div style="font-weight:bold; margin:5px 0;">${item.name}</div>
+                                <div style="color:red;">Cần: ${item.qty}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    reqDiv.style.display = 'flex';
+                    document.getElementById('btnSubmit').style.display = 'inline-block';
+                    document.getElementById('btnNewMission').innerText = "🔄 Đổi Nhiệm Vụ Khác";
+                })
+                .catch(err => Swal.fire("Lỗi", "Không thể gọi Nobita lúc này!", "error"))
+                .finally(() => {
+                    document.getElementById('btnNewMission').disabled = false;
+                    document.getElementById('loadingText').style.display = 'none';
+                });
+        }
+
+        function submitMission() {
+            if (!currentRequirements.length) return;
+
+            fetch('/api/submit_mission', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ requirements: currentRequirements })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Thành công!',
+                        html: data.msg,
+                        icon: 'success',
+                        confirmButtonText: 'Tuyệt vời!'
+                    }).then(() => {
+                        location.reload(); // Load lại để cập nhật số lượng buff
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Thiếu đồ rồi!',
+                        text: data.msg,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Đến Cửa Hàng Ngay',
+                        cancelButtonText: 'Để kiếm sau'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{{ url_for('shop') }}";
+                        }
+                    });
+                }
+            });
+        }
+
+        // Hiệu ứng gõ chữ
+        function typeWriter(text, elementId) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = '';
+            let i = 0;
+            const speed = 30; 
+            function type() {
+                if (i < text.length) {
+                    el.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+    </script>
+</body>
+</html>

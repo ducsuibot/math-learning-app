@@ -12,38 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>Luyện đếm Doraemon</h1>
-            <nav>
-                <ul>
-                    <li><a href="{{ url_for('index') }}">Trang chủ</a></li>
-                    <li><a href="{{ url_for('learning') }}">Học bài</a></li> 
-                    <li><a href="{{ url_for('practice') }}">Luyện tập AI</a></li>
-                    <li><a href="{{ url_for('chatbot_page') }}">Chat với Doraemon</a></li>
-                    
-                    {% if current_user.is_authenticated %}
-                        <li class="user-menu-container">
-                            <a href="#" class="nav-username" id="user-menu-toggle"> 
-                                Chào, {{ current_user.username }}! <span class="dropdown-arrow">▼</span> 
-                            </a>
-                            <ul class="user-dropdown-menu" id="user-dropdown"> 
-                                <li><a href="{{ url_for('profile') }}">Thông tin người dùng</a></li> 
-                                <li><a href="{{ url_for('edit_profile') }}">Cập nhật thông tin</a></li> 
-                                <li><hr></li> {/* Đường kẻ ngăn cách */}
-                                <li><a href="{{ url_for('logout') }}">Đăng xuất</a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li><a href="{{ url_for('login') }}">Đăng nhập</a></li>
-                        <li><a href="{{ url_for('register') }}">Đăng ký</a></li>
-                    {% endif %}
-                    
-                    <li><a href="#" id="about-link">Về chúng tôi</a></li> 
-                </ul>
-            </nav>
-        </div>
-    </header>
+    {% include '_header_2.html' %}
 
     <main class="container practice-page">
         <h2>Bé hãy giơ ngón tay để đếm số nào!</h2>
