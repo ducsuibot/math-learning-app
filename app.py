@@ -515,7 +515,7 @@ def generate_mission():
     
     for i_id in required_items_ids:
         item = ITEMS_DATA[i_id]
-        qty = random.randint(1, 3) # Số lượng cần: 1 đến 3 cái
+        qty = random.randint(1, 2) # Số lượng cần: 1 đến 2 cái
         required_items_info.append({
             "id": i_id,
             "name": item['name'],
@@ -526,10 +526,9 @@ def generate_mission():
 
     # 2. Nhờ AI (Nobita) bịa chuyện
     prompt = f"""
-    Bạn là Nobita, đang nói chuyện với Doraemon (người dùng).
-    Hãy bịa ra một lý do cực kỳ khẩn cấp, hài hước, hoặc ngớ ngẩn (bị Chaien bắt nạt, bị chó rượt, quên làm bài tập, muốn trốn mẹ đi chơi...) để xin Doraemon cho bạn: {item_names_str}.
-    Giọng văn: Mè nheo, khẩn khoản, gọi người dùng là "Doraemon ơi".
-    Chỉ viết ngắn gọn trong 2-3 câu.
+    cậu là Nobita, đang nói chuyện với Doraemon.
+    Hãy nghĩ ra một lý do cực kỳ khẩn cấp, hài hước để xin Doraemon cho cậu những món bảo bối sau: {item_names_str}.
+    Giọng văn: Nhõng nhẽo, khẩn khoản, gọi người dùng là "Doraemon ơi", xưng là tớ.
     """
     
     try:
