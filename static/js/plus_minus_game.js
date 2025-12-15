@@ -23,10 +23,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function showChaienFeedback(isCorrect) {
         if (isCorrect) {
             feedbackText.innerText = "Bé trả lời đúng rồi, tốt lắm!"; // Sửa lại icon :)
-            chaienImage.src = '/static/img/chaien_dung.png'; // Giả sử bạn có ảnh này
+            chaienImage.src = '/static/img/gian.png'; // Giả sử bạn có ảnh này
         } else {
             feedbackText.innerText = "Bé trả lời sai rồi, Chaien tặng bé 1 bài hát nhé!"; // Sửa lại icon
-            chaienImage.src = '/static/img/chaien_sai.png'; // Giả sử bạn có ảnh này
+            chaienImage.src = '/static/img/chaa.png'; // Giả sử bạn có ảnh này
         }
         feedbackModal.classList.add('active');
     }

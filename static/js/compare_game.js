@@ -23,9 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // (Hãy thêm các file ảnh của bạn vào /static/img/ và thêm vào danh sách này)
     const availableImages = [
         '/static/img/cat_icon.png',
-        '/static/img/dog_icon.png', 
-        '/static/img/apple.png',
-        '/static/img/doraemon_icon.png', 
+        '/static/img/dog_icon.png',  
     ];
     // ==========================================================
 

@@ -495,6 +495,31 @@ def buy_item(item_id):
 
 # --- Thêm vào app.py ---
 
+# [MỚI] Hàm mới: Kể Chuyện/Bịa Chuyện
+def ask_groq_story_teller(story_prompt):
+    if not groq_configured or not client: 
+        return "Lỗi: Không thể kết nối Groq API."
+    try:
+        # *** System Prompt MỚI: Dành cho việc Kể chuyện/Bịa chuyện ***
+        system_prompt = """
+        Bạn là Nobita, đang nói chuyện với Doraemon. 
+        Hãy trả lời bằng cách nghĩ ra một câu chuyện hoặc lý do khẩn cấp theo yêu cầu.
+        Giọng văn: rõ ràng, chỉnh chu, khẩn cấp, gọi người dùng là "Doraemon ơi", xưng là tớ.
+        Viết ngắn gọn 2, 3 dòng.
+        """
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": story_prompt} # story_prompt chứa yêu cầu của Nobita
+            ],
+            model="openai/gpt-oss-20b",
+        )
+        reply = chat_completion.choices[0].message.content
+        return reply.strip()
+    except Exception as e:
+        print(f"Lỗi gọi Groq API (Story): {e}")
+        return "Ối, tớ đang gặp chút trục trặc khi nghĩ ra câu chuyện mất rồi..."
+
 # Route giao diện nhiệm vụ
 @app.route('/missions')
 @login_required
@@ -525,15 +550,14 @@ def generate_mission():
         item_names_str += f"{qty} cái {item['name']}, "
 
     # 2. Nhờ AI (Nobita) bịa chuyện
+    # 2. Nhờ AI (Nobita) bịa chuyện
     prompt = f"""
-    cậu là Nobita, đang nói chuyện với Doraemon.
-    Hãy nghĩ ra một lý do cực kỳ khẩn cấp để xin Doraemon cho cậu những món bảo bối sau: {item_names_str}.
-    Giọng văn: rõ ràng, chỉnh chu,  khẩn cấp, gọi người dùng là "Doraemon ơi", xưng là tớ.
-    Viết ngắn gọn 2, 3 dòng
+    Hãy nghĩ ra một lý do cực kỳ khẩn cấp để xin cho tớ những món bảo bối sau: {item_names_str}.
     """
     
     try:
-        story = ask_groq_doraemon(prompt) # Tái sử dụng hàm chat AI cũ
+        # === ĐÃ SỬA: Dùng hàm mới ask_groq_story_teller ===
+        story = ask_groq_story_teller(prompt) 
     except:
         story = f"Doraemon ơi cứu tớ! Tớ cần {item_names_str} gấp lắm rồi!"
 
@@ -601,8 +625,8 @@ def submit_mission():
 # --------------------------------------------------------
 # ... (giữ nguyên các route cũ)
 # === 9. CHẠY SERVER (ĐÃ VÔ HIỆU HÓA ĐỂ DEPLOY) ===
-#if __name__ == '__main__':
-#     with app.app_context():
-#         db.create_all() # Tạo bảng nếu chưa có
-#     print("Khởi động server...")
-#     app.run(debug=True, port=5000)
+if __name__ == '__main__':
+     with app.app_context():
+         db.create_all() # Tạo bảng nếu chưa có
+     print("Khởi động server...")
+     app.run(debug=True, port=5000)
