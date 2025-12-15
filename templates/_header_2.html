@@ -38,11 +38,19 @@
     </div>
 </header>
 
+<audio id="bg-music" loop>
+    <source src="{{ url_for('static', filename='audio/doraemon.mp3') }}" type="audio/mpeg">
+</audio>
+
 <div class="fixed-menu">
-    
+    <div class="menu-btn music-btn" onclick="toggleMusic()" title="Bật/Tắt Nhạc Doraemon">
+        <img id="music-icon" src="https://cdn-icons-png.flaticon.com/512/461/461238.png" alt="Music">
+    </div>
+
     <a href="{{ url_for('missions') }}" class="menu-btn mission-btn" title="Nobita Gặp Rắc Rối!">
         <img src="{{ url_for('static', filename='img/cry.png') }}" alt="Missions">
-        <span class="notify-badge">!</span> </a>
+        <span class="notify-badge">!</span> 
+    </a>
 
     <a href="{{ url_for('shop') }}" class="menu-btn shop-btn" title="Cửa Hàng">
         <img src="{{ url_for('static', filename='img/shop_icon.png') }}" alt="Shop">
@@ -74,6 +82,7 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         transition: transform 0.3s ease;
         border: 3px solid var(--doraemon-blue);
+        cursor: pointer; /* Thêm con trỏ tay */
     }
     .menu-btn:hover {
         transform: scale(1.1);
@@ -83,12 +92,90 @@
         height: 35px;
     }
     .shop-btn {
-        background-color: #FFF9C4; /* Màu vàng nhạt cho Shop */
+        background-color: #FFF9C4;
     }
     .inventory-btn {
-        background-color: #E3F2FD; /* Màu xanh nhạt cho Túi */
+        background-color: #E3F2FD;
+    }
+    
+    /* --- Style cho nút Nhạc --- */
+    .music-btn {
+        background-color: #29B6F6; /* Màu cam hồng san hô */
+        border-color: #0288D1;     /* Viền cam đậm */
+        color: white;
+    }
+    
+    /* Hiệu ứng xoay khi nhạc đang chạy */
+    .music-playing img {
+        animation: spinMusic 3s linear infinite;
+    }
+    
+    @keyframes spinMusic {
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Hiệu ứng tắt nhạc (xám màu) */
+    .music-stopped img {
+        filter: grayscale(100%);
+        opacity: 0.6;
     }
 </style>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var music = document.getElementById("bg-music");
+        var btn = document.querySelector(".music-btn");
+
+        // 1. KHÔI PHỤC TRẠNG THÁI TỪ BỘ NHỚ
+        var isPlaying = localStorage.getItem("musicStatus") === "on";
+        var currentTime = parseFloat(localStorage.getItem("musicTime")) || 0;
+
+        // Tua đến thời điểm đã lưu
+        music.currentTime = currentTime;
+
+        // Nếu trạng thái cũ là đang bật -> Cố gắng phát tiếp
+        if (isPlaying) {
+            btn.classList.add("music-playing");
+            var playPromise = music.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    // Trình duyệt chặn tự phát (do chưa tương tác)
+                    console.log("Trình duyệt chặn autoplay: Chờ người dùng bấm.");
+                    // Tắt trạng thái xoay để người dùng biết cần bấm lại
+                    btn.classList.remove("music-playing");
+                    btn.classList.add("music-stopped");
+                });
+            }
+        } else {
+            btn.classList.add("music-stopped");
+        }
+
+        // 2. LƯU THỜI GIAN LIÊN TỤC (Mỗi khi nhạc chạy)
+        music.addEventListener("timeupdate", function() {
+            localStorage.setItem("musicTime", music.currentTime);
+        });
+    });
+
+    // 3. HÀM BẬT/TẮT (Khi bấm nút)
+    function toggleMusic() {
+        var music = document.getElementById("bg-music");
+        var btn = document.querySelector(".music-btn");
+
+        if (music.paused) {
+            // BẬT NHẠC
+            music.play();
+            localStorage.setItem("musicStatus", "on"); // Lưu trạng thái ON
+            btn.classList.add("music-playing");
+            btn.classList.remove("music-stopped");
+        } else {
+            // TẮT NHẠC
+            music.pause();
+            localStorage.setItem("musicStatus", "off"); // Lưu trạng thái OFF
+            btn.classList.remove("music-playing");
+            btn.classList.add("music-stopped");
+        }
+    }
+</script>
 
 

@@ -58,7 +58,7 @@
     </main>
 
     {% include '_footer.html' %}
-
+    {% include '_header_fake.html' %} 
     <script>
         // 0. Lấy dữ liệu từ Flask
         const chartDataAvg = {{ chart_data_avg | tojson }};
