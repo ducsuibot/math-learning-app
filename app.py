@@ -423,8 +423,8 @@ ITEMS_DATA = {
     'item_banhmi': {'name': 'Bánh mì chuyển ngữ', 'price': 60, 'img': 'item_banhmi.png'},
     'item_khantraiphu': {'name': 'Khăn trùm thời gian', 'price': 90, 'img': 'item_khantraiphu.png'},
     'item_co_may': {'name': 'Cỗ máy thời gian', 'price': 200, 'img': 'item_co_may.png'},
-    'item_dai_bang': {'name': 'Mối duyên vương vấn', 'price': 10000, 'img': 'moi_duyen_vuong_van.png'},
-    'item_vong_xuyen': {'name': 'Mối duyên tương ngộ', 'price': 10000, 'img': 'moi_duyen_tuong_ngo.png'},
+    'item_dai_bang': {'name': 'Mối duyên vương vấn', 'price': 100, 'img': 'moi_duyen_vuong_van.png'},
+    'item_vong_xuyen': {'name': 'Mối duyên tương ngộ', 'price': 100, 'img': 'moi_duyen_tuong_ngo.png'},
     'item_gang_tay': {'name': 'Găng tay sức mạnh', 'price': 60, 'img': 'item_gang_tay.png'},
     'item_mu_da': {'name': 'Mũ đá cuội', 'price': 40, 'img': 'item_mu_da.png'}
 }
