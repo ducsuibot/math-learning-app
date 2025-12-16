@@ -2,7 +2,28 @@
 
 # 🧮 HỌC TOÁN CÙNG DORAEMON 
 
-**HỌC TOÁN CÙNG DORAEMON** là một ứng dụng web giúp **trẻ 3 - 4 tuổi học toán thông qua trò chơi**, kết hợp hệ thống **AI Chatbot hỗ trợ học tập**, đồng thời có các chức năng như **Báo cáo bằng AI**, **Nhận diện ngón tay bằng AI**, **Hệ thống phần thưởng**,... .
+**HỌC TOÁN CÙNG DORAEMON** là một ứng dụng web giúp **trẻ 3 – 4 tuổi học toán thông qua trò chơi**, kết hợp nhiều chức năng thông minh nhằm tăng hứng thú và hiệu quả học tập:
+
+  ![Game học toán](http://github.com/ducsuibot/math-learning-app/blob/main/Screenshot%20from%202025-12-16%2010-33-13.png)
+- 🎮 **Học toán qua game tương tác**  
+  ![Game học toán](https://your-image-link/game.png)
+
+- 🤖 **AI Chatbot hỗ trợ học tập**  
+  Giải đáp câu hỏi, hướng dẫn học toán đơn giản cho trẻ  
+  ![AI Chatbot](https://your-image-link/chatbot.png)
+
+- 📊 **Báo cáo tiến độ học tập bằng AI**  
+  Phân tích kết quả, đưa ra nhận xét và gợi ý cải thiện  
+  ![AI Report](https://your-image-link/report.png)
+
+- ✋ **Nhận diện ngón tay bằng AI**  
+  Hỗ trợ học đếm số trực quan thông qua camera  
+  ![Finger Detection](https://your-image-link/finger.png)
+
+- 🎁 **Hệ thống phần thưởng**  
+  Tạo động lực học tập thông qua điểm số và thành tích  
+  ![Reward System](https://your-image-link/reward.png)
+,... .
 ## 👨‍💻 Nhóm thực hiện : Nhóm 19
 
 * **Nguyễn Minh Đức 20233331**
@@ -146,19 +167,8 @@ http://127.0.0.1:5000
 
 * Mật khẩu được **hash**
 * Phân quyền rõ ràng theo vai trò
-* Không lưu thông tin nhạy cảm ở frontend
 
 ---
-
-## 📈 Khả năng mở rộng
-
-* Dễ dàng thêm game mới
-* Có thể chuyển sang PostgreSQL khi scale
-* Mở rộng dashboard và báo cáo học tập
-* Tách AI service riêng trong tương lai
-
----
-
 
 ## 📜 Giấy phép
 
