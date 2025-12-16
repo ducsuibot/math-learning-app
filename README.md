@@ -3,14 +3,15 @@
 # 🧮 HỌC TOÁN CÙNG DORAEMON 
 
 **HỌC TOÁN CÙNG DORAEMON** là một ứng dụng web giúp **trẻ 3 – 4 tuổi học toán thông qua trò chơi**, kết hợp nhiều chức năng thông minh nhằm tăng hứng thú và hiệu quả học tập:
-
-  ![Game học toán](http://github.com/ducsuibot/math-learning-app/blob/main/Screenshot%20from%202025-12-16%2010-33-13.png)
+- 🎮 **Giao diện Web**
+  
+  ![Game học toán](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2010-33-13.png)
 - 🎮 **Học toán qua game tương tác**  
-  ![Game học toán](https://your-image-link/game.png)
+  ![Game học toán](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2010-37-10.png)
 
 - 🤖 **AI Chatbot hỗ trợ học tập**  
   Giải đáp câu hỏi, hướng dẫn học toán đơn giản cho trẻ  
-  ![AI Chatbot](https://your-image-link/chatbot.png)
+  ![AI Chatbot](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2010-39-21.png)
 
 - 📊 **Báo cáo tiến độ học tập bằng AI**  
   Phân tích kết quả, đưa ra nhận xét và gợi ý cải thiện  
