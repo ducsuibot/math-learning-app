@@ -5,9 +5,9 @@
 **HỌC TOÁN CÙNG DORAEMON** là một ứng dụng web giúp **trẻ 3 – 4 tuổi học toán thông qua trò chơi**, kết hợp nhiều chức năng thông minh nhằm tăng hứng thú và hiệu quả học tập:
 - 🎮 **Giao diện Web**
   
-  ![Game học toán](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2010-33-13.png)
+  ![Game học toán](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2012-03-59.png)
 - 🎮 **Học toán qua game tương tác**  
-  ![Game học toán](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2010-37-10.png)
+  ![Game học toán](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2012-02-42.png)
 
 - 🤖 **AI Chatbot hỗ trợ học tập**  
   Giải đáp câu hỏi, hướng dẫn học toán đơn giản cho trẻ  
@@ -15,16 +15,21 @@
 
 - 📊 **Báo cáo tiến độ học tập bằng AI**  
   Phân tích kết quả, đưa ra nhận xét và gợi ý cải thiện  
-  ![AI Report](https://your-image-link/report.png)
+  ![AI Report](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2011-53-03.png)
+  ![AI Report](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2011-52-56.png)
 
 - ✋ **Nhận diện ngón tay bằng AI**  
   Hỗ trợ học đếm số trực quan thông qua camera  
-  ![Finger Detection](https://your-image-link/finger.png)
+  ![Finger Detection](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2011-57-05.png)
 
 - 🎁 **Hệ thống phần thưởng**  
   Tạo động lực học tập thông qua điểm số và thành tích  
-  ![Reward System](https://your-image-link/reward.png)
-,... .
+  ![Reward System](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2011-57-43.png)
+  ![Reward System](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2011-57-49.png)
+- 🎁 **Hệ thống nhiệm vụ**  
+  Tạo Nhiệm vụ để nhận phần thưởng  
+  ![Reward System](https://raw.githubusercontent.com/ducsuibot/math-learning-app/main/Screenshot%20from%202025-12-16%2011-58-00.png)
+---
 ## 👨‍💻 Nhóm thực hiện : Nhóm 19
 
 * **Nguyễn Minh Đức 20233331**
