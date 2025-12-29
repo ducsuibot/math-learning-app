@@ -6,63 +6,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const operatorDisplay = document.getElementById('operator');
     const num2Display = document.getElementById('num2');
     const optionButtons = document.querySelectorAll('.option-button');
+    
+    // Modal feedback
     const feedbackModal = document.getElementById('chaien-feedback-modal');
     const feedbackText = document.getElementById('feedback-text');
     const closeFeedbackBtn = document.getElementById('close-feedback-btn');
-    const chaienImage = document.getElementById('chaien-image'); // Lấy element ảnh của Chaien
+    const chaienImage = document.getElementById('chaien-image');
 
     // === BIẾN TRẠNG THÁI CỦA GAME ===
     let score = 0;
-    let timeLeft = 60; // Bạn có thể đổi lại 30s nếu muốn
+    let timeLeft = 60; 
     let correctAnswer;
     let timerInterval;
+    let isClickable = true; 
 
     /**
      * Hàm hiển thị pop-up của Chaien
      */
     function showChaienFeedback(isCorrect) {
         if (isCorrect) {
-            feedbackText.innerText = "Bé trả lời đúng rồi, tốt lắm!"; // Sửa lại icon :)
-            chaienImage.src = '/static/img/gian.png'; // Giả sử bạn có ảnh này
+            feedbackText.innerText = "Bé trả lời đúng rồi, tốt lắm!";
+            feedbackText.style.color = "#4CAF50"; // Màu xanh lá (Giữ nguyên)
+            chaienImage.src = '/static/img/gian.png'; 
         } else {
-            feedbackText.innerText = "Bé trả lời sai rồi, Chaien tặng bé 1 bài hát nhé!"; // Sửa lại icon
-            chaienImage.src = '/static/img/chaa.png'; // Giả sử bạn có ảnh này
+            feedbackText.innerText = "Sai rồi! Chaien sẽ hát tặng bé 1 bài nhé!";
+            feedbackText.style.color = "#F44336"; // Màu đỏ (Giữ nguyên)
+            chaienImage.src = '/static/img/chaa.png'; 
         }
         feedbackModal.classList.add('active');
     }
 
-    // Đóng pop-up
+    // Đóng pop-up và qua câu mới
     closeFeedbackBtn.addEventListener('click', () => {
         feedbackModal.classList.remove('active');
-        generateQuestion(); // Tạo câu hỏi mới sau khi đóng pop-up
+        generateQuestion(); 
     });
 
     /**
-     * Hàm tạo câu hỏi mới
+     * Hàm tạo câu hỏi mới (CHỈ CỘNG 1 CHỮ SỐ)
      */
     function generateQuestion() {
-        const isAddition = Math.random() > 0.5;
-        let num1, num2;
+        optionButtons.forEach(btn => {
+            btn.className = 'option-button'; 
+        });
+        isClickable = true;
 
-        if (isAddition) {
-            num1 = Math.floor(Math.random() * 10) + 1;
-            num2 = Math.floor(Math.random() * 10) + 1;
-            correctAnswer = num1 + num2;
-            operatorDisplay.innerText = '+';
-        } else {
-            num1 = Math.floor(Math.random() * 10) + 5;
-            num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
-            correctAnswer = num1 - num2;
-            operatorDisplay.innerText = '-';
-        }
+        operatorDisplay.innerText = '+';
+
+        // Random số từ 1 đến 9
+        let num1 = Math.floor(Math.random() * 9) + 1;
+        let num2 = Math.floor(Math.random() * 9) + 1;
+        
+        correctAnswer = num1 + num2;
 
         num1Display.innerText = num1;
         num2Display.innerText = num2;
 
+        // Tạo đáp án nhiễu
         const answers = [correctAnswer];
         while (answers.length < 4) {
-            let wrongAnswer = correctAnswer + (Math.floor(Math.random() * 5) - 2);
-            if (wrongAnswer >= 0 && !answers.includes(wrongAnswer) && wrongAnswer !== correctAnswer) {
+            let wrongAnswer = correctAnswer + (Math.floor(Math.random() * 7) - 3);
+            if (wrongAnswer >= 0 && !answers.includes(wrongAnswer)) {
                 answers.push(wrongAnswer);
             }
         }
@@ -71,64 +75,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         optionButtons.forEach((button, index) => {
             button.innerText = answers[index];
-            button.onclick = () => checkAnswer(answers[index]);
+            button.onclick = null; 
+            button.onclick = () => checkAnswer(button, answers[index]);
         });
     }
 
     /**
      * Hàm kiểm tra đáp án
      */
-    function checkAnswer(chosenAnswer) {
-        if (timeLeft <= 0) return; // Không cho trả lời nếu đã hết giờ
+    function checkAnswer(btn, chosenAnswer) {
+        if (timeLeft <= 0 || !isClickable) return; 
+        isClickable = false; 
 
         if (chosenAnswer === correctAnswer) {
             score += 10;
             scoreDisplay.innerText = score;
-            showChaienFeedback(true);
+            btn.classList.add('correct'); 
+            setTimeout(() => showChaienFeedback(true), 500);
         } else {
-            showChaienFeedback(false);
+            btn.classList.add('wrong'); 
+            setTimeout(() => showChaienFeedback(false), 500);
         }
     }
     
-    // ==========================================================
-    // === THÊM HÀM LƯU ĐIỂM VÀO ĐÂY ===
-    // ==========================================================
-    /**
-     * Hàm gửi điểm số lên server
-     * @param {string} gameName - Tên game
-     * @param {number} finalScore - Điểm số cuối cùng
-     */
+    // === HÀM LƯU ĐIỂM ===
     async function sendScoreToBackend(gameName, finalScore) {
         try {
-            const response = await fetch('/save_score', { // Gọi đến route /save_score trong app.py
+            const response = await fetch('/save_score', { 
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    game_name: gameName,
-                    score: finalScore
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_name: gameName, score: finalScore }),
             });
-
-            if (response.ok) {
-                const result = await response.json();
-                console.log('Server response:', result.message); // In ra "Lưu điểm thành công!"
-            } else {
-                console.error('Không thể lưu điểm lên server.');
-            }
-        } catch (error) {
-            // Không làm gì nếu bị lỗi (ví dụ: user chưa đăng nhập), để game tiếp tục
-            console.error('Lỗi khi gửi điểm:', error);
-        }
+            if (response.ok) console.log('Đã lưu điểm.');
+        } catch (error) { console.error('Lỗi khi gửi điểm:', error); }
     }
-    // ==========================================================
     
     /**
      * Hàm bắt đầu đếm ngược
      */
     function startTimer() {
-        timeLeft = 60; // Đặt lại thời gian
+        timeLeft = 60; 
         timerDisplay.innerText = timeLeft;
         
         timerInterval = setInterval(() => {
@@ -136,14 +122,21 @@ document.addEventListener('DOMContentLoaded', () => {
             timerDisplay.innerText = timeLeft;
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
+                isClickable = false; 
                 
-                // === GỌI HÀM LƯU ĐIỂM KHI HẾT GIỜ ===
-                sendScoreToBackend('Trò chơi cộng trừ', score);
-                // ===================================
+                sendScoreToBackend('Cộng đơn giản (Level 1)', score);
                 
-                // Hiển thị màn hình kết thúc
+                // === ĐÃ SỬA MÀU SẮC Ở ĐÂY CHO HỢP THEME BIỂN ===
                 document.querySelector('.game-container-space').innerHTML = `
-                    <div class="game-over-screen"><h2>Hết giờ!</h2><p>Điểm của bé là:</p><div class="final-score">${score}</div><button onclick="window.location.reload()" class="button-primary">Chơi lại</button></div>`;
+                    <div style="text-align: center; color: #01579B;"> <h2 style="font-size: 3rem; margin-bottom: 20px;">Hết giờ!</h2>
+                        <p style="font-size: 1.5rem;">Điểm của bé là:</p>
+                        <div style="font-size: 5rem; font-weight: 900; color: #E65100; margin: 20px 0;">${score}</div>
+                        
+                        <button onclick="window.location.reload()" 
+                                style="padding: 15px 40px; font-size: 1.5rem; background: #0288D1; color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 5px 0 #01579B;">
+                            Chơi lại
+                        </button>
+                    </div>`;
             }
         }, 1000);
     }

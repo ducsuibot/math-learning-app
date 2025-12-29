@@ -168,3 +168,41 @@
     font-weight: 700;
     color: var(--text-dark);
 }
+
+/* 29/12 */
+/* --- Nút Quay Lại (Thoát Game) --- */
+.suneo-game-container {
+    position: relative; /* Để nút con căn theo khung này */
+}
+
+.btn-exit-game {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background-color: #ffffff;
+    color: #d32f2f; /* Màu đỏ đô */
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border: 2px solid #efefef;
+    box-shadow: 0 4px 0 #ddd;
+    transition: all 0.2s;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-exit-game:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #ccc;
+    background-color: #fafafa;
+    color: #b71c1c;
+}
+
+.btn-exit-game:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #ccc;
+}
