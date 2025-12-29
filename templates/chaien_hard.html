@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tính Nhanh Cùng Chaien - Học Toán Cùng Doraemon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* =================================================================
+           1. NỀN ĐỘNG VUI NHỘN (ANIMATED BACKGROUND)
+           ================================================================= */
+        html, body {
+            margin: 0; padding: 0;
+            min-height: 100vh;
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden; /* Tránh thanh cuộn ngang */
+            background: #81D4FA; /* Màu nền dự phòng */
+        }
+
+        /* Vùng chứa các vật thể bay */
+        .animated-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to bottom right, #4FC3F7, #0288D1);
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        /* Các khối bay (Số & Ký hiệu) */
+        .animated-bg li {
+            position: absolute;
+            display: block;
+            list-style: none;
+            width: 20px; height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+            border-radius: 20%;
+            color: rgba(255,255,255,0.5);
+            font-weight: 900;
+            font-size: 2rem;
+            text-align: center;
+            line-height: 50px;
+        }
+
+        /* Cấu hình từng khối bay */
+        .animated-bg li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; content: "+"; }
+        .animated-bg li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+        .animated-bg li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
+        .animated-bg li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; font-size: 1rem; }
+        .animated-bg li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
+        .animated-bg li:nth-child(6) { left: 75%; width: 110px; height: 110px; animation-delay: 3s; font-size: 4rem; line-height: 110px;}
+        .animated-bg li:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-delay: 7s; font-size: 5rem; line-height: 150px;}
+        .animated-bg li:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-delay: 15s; animation-duration: 45s; }
+        .animated-bg li:nth-child(9) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 35s; }
+        .animated-bg li:nth-child(10){ left: 85%; width: 150px; height: 150px; animation-delay: 0s; animation-duration: 11s; font-size: 6rem; line-height: 150px;}
+
+        @keyframes animate {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 20%; }
+            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; }
+        }
+
+        /* Ẩn hiệu ứng cũ */
+        body::before, body::after { display: none !important; }
+
+        /* =================================================================
+           2. KHUNG GAME "NỔI BẬT" (POP-UP)
+           ================================================================= */
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.95); /* Trắng mờ nhẹ */
+            border: 8px solid #FF9800; /* Viền Cam nổi bật của Chaien */
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2), inset 0 -5px 0 rgba(0,0,0,0.1);
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+            
+            /* Hiệu ứng xuất hiện */
+            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popUp {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Nút Quay Lại (Viên kẹo) */
+        .btn-exit-game {
+            position: absolute; top: 20px; left: 20px;
+            background-color: #FFF3E0; color: #E65100;
+            padding: 10px 20px; border-radius: 30px;
+            font-weight: 800; font-size: 0.95rem;
+            border: 3px solid #FFE0B2; text-decoration: none;
+            display: flex; align-items: center; gap: 8px; 
+            transition: all 0.2s; 
+            box-shadow: 0 4px 0 #FFCC80;
+        }
+        .btn-exit-game:hover { transform: translateY(-3px); background-color: #FFE0B2; }
+        .btn-exit-game:active { transform: translateY(2px); box-shadow: none; }
+
+        /* =================================================================
+           3. CÁC THÀNH PHẦN TRONG GAME
+           ================================================================= */
+        
+        .game-header {
+            display: flex; justify-content: center; gap: 40px;
+            margin-bottom: 30px; padding-top: 10px;
+        }
+
+        .game-info-box {
+            background: #E0F7FA; color: #006064;
+            border: 3px solid #4DD0E1; border-radius: 25px;
+            padding: 10px 30px;
+            display: flex; flex-direction: column; align-items: center; min-width: 120px;
+            box-shadow: 0 6px 0 #26C6DA;
+            transition: transform 0.2s;
+        }
+        .game-info-box:hover { transform: scale(1.05); }
+        
+        .game-info-box span { font-size: 0.9rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        .game-info-box div { font-size: 2rem; font-weight: 900; }
+
+        /* Hộp câu hỏi */
+        .question-box {
+            background-color: #FFFFFF;
+            border: 4px dashed #FF9800;
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 20px rgba(255, 152, 0, 0.1);
+            position: relative;
+        }
+        
+        /* Nhãn dán trang trí */
+        .question-box::after {
+            content: "⚡ Tính Nhanh";
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            background: #FF5722; color: white;
+            padding: 5px 20px; border-radius: 20px;
+            font-weight: bold; font-size: 1rem;
+            box-shadow: 0 4px 0 #BF360C;
+        }
+
+        .math-problem {
+            font-size: 5.5rem;
+            font-weight: 900; 
+            color: #E65100 !important; /* Cam đậm */
+            text-shadow: 2px 2px 0 #FFE0B2;
+            margin-top: 10px; letter-spacing: 3px;
+            
+            /* Hiệu ứng nhịp đập nhẹ cho câu hỏi */
+            animation: heartbeat 2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            5% { transform: scale(1.05); }
+            10% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Lưới đáp án */
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        /* Nút đáp án 3D */
+        .answer-btn {
+            background-color: #FFF;
+            border: none;
+            border-radius: 25px;
+            padding: 20px;
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #37474F;
+            cursor: pointer;
+            transition: all 0.1s;
+            text-align: center;
+            position: relative;
+            
+            /* Tạo khối 3D */
+            box-shadow: 0 8px 0 #CFD8DC, 0 15px 20px rgba(0,0,0,0.15);
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-4px);
+            background-color: #FFF9C4; /* Vàng nhạt khi hover */
+            color: #E65100;
+            box-shadow: 0 12px 0 #FFD54F, 0 20px 30px rgba(0,0,0,0.1);
+        }
+
+        .answer-btn:active { 
+            transform: translateY(8px); /* Lún xuống */
+            box-shadow: 0 0 0 #CFD8DC;
+        }
+
+        /* Màu khi Đúng/Sai */
+        .answer-btn.correct { 
+            background-color: #66BB6A !important; color: white !important; 
+            box-shadow: 0 8px 0 #2E7D32 !important; 
+        }
+        
+        .answer-btn.wrong { 
+            background-color: #EF5350 !important; color: white !important; 
+            box-shadow: 0 8px 0 #C62828 !important; 
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        #game-feedback {
+            font-size: 1.6rem; font-weight: 900;
+            height: 40px; margin-top: 30px; text-align: center; color: #E65100;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .math-problem { font-size: 3.5rem; }
+            .answer-btn { font-size: 2rem; padding: 15px; }
+            .btn-exit-game span { display: none; }
+            .game-container { padding: 20px; margin-top: 10px; }
+            .answers-grid { gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <ul class="animated-bg">
+        <li>+</li>
+        <li>1</li>
+        <li>?</li>
+        <li>-</li>
+        <li>5</li>
+        <li>9</li>
+        <li>8</li>
+        <li>+</li>
+        <li>-</li>
+        <li>2</li>
+    </ul>
+
+    {% include '_header_2.html' %}
+
+    <main class="container">
+        <div class="game-container">
+            <a href="{{ url_for('learning') }}" class="btn-exit-game">⬅ <span>Quay lại</span></a>
+
+            <div class="game-header">
+                <div class="game-info-box">
+                    <span>THỜI GIAN</span>
+                    <div id="timer">60</div>
+                </div>
+                <div class="game-info-box">
+                    <span>ĐIỂM SỐ</span>
+                    <div id="score">0</div>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <div class="math-problem" id="question-text">
+                    </div>
+            </div>
+
+            <div class="answers-grid" id="answers-area">
+                </div>
+
+            <p id="game-feedback"></p>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/chaien_hard.js') }}"></script> 
+
+</body>
+</html>

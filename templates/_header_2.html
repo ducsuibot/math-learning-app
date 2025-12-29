@@ -43,6 +43,12 @@
 </audio>
 
 <div class="fixed-menu">
+
+    <a href="{{ url_for('chatbot_page') }}" class="menu-btn chatbot-btn" title="Hỏi toán Doremon">
+        <img src="{{ url_for('static', filename='img/study.png') }}" alt="Missions">
+        <span class="notify-badge">o_o</span> 
+    </a>
+
     <div class="menu-btn music-btn" onclick="toggleMusic()" title="Bật/Tắt Nhạc Doraemon">
         <img id="music-icon" src="https://cdn-icons-png.flaticon.com/512/461/461238.png" alt="Music">
     </div>
@@ -62,6 +68,7 @@
 </div>
 
 <style>
+
     .fixed-menu {
         position: fixed;
         bottom: 20px;

@@ -7,26 +7,274 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="/static/css/style.css"> <link rel="stylesheet" href="/static/css/chat_style.css"> </head>
+    <link rel="stylesheet" href="/static/css/style.css"> 
+    
+    <style>
+        /* --- CẤU HÌNH MÀU SẮC DORAEMON --- */
+        :root {
+            --dora-blue: #0096e2;       /* Xanh da trời */
+            --dora-white: #ffffff;      /* Trắng */
+            --dora-red: #d90000;        /* Đỏ (Mũi/Đuôi) */
+            --dora-yellow: #f1c40f;     /* Vàng (Chuông) */
+            --bg-color: #e0f7fa;        /* Nền trang nhạt */
+            --user-bubble: #fff3cd;     /* Màu tin nhắn User (Vàng nhạt) */
+            --bot-bubble: #ffffff;      /* Màu tin nhắn Bot (Trắng) */
+            --shadow-soft: 0 10px 25px rgba(0, 150, 226, 0.15);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-color);
+            /* Họa tiết nền chấm bi dễ thương */
+            background-image: radial-gradient(#b2ebf2 20%, transparent 20%),
+                              radial-gradient(#b2ebf2 20%, transparent 20%);
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+            margin: 0;
+            padding-bottom: 20px;
+        }
+
+        /* --- CONTAINER CHÍNH --- */
+        .chat-wrapper {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            box-shadow: var(--shadow-soft);
+            border: 4px solid #fff;
+            overflow: hidden; /* Để bo góc hoạt động */
+            display: flex;
+            flex-direction: column;
+            height: 80vh; /* Chiều cao cố định để scroll */
+            position: relative;
+        }
+
+        /* --- HEADER --- */
+        .chat-header {
+            background: var(--dora-blue);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 5px solid #007bb5;
+            position: relative;
+            z-index: 10;
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-weight: 900;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        /* Thêm cái chuông trang trí */
+        .header-bell {
+            font-size: 1.8rem;
+            animation: ring 3s infinite ease-in-out;
+        }
+
+        @keyframes ring {
+            0%, 100% { transform: rotate(0deg); }
+            10%, 30% { transform: rotate(15deg); }
+            20%, 40% { transform: rotate(-15deg); }
+            50% { transform: rotate(0deg); }
+        }
+
+        /* --- KHUNG CHAT --- */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f0faff;
+            scroll-behavior: smooth;
+        }
+
+        /* Tùy chỉnh thanh cuộn cho cute */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #81d4fa; 
+            border-radius: 10px;
+        }
+
+        /* --- TIN NHẮN --- */
+        .message {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            object-fit: cover;
+            background: white;
+        }
+
+        .text {
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 1rem;
+            line-height: 1.5;
+            position: relative;
+            max-width: 75%;
+            word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Style cho BOT (Doraemon) */
+        .message.bot {
+            flex-direction: row;
+        }
+        .message.bot .avatar {
+            margin-right: 10px;
+        }
+        .message.bot .text {
+            background-color: var(--bot-bubble);
+            color: #333;
+            border-top-left-radius: 4px; /* Tạo đuôi hội thoại */
+            border: 2px solid #e1f5fe;
+        }
+
+        /* Style cho USER (Bé) */
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        .message.user .avatar {
+            margin-left: 10px;
+        }
+        .message.user .text {
+            background-color: var(--user-bubble); /* Màu vàng nhạt */
+            color: #5d4037;
+            border-top-right-radius: 4px; /* Tạo đuôi hội thoại */
+            border: 2px solid #ffe082;
+        }
+
+        /* --- INPUT AREA --- */
+        .chat-input {
+            padding: 15px;
+            background: white;
+            display: flex;
+            gap: 10px;
+            border-top: 2px solid #f0f0f0;
+            align-items: center;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 50px;
+            border: 2px solid #e0e0e0;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--dora-blue);
+            box-shadow: 0 0 0 3px rgba(0, 150, 226, 0.2);
+        }
+
+        .chat-input button {
+            background-color: var(--dora-red); /* Nút màu đỏ giống cái mũi hoặc đuôi */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 0 #990000; /* Hiệu ứng nút nổi 3D */
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-2px);
+            background-color: #ff1a1a;
+        }
+
+        .chat-input button:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 #990000;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .chat-container {
+                height: 85vh;
+                border-radius: 20px;
+            }
+            .text {
+                font-size: 0.95rem;
+                padding: 10px 14px;
+            }
+            .avatar {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
 <body>
     {% include '_header_2.html' %}
 
-    <main class="container">
+    <main class="chat-wrapper">
         <div class="chat-container">
             <div class="chat-header">
-                <h2>Chat Toán với Doraemon</h2>
+                <h2>
+                    <span class="header-bell">🔔</span> 
+                    Hỏi Toán Doraemon
+                    <span class="header-bell" style="animation-delay: 1s;">🔔</span>
+                </h2>
             </div>
+            
             <div class="chat-messages" id="chat-messages">
                 <div class="message bot">
-                    <img src="/static/img/doraemon_avatar.png" alt="D" class="avatar">
-                    <div class="text">Chào cậu! Hỏi tớ phép toán nào!</div>
+                    <img src="/static/img/doraemon_avatar.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/616/616408.png'" alt="Doraemon" class="avatar">
+                    <div class="text">
+                        Chào cậu! Tớ là Doraemon đây 🤖<br>
+                        Cậu gặp bài toán khó nào à? Đưa đây tớ giải quyết cho! 🍰
+                    </div>
                 </div>
-            </div>
+                
+                </div>
+            
             <div class="chat-input">
-                <input type="text" id="user-input" placeholder="Nhập phép toán hoặc lời chào...">
-                <button id="send-button">Gửi</button>
+                <input type="text" id="user-input" placeholder="Nhập phép tính (VD: 5 + 3)...">
+                <button id="send-button">Gửi 🚀</button>
             </div>
         </div>
     </main>
@@ -38,6 +286,20 @@
     </footer>
 
     <script src="/static/js/chat_script.js"></script> 
+    
+    <script>
+        // Tự động cuộn xuống cuối khi vào trang
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Hiệu ứng focus input
+        const inputField = document.getElementById('user-input');
+        inputField.addEventListener('focus', () => {
+            document.querySelector('.chat-input').style.borderColor = '#0096e2';
+        });
+        inputField.addEventListener('blur', () => {
+            document.querySelector('.chat-input').style.borderColor = '#f0f0f0';
+        });
+    </script>
 </body>
 </html>
-<body class="chat-page"></body>

@@ -4,157 +4,292 @@
     <meta charset="UTF-8">
     <title>{{ title }} - Học Toán Cùng Doraemon</title>
     <link rel="stylesheet" href="/static/css/style.css"> 
-    <link rel="stylesheet" href="/static/css/profile.css"> 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* === CẤU TRÚC & GIAO DIỆN MỚI === */
+        :root {
+            --dora-blue: #0096E2;
+            --dora-red: #E60033;
+            --dora-yellow: #F0C420;
+            --bg-soft: #F4F7FE; /* Màu nền dịu mắt */
+            --card-shadow: 0 20px 40px rgba(0, 150, 226, 0.1); /* Đổ bóng mềm */
+        }
+
+        body {
+            background-color: var(--bg-soft);
+            font-family: 'Nunito', sans-serif;
+            margin: 0; padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Header tiêu đề nổi bật */
+        .page-title-box {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .page-title-box h2 {
+            display: inline-block;
+            margin: 0;
+            padding: 15px 50px;
+            background: white;
+            color: var(--dora-blue);
+            font-weight: 900;
+            font-size: 1.8rem;
+            border-radius: 60px; /* Bo tròn kiểu viên thuốc */
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+        /* Trang trí thêm cái chuông */
+        .page-title-box h2::after {
+            content: '🔔'; position: absolute; right: 20px; animation: ring 2s infinite ease-in-out;
+        }
+        @keyframes ring { 0%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(15deg); } 20% { transform: rotate(-15deg); } }
+
+
+        /* === BỐ CỤC LƯỚI MỚI (BENTO GRID) === */
+        .stats-grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 cột đều nhau */
+            gap: 30px; /* Khoảng cách giữa các ô */
+            margin-bottom: 40px;
+        }
+
+        /* Class cho các ô chiếm 1 cột */
+        .grid-item-half {
+            grid-column: span 1;
+        }
+        
+        /* Class cho ô chiếm trọn 2 cột (Biểu đồ tiến độ) */
+        .grid-item-full {
+            grid-column: span 2;
+        }
+
+
+        /* === CẤU TRÚC HÌNH HỌC THẺ (SOFT UI CARDS) === */
+        .glass-card {
+            background: white;
+            border-radius: 24px; /* Bo góc mạnh (Squircle) */
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 150, 226, 0.2);
+        }
+
+        /* Thanh màu trang trí trên đầu mỗi thẻ */
+        .accent-red { border-top: 5px solid var(--dora-red); }
+        .accent-yellow { border-top: 5px solid var(--dora-yellow); }
+        .accent-blue { border-top: 5px solid var(--dora-blue); }
+
+        .card-title {
+            text-align: center;
+            font-weight: 800;
+            color: #444;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        /* Wrapper để biểu đồ tiến độ có thể co giãn chiều cao */
+        .chart-tall-wrapper {
+            min-height: 400px;
+            position: relative;
+        }
+
+
+        /* === KHU VỰC AI (Tách biệt phía dưới) === */
+        .ai-interaction-zone {
+            background: #FFF9C4; /* Nền vàng nhạt */
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            border: 3px dashed var(--dora-yellow);
+        }
+
+        .button-doraemon {
+            background: linear-gradient(45deg, var(--dora-blue), #00B4FF);
+            border: none;
+            padding: 15px 40px;
+            color: white;
+            font-weight: 900;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px -10px rgba(0, 150, 226, 0.5);
+            transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 10px;
+        }
+        .button-doraemon:hover { transform: scale(1.05); box-shadow: 0 15px 30px -10px rgba(0, 150, 226, 0.7); }
+        .button-doraemon:active { transform: scale(0.98); }
+
+        /* Chat Bubble AI */
+        .ai-chat-bubble {
+            display: flex; align-items: flex-start; gap: 20px;
+            background: white; padding: 25px; border-radius: 25px;
+            margin-top: 30px; text-align: left;
+            box-shadow: var(--card-shadow);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from {opacity: 0; transform: scale(0.9);} to {opacity: 1; transform: scale(1);} }
+
+        .ai-avatar { width: 70px; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); }
+        .ai-content { flex: 1; font-size: 1.05rem; line-height: 1.6; color: #333; }
+        .typing-dots span { display: inline-block; width: 8px; height: 8px; background: var(--dora-blue); border-radius: 50%; margin-right: 5px; animation: wave 1.3s infinite; }
+        @keyframes wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .stats-grid-container { grid-template-columns: 1fr; } /* Điện thoại thì về 1 cột dọc */
+            .grid-item-full { grid-column: span 1; }
+            .chart-tall-wrapper { min-height: 300px; }
+        }
+        
+        .no-stats-box { text-align: center; padding: 50px; background: white; border-radius: 24px; box-shadow: var(--card-shadow); }
+    </style>
 </head>
 <body>
     {% include '_header.html' %} 
     
     <main class="container">
-        <h2>Thống Kê Của Bé: {{ current_user.username }}</h2>
+        <div class="page-title-box">
+            <h2>Thống Kê Của Bé: {{ current_user.username }}</h2>
+        </div>
         
         {% if chart_data_avg %} 
-            <section class="profile-container" style="margin-top: 20px;">
+            <div class="stats-grid-container">
                 
-                <div class="charts-grid">
-                    <div class="chart-container">
-                        <h4>Điểm trung bình các game</h4>
-                        <canvas id="scoreChartAvg"></canvas>
-                    </div>
-                    <div class="chart-container">
-                        <h4>Tiến độ học tập (10 lần chơi gần nhất)</h4>
-                        <canvas id="scoreChartLine"></canvas>
-                    </div>
-                    <div class="chart-container pie-chart">
-                        <h4>Tỷ lệ chơi các game</h4>
-                        <canvas id="scoreChartPie"></canvas>
+                <div class="glass-card grid-item-half accent-red">
+                    <h4 class="card-title">🎯 Điểm Trung Bình Các Game</h4>
+                    <div>
+                        <canvas id="scoreChartAvg" height="220"></canvas>
                     </div>
                 </div>
+
+                <div class="glass-card grid-item-half accent-yellow">
+                    <h4 class="card-title">🍕 Tỷ Lệ Bé Chơi Game</h4>
+                    <div style="max-width: 70%; margin: 0 auto;">
+                        <canvas id="scoreChartPie" height="220"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card grid-item-full accent-blue">
+                    <h4 class="card-title" style="font-size: 1.3rem;">📈 Tiến Độ Học Tập Gần Đây (Chi Tiết)</h4>
+                    <div class="chart-tall-wrapper">
+                        <canvas id="scoreChartLine"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <section class="ai-interaction-zone">
+                <button id="generate-report-btn" class="button-doraemon">
+                    <span>✨</span> Nhờ Doraemon Phân Tích Kết Quả <span>✨</span>
+                </button>
                 
-                <h4 style="margin-top: 30px;">Báo cáo từ Doraemon</h4>
-                <button id="generate-report-btn" class="button-primary">Nhờ Doraemon phân tích</button>
-                
-                <div id="ai-report-container" class="ai-report-card" style="display:none;">
-                    <img src="/static/img/doraemon_stand.png" alt="Doraemon" class="ai-report-avatar">
-                    <div class="ai-report-content">
-                        <div class="typing-indicator" id="ai-report-loader">
-                            <span></span><span></span><span></span>
+                <div id="ai-report-container" class="ai-chat-bubble" style="display:none;">
+                    <img src="/static/img/doraemon_stand.png" alt="Doraemon" class="ai-avatar">
+                    <div class="ai-content">
+                        <div class="typing-dots" id="ai-report-loader">
+                            <span></span><span></span><span></span> Đang suy nghĩ...
                         </div>
-                        <p id="ai-report-text"></p>
+                        <p id="ai-report-text" style="margin: 0; font-weight: 600;"></p>
                     </div>
                 </div>
                 <div id="data-for-ai" style="display: none;">{{ data_summary_for_ai }}</div>
             </section>
+
         {% else %}
-            <section class="profile-container no-stats-container" style="margin-top: 20px; text-align: center;">
-                <img src="/static/img/doraemon_stand.png" alt="Nobita buồn"> <h4>Ôi, chưa có dữ liệu nào!</h4>
-                <p>Bé chưa chơi game nào cả! Hãy vào mục "Học bài" để bắt đầu nhé!</p>
-                <a href="{{ url_for('learning') }}" class="button-primary">Học bài ngay!</a>
-            </section>
+            <div class="no-stats-box">
+                <img src="/static/img/doraemon_stand.png" alt="Nobita buồn" style="width: 150px; filter: grayscale(0.5);"> 
+                <h3 style="color: var(--dora-blue);">Trang giấy còn trắng tinh!</h3>
+                <p>Bé chưa chơi game nào cả. Hãy bắt đầu học để Doraemon ghi lại thành tích nhé!</p>
+                <a href="{{ url_for('learning') }}" class="button-doraemon" style="text-decoration: none; margin-top: 20px;">Học Bài Ngay!</a>
+            </div>
         {% endif %}
     </main>
 
     {% include '_footer.html' %}
     {% include '_header_fake.html' %} 
+
     <script>
-        // 0. Lấy dữ liệu từ Flask
+        // === GIỮ NGUYÊN LOGIC SCRIPT CŨ ===
         const chartDataAvg = {{ chart_data_avg | tojson }};
         const chartDataLine = {{ chart_data_line | tojson }};
         const chartDataPie = {{ chart_data_pie | tojson }};
-        // Bảng màu Doraemon
         const doraColors = [
-            'rgba(0, 158, 227, 0.7)', // Doraemon Blue
-            'rgba(215, 0, 15, 0.7)',   // Doraemon Red
-            'rgba(253, 203, 8, 0.7)',  // Doraemon Yellow
-            'rgba(75, 192, 192, 0.7)', // Teal
-            'rgba(153, 102, 255, 0.7)', // Purple
+            'rgba(0, 158, 227, 0.8)', 'rgba(215, 0, 15, 0.8)',   
+            'rgba(253, 203, 8, 0.8)', 'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)'
         ];
 
-        // 1. Script cho Đồ thị Cột (Trung bình)
-        if (chartDataAvg && chartDataAvg.labels && chartDataAvg.labels.length > 0) {
-            const ctx = document.getElementById('scoreChartAvg').getContext('2d');
-            new Chart(ctx, {
+        // 1. Cột
+        if (chartDataAvg?.labels?.length) {
+            new Chart(document.getElementById('scoreChartAvg'), {
                 type: 'bar',
                 data: {
                     labels: chartDataAvg.labels,
-                    datasets: [{
-                        label: 'Điểm Trung Bình',
-                        data: chartDataAvg.data,
-                        backgroundColor: doraColors, // Dùng bảng màu
-                    }]
+                    datasets: [{ label: 'Điểm TB', data: chartDataAvg.data, backgroundColor: doraColors, borderRadius: 8 }]
                 },
-                options: { scales: { y: { beginAtZero: true } } }
+                options: { responsive: true, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } } }
             });
         }
 
-        // 2. Script cho Đồ thị Đường (Tiến độ)
-        if (chartDataLine && chartDataLine.labels && chartDataLine.labels.length > 0) {
-            const ctx = document.getElementById('scoreChartLine').getContext('2d');
-            new Chart(ctx, {
+        // 2. Đường (Tiến độ) - Cấu hình để nó to và giãn
+        if (chartDataLine?.labels?.length) {
+            new Chart(document.getElementById('scoreChartLine'), {
                 type: 'line',
                 data: {
                     labels: chartDataLine.labels,
                     datasets: [{
-                        label: 'Điểm số',
-                        data: chartDataLine.data,
-                        backgroundColor: 'rgba(0, 158, 227, 0.2)', // Nền xanh
-                        borderColor: 'rgba(0, 158, 227, 1)', // Viền xanh
-                        borderWidth: 3,
-                        tension: 0.2
+                        label: 'Điểm số', data: chartDataLine.data,
+                        backgroundColor: 'rgba(0, 158, 227, 0.15)', borderColor: '#0096E2',
+                        borderWidth: 4, tension: 0.3, fill: true, pointRadius: 6, pointBackgroundColor: '#fff', pointBorderColor: '#0096E2'
                     }]
                 },
-                options: { scales: { y: { beginAtZero: true, max: 100 } } }
-            });
-        }
-        
-        // 3. Script cho Đồ thị Tròn (Tỷ lệ)
-        if (chartDataPie && chartDataPie.labels && chartDataPie.labels.length > 0) {
-            const ctx = document.getElementById('scoreChartPie').getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: chartDataPie.labels,
-                    datasets: [{
-                        label: 'Số lần chơi',
-                        data: chartDataPie.data,
-                        backgroundColor: doraColors, // Dùng bảng màu
-                    }]
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false, // QUAN TRỌNG: Để nó giãn theo div cha (.chart-tall-wrapper)
+                    scales: { y: { beginAtZero: true, max: 110 } }
                 }
             });
         }
+        
+        // 3. Tròn
+        if (chartDataPie?.labels?.length) {
+            new Chart(document.getElementById('scoreChartPie'), {
+                type: 'doughnut',
+                data: { labels: chartDataPie.labels, datasets: [{ data: chartDataPie.data, backgroundColor: doraColors, borderWidth: 3 }] },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
 
-        // Script cho Báo cáo AI (Đã cập nhật)
+        // Logic AI
         const reportBtn = document.getElementById('generate-report-btn');
         const reportContainer = document.getElementById('ai-report-container');
         const reportText = document.getElementById('ai-report-text');
         const reportLoader = document.getElementById('ai-report-loader');
-        const dataForAI = document.getElementById('data-for-ai').innerText;
+        const dataForAI = document.getElementById('data-for-ai')?.innerText;
 
         if (reportBtn) {
             reportBtn.addEventListener('click', async () => {
-                reportContainer.style.display = 'flex'; // Hiện thẻ báo cáo
-                reportLoader.style.display = 'flex'; // Hiện hiệu ứng gõ
-                reportText.style.display = 'none'; // Ẩn text cũ
-                reportBtn.disabled = true;
-                
+                reportContainer.style.display = 'flex'; reportLoader.style.display = 'block'; reportText.style.display = 'none'; reportBtn.disabled = true;
                 try {
-                    const response = await fetch('/generate_student_report', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ data: dataForAI })
-                    });
+                    const response = await fetch('/generate_student_report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: dataForAI }) });
                     const result = await response.json();
                     reportText.innerText = result.report;
-                } catch (error) {
-                    reportText.innerText = "Lỗi: Không thể tạo báo cáo.";
-                } finally {
-                    reportLoader.style.display = 'none'; // Ẩn hiệu ứng gõ
-                    reportText.style.display = 'block'; // Hiện text kết quả
-                    reportBtn.disabled = false;
-                }
+                } catch (e) { reportText.innerText = "Lỗi kết nối."; } 
+                finally { reportLoader.style.display = 'none'; reportText.style.display = 'block'; reportBtn.disabled = false; }
             });
         }
     </script>

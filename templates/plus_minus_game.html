@@ -7,54 +7,243 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* =================================================================
+           1. NỀN ĐẠI DƯƠNG (OCEAN BLUE THEME)
+           ================================================================= */
+        html, body {
+            margin: 0; padding: 0;
+            min-height: 100vh;
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
+            /* Gradient Xanh Biển Tươi Mát */
+            background: linear-gradient(135deg, #E1F5FE 0%, #4FC3F7 100%) !important;
+            background-image: none !important;
+        }
+
+        /* Hiệu ứng bong bóng bay (Background động) */
+        .ocean-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; overflow: hidden; pointer-events: none;
+        }
+
+        .ocean-bg li {
+            position: absolute; display: block; list-style: none;
+            width: 20px; height: 20px;
+            background: rgba(255, 255, 255, 0.4);
+            animation: bubbleUp 15s linear infinite;
+            bottom: -150px; border-radius: 50%;
+            color: rgba(2, 136, 209, 0.2); /* Chữ mờ màu xanh */
+            font-size: 2rem; text-align: center; line-height: 50px; font-weight: 900;
+        }
+
+        .ocean-bg li:nth-child(1) { left: 10%; width: 40px; height: 40px; animation-delay: 0s; background: rgba(255,255,255,0.6); }
+        .ocean-bg li:nth-child(2) { left: 20%; width: 20px; height: 20px; animation-delay: 2s; background: #81D4FA; opacity: 0.6; }
+        .ocean-bg li:nth-child(3) { left: 25%; width: 80px; height: 80px; animation-delay: 4s; content: "+"; line-height: 80px; font-size: 3rem;}
+        .ocean-bg li:nth-child(4) { left: 40%; width: 30px; height: 30px; animation-delay: 0s; background: #B3E5FC; opacity: 0.6; }
+        .ocean-bg li:nth-child(5) { left: 70%; width: 60px; height: 60px; animation-delay: 0s; content: "?"; line-height: 60px; font-size: 3rem; }
+        .ocean-bg li:nth-child(6) { left: 80%; width: 40px; height: 40px; animation-delay: 3s; background: #29B6F6; opacity: 0.5; }
+        .ocean-bg li:nth-child(7) { left: 90%; width: 100px; height: 100px; animation-delay: 5s; content: "="; line-height: 100px; font-size: 4rem; }
+
+        @keyframes bubbleUp {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-1000px) scale(1.5); opacity: 0; }
+        }
+
+        body::before, body::after { display: none !important; }
+
+        /* =================================================================
+           2. KHUNG GAME (VIỀN XANH ĐẬM)
+           ================================================================= */
+        .game-container-space {
+            background-color: #FFFFFF;
+            border: 6px solid #0288D1; /* Viền xanh dương đậm */
+            border-radius: 30px;
+            box-shadow: 0 10px 0 rgba(1, 87, 155, 0.2);
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+            animation: zoomIn 0.5s ease-out;
+        }
+
+        @keyframes zoomIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Nút Quay Lại */
+        .btn-exit-game {
+            position: absolute; top: 20px; left: 20px;
+            background-color: #E1F5FE; color: #01579B;
+            padding: 8px 15px; border-radius: 20px;
+            font-weight: 800; font-size: 0.9rem;
+            border: 2px solid #81D4FA; text-decoration: none;
+            display: flex; align-items: center; gap: 5px; 
+            transition: all 0.2s; z-index: 20;
+            box-shadow: 0 4px 0 #4FC3F7;
+        }
+        .btn-exit-game:hover { transform: translateY(-2px); background-color: #B3E5FC; }
+        .btn-exit-game:active { transform: translateY(2px); box-shadow: none; }
+
+        /* =================================================================
+           3. THANH TRẠNG THÁI (STATS BAR)
+           ================================================================= */
+        .game-stats-bar {
+            display: flex; justify-content: center; gap: 30px;
+            margin-bottom: 30px; margin-top: 10px;
+        }
+
+        .stat-box {
+            background: #FFFFFF;
+            border: 3px solid #29B6F6; /* Viền xanh sáng */
+            border-radius: 15px;
+            padding: 10px 25px;
+            text-align: center;
+            min-width: 120px;
+            box-shadow: 0 5px 0 #0277BD;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box span {
+            display: block; font-size: 0.8rem; font-weight: 900; 
+            text-transform: uppercase; margin-bottom: 2px;
+        }
+
+        .stat-box div { font-size: 2rem; font-weight: 900; }
+
+        /* Màu riêng từng ô */
+        /* Cấp độ: Xanh ngọc */
+        .stat-box:nth-child(1) { border-color: #00BCD4; box-shadow: 0 5px 0 #0097A7; }
+        .stat-box:nth-child(1) span { color: #00838F; }
+        .stat-box:nth-child(1) div { color: #006064; }
+
+        /* Thời gian: Xanh dương */
+        .stat-box:nth-child(2) { border-color: #2979FF; box-shadow: 0 5px 0 #1565C0; } 
+        .stat-box:nth-child(2) span { color: #0D47A1; }
+        .stat-box:nth-child(2) div { color: #1565C0; }
+
+        /* Điểm: Cam (Điểm nhấn) */
+        .stat-box:nth-child(3) { border-color: #FF9800; box-shadow: 0 5px 0 #EF6C00; } 
+        .stat-box:nth-child(3) span { color: #E65100; }
+        .stat-box:nth-child(3) div { color: #BF360C; }
+
+        /* =================================================================
+           4. KHU VỰC CÂU HỎI
+           ================================================================= */
+        .question-area {
+            background: #E3F2FD; /* Nền xanh rất nhạt */
+            border: 3px dashed #0288D1; /* Viền nét đứt xanh đậm */
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            font-size: 5rem; /* Số to */
+            font-weight: 900;
+            color: #01579B; /* Chữ xanh đậm rõ nét */
+            margin-bottom: 30px;
+            display: flex; justify-content: center; gap: 20px;
+            align-items: center;
+        }
+
+        /* Dấu ? màu cam nổi bật */
+        .question-area span:last-child {
+            color: #FF9800; 
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* =================================================================
+           5. SỬA LỖI MÀU TÍM Ở ĐÂY (NÚT ĐÁP ÁN)
+           ================================================================= */
+        .options-area {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .option-button {
+            /* Dùng !important để đè mọi màu tím cũ */
+            background-color: #0288D1 !important; /* Nền Xanh Đậm */
+            color: #FFFFFF !important;            /* Chữ Trắng */
+            
+            border: none !important;
+            border-radius: 20px;
+            padding: 15px 10px;
+            font-size: 2.5rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+            
+            /* Đổ bóng màu xanh tối hơn */
+            box-shadow: 0 6px 0 #01579B !important; 
+        }
+
+        .option-button:hover {
+            transform: translateY(-3px);
+            background-color: #039BE5 !important; /* Sáng hơn khi hover */
+            box-shadow: 0 9px 0 #01579B !important;
+        }
+
+        .option-button:active {
+            transform: translateY(6px);
+            box-shadow: none !important;
+        }
+
+        /* Màu phản hồi Đúng/Sai */
+        .option-button.correct { 
+            background-color: #00C853 !important; /* Xanh lá */
+            box-shadow: 0 6px 0 #00695C !important; 
+        }
+        .option-button.wrong { 
+            background-color: #D50000 !important; /* Đỏ */
+            box-shadow: 0 6px 0 #B71C1C !important; 
+            animation: shake 0.4s; 
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .game-stats-bar { gap: 10px; }
+            .stat-box { padding: 5px 10px; min-width: 80px; }
+            .stat-box div { font-size: 1.5rem; }
+            .question-area { font-size: 3.5rem; padding: 20px; gap: 10px; }
+            .options-area { grid-template-columns: repeat(2, 1fr); }
+            .btn-exit-game span { display: none; }
+        }
+    </style>
 </head>
 <body class="game-body-space">
     
-    <header>
-        <div class="container">
-            <div class="header-title">
-                <img src="/static/img/doraemon_icon.png" alt="Doraemon"> 
-                <h1>HỌC TOÁN CÙNG DORAEMON</h1>
-            </div>
-            <nav>
-                <ul>
-                    <li><a href="{{ url_for('index') }}">Trang chủ</a></li>
-                    <li><a href="{{ url_for('learning') }}">Học bài</a></li>
-                    <li><a href="{{ url_for('my_stats') }}">Báo cáo</a></li> 
-                    <li><a href="{{ url_for('practice') }}">Luyện tập AI</a></li>
-                    <li><a href="{{ url_for('chatbot_page') }}">Chat với Doraemon</a></li>
-                    
-                    {% if current_user.is_authenticated %}
-                        <li class="user-menu-container">
-                            <a href="#" class="nav-username" id="user-menu-toggle"> 
-                                Chào, {{ current_user.username }}! <span class="dropdown-arrow">▼</span> 
-                            </a>
-                            <ul class="user-dropdown-menu" id="user-dropdown"> 
-                                <li><a href="{{ url_for('profile') }}">Thông tin người dùng</a></li> 
-                                <li><a href="{{ url_for('edit_profile') }}">Cập nhật thông tin</a></li> 
-                                <li><hr></li> {/* Đường kẻ ngăn cách */}
-                                <li><a href="{{ url_for('logout') }}">Đăng xuất</a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li><a href="{{ url_for('login') }}">Đăng nhập</a></li>
-                        <li><a href="{{ url_for('register') }}">Đăng ký</a></li>
-                    {% endif %}
-                    
-                    <li><a href="#" id="about-link">Về chúng tôi</a></li> 
-                </ul>
-            </nav>
-        </div>
-    </header>
-    {% include '_header_fake.html' %} 
+    <ul class="ocean-bg">
+        <li>o</li> <li></li> <li>+</li> <li></li> <li>+</li> <li></li> <li>?</li>
+    </ul>
+
+    {% include '_header_2.html' %} 
+    
     <main class="container">
         <div class="game-container-space">
+            <a href="{{ url_for('learning') }}" class="btn-exit-game">⬅ <span>Quay lại</span></a>
+
             <div class="game-stats-bar">
                 <div class="stat-box">
-                    <span>LEVEL</span>
+                    <span>CẤP ĐỘ</span>
                     <div id="level">1</div>
                 </div>
                 <div class="stat-box">
@@ -62,7 +251,7 @@
                     <div id="timer">60</div>
                 </div>
                 <div class="stat-box">
-                    <span>ĐIỂM</span>
+                    <span>ĐIỂM SỐ</span>
                     <div id="score">0</div>
                 </div>
             </div>
@@ -85,13 +274,14 @@
     </main>
 
     <div id="chaien-feedback-modal" class="modal-overlay">
-        <div class="modal-content chaien-modal">
-            <img id="chaien-image" src="/static/img/gian.png" alt="Chaien">
-            <p id="feedback-text"></p>
-            <button id="close-feedback-btn" class="button-primary">OK</button>
+        <div class="modal-content chaien-modal" style="border-radius: 30px; border: 5px solid #0288D1;">
+            <img id="chaien-image" src="/static/img/gian.png" alt="Chaien" style="width: 150px; margin-bottom: 20px;">
+            <p id="feedback-text" style="font-size: 1.5rem; font-weight: bold; color: #333;"></p>
+            <button id="close-feedback-btn" class="button-primary" style="border-radius: 50px; padding: 10px 40px; font-size: 1.2rem; background-color: #0288D1;">OK</button>
         </div>
     </div>
 
-    <script src="/static/js/plus_minus_game.js"></script> 
+    <script src="{{ url_for('static', filename='js/plus_minus_game.js') }}"></script> 
+ 
 </body>
 </html>

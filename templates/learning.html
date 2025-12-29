@@ -3,78 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bắt Đầu Học - Học Toán Cùng Doraemon</title>
+    <title>Góc Học Tập Của Bé</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* =================================================================
+           1. GIAO DIỆN "BẦU TRỜI TUỔI THƠ" (CUTE & SOFT)
+           ================================================================= */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #E3F2FD; /* Xanh da trời nhạt */
+            min-height: 100vh;
+            /* Họa tiết đám mây mờ */
+            background-image: 
+                radial-gradient(circle at 20% 20%, white 10px, transparent 11px),
+                radial-gradient(circle at 80% 80%, white 15px, transparent 16px);
+            background-size: 100px 100px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Tiêu đề chính */
+        .page-title {
+            text-align: center;
+            color: #0288D1;
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px #fff;
+            background: #fff;
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(2, 136, 209, 0.1);
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap; /* Giữ chữ trên 1 dòng */
+        }
+
+        /* =================================================================
+           2. THANH CHỌN CHỦ ĐỀ (DẠNG THẺ NỔI)
+           ================================================================= */
+        .category-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .category-card {
+            background: #ffffff;
+            border: 4px solid transparent;
+            border-radius: 25px;
+            width: 160px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 0 #E0E0E0, 0 10px 20px rgba(0,0,0,0.05);
+            position: relative;
+            top: 0;
+            user-select: none; /* Tránh bôi đen khi click nhanh */
+        }
+
+        .category-card img {
+            width: 70px; height: 70px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            transition: transform 0.3s;
+        }
+
+        .category-card span {
+            display: block;
+            font-weight: 800;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        /* Hiệu ứng khi di chuột vào */
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        .category-card:hover img {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        /* TRẠNG THÁI ĐANG CHỌN (ACTIVE) */
+        .category-card.active {
+            background: #FFF9C4; /* Vàng nhạt */
+            border-color: #FFC107;
+            box-shadow: 0 0 0 #FFC107, inset 0 4px 10px rgba(0,0,0,0.05); /* Nút lún xuống */
+            top: 8px; /* Di chuyển xuống thật */
+            transform: none; /* Hủy hover transform khi đã active */
+        }
+        .category-card.active span { color: #FF6F00; }
+
+        /* =================================================================
+           3. KHUNG NỘI DUNG (HIỆN RA KHI CHỌN)
+           ================================================================= */
+        .content-display-area {
+            background: #ffffff;
+            border-radius: 40px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(33, 150, 243, 0.1);
+            min-height: 300px;
+            position: relative;
+            border: 4px dashed #B3E5FC; /* Viền nét đứt ngây thơ */
+        }
+
+        /* Ẩn/Hiện nội dung */
+        .submenu {
+            display: none; /* Mặc định ẩn */
+        }
+        .submenu.active {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =================================================================
+           4. THẺ BÀI HỌC (LEVEL ITEMS)
+           ================================================================= */
+        .lesson-card {
+            display: block; /* Để thẻ a bao trùm */
+            background: #FAFAFA;
+            border-radius: 25px;
+            padding: 20px;
+            text-decoration: none;
+            color: #444;
+            border: 2px solid #EEE;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lesson-card:hover {
+            background: #fff;
+            border-color: #29B6F6;
+            box-shadow: 0 10px 20px rgba(33, 150, 243, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .lesson-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .lesson-desc {
+            font-size: 0.95rem;
+            color: #777;
+        }
+
+        /* Màu sắc cho từng cấp độ */
+        /* Dễ */
+        .easy .badge { background: #E8F5E9; color: #2E7D32; }
+        .easy:hover { border-color: #66BB6A; }
+        /* Vừa */
+        .medium .badge { background: #FFF3E0; color: #EF6C00; }
+        .medium:hover { border-color: #FFA726; }
+        /* Khó */
+        .hard .badge { background: #FFEBEE; color: #C62828; }
+        .hard:hover { border-color: #EF5350; }
+
+        /* Tiêu đề nhóm trong submenu */
+        .group-title {
+            grid-column: 1 / -1;
+            font-size: 1.5rem;
+            color: #0277BD;
+            font-weight: 800;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #E1F5FE;
+            padding-bottom: 10px;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .category-card { width: 45%; padding: 10px; }
+            .category-card img { width: 50px; height: 50px; }
+            .page-title { font-size: 1.5rem; width: 90%; white-space: normal;}
+            .content-display-area { padding: 20px; }
+        }
+    </style>
 </head>
 <body>
     {% include '_header_2.html' %}
 
     <main class="container">
-        <section id="learning-menu">
-            <h3>Bé muốn học gì hôm nay?</h3>
+        <div class="page-title">☀️ Bé muốn học gì hôm nay? ☀️</div>
+        
+        <div class="category-wrapper">
+            <div class="category-card" onclick="selectTab('tab-hoc-so', this)" id="btn-hoc-so">
+                <img src="{{ url_for('static', filename='img/hoc_so_icon.png') }}" alt="Số">
+                <span>Học Số</span>
+            </div>
             
-            <div class="main-categories">
-                <div class="category-card" data-target="submenu-hoc-so" id="cat-hoc-so">
-                    <img src="{{ url_for('static', filename='img/hoc_so_icon.png') }}" alt="Học số">
-                    <span>Học số cùng Xeko</span>
-                </div>
-                <div class="category-card" data-target="submenu-so-sanh" id="cat-so-sanh">
-                    <img src="{{ url_for('static', filename='img/so_sanh_icon.png') }}" alt="So sánh">
-                    <span>So sánh cùng Shizuka và Nobita</span>
-                </div>
-                <div class="category-card" data-target="submenu-luyen-tap" id="cat-luyen-tap">
-                    <img src="{{ url_for('static', filename='img/luyen_tap_icon.png') }}" alt="Luyện tập tính toán">
-                    <span>Luyện tập cùng Chaien</span>
-                </div>
-                <div class="category-card" data-target="submenu-tro-choi" id="cat-tro-choi">
-                    <img src="{{ url_for('static', filename='img/tro_choi_icon.png') }}" alt="Trò chơi">
-                    <span>Trò chơi cùng Doraemon</span>
-                </div>
+            <div class="category-card" onclick="selectTab('tab-so-sanh', this)" id="btn-so-sanh">
+                <img src="{{ url_for('static', filename='img/so_sanh_icon.png') }}" alt="So sánh">
+                <span>So Sánh</span>
+            </div>
+            
+            <div class="category-card" onclick="selectTab('tab-tinh-toan', this)" id="btn-tinh-toan">
+                <img src="{{ url_for('static', filename='img/luyen_tap_icon.png') }}" alt="Tính toán">
+                <span>Tính Toán</span>
+            </div>
+            
+            <div class="category-card" onclick="selectTab('tab-tro-choi', this)" id="btn-tro-choi">
+                <img src="{{ url_for('static', filename='img/tro_choi_icon.png') }}" alt="Chơi">
+                <span>Trò Chơi</span>
+            </div>
+        </div>
+
+        <div class="content-display-area">
+            
+            <div id="tab-hoc-so" class="submenu">
+                <div class="group-title">Học số</div>
+                
+                <a href="{{ url_for('suneo_learning_basic') }}" class="lesson-card easy">
+                    <span class="badge">Cấp độ 1</span>
+                    <div class="lesson-title">Làm quen mặt số</div>
+                    <div class="lesson-desc">Học đếm từ 1 đến 10 thật vui!</div>
+                </a>
+                
+                <a href="{{ url_for('suneo_shopping_game') }}" class="lesson-card medium">
+                    <span class="badge">Cấp độ 2</span>
+                    <div class="lesson-title">Chọn số lượng </div>
+                    <div class="lesson-desc">Giúp Xeko mua đúng số lượng đồ chơi.</div>
+                </a>
+                
+                <a href="{{ url_for('suneo_challenge_hard') }}" class="lesson-card hard">
+                    <span class="badge">Cấp độ 3</span>
+                    <div class="lesson-title">Thử thách số lớn</div>
+                    <div class="lesson-desc">Đếm số lượng lớn cực "hack não".</div>
+                </a>
             </div>
 
-            <div class="submenus-container">
-                <div id="submenu-hoc-so" class="submenu">
-                    <a href="{{ url_for('suneo_shopping_game') }}" class="submenu-item">Siêu Thị Của Xeko</a> 
-                </div>
-                <div id="submenu-so-sanh" class="submenu">
-                    <a href="{{ url_for('compare_images') }}" class="submenu-item">So sánh hình</a>
-                </div>
-                <div id="submenu-luyen-tap" class="submenu">
-                    <a href="{{ url_for('plus_minus_game') }}" class="submenu-item">Trò chơi cộng trừ</a>
-                </div>
-                <div id="submenu-tro-choi" class="submenu">
-                    <a href="{{ url_for('practice') }}" class="submenu-item">Đếm số bằng AI</a>
-                    <a href="{{ url_for('ocean_rescue_game') }}" class="submenu-item">Giải cứu Mimi</a>
-                </div>
+            <div id="tab-so-sanh" class="submenu">
+                <div class="group-title">Học so sánh</div>
+                
+                <a href="{{ url_for('shizuka_compare_numbers') }}" class="lesson-card medium">
+                    <span class="badge">Cấp độ 1</span>
+                    <div class="lesson-title">So sánh hai số</div>
+                    <div class="lesson-desc">Số nào lớn hơn nhỉ?</div>
+                </a>
+
+                <a href="{{ url_for('compare_images') }}" class="lesson-card easy">
+                    <span class="badge">Cấp độ 2</span>
+                    <div class="lesson-title">So sánh hình ảnh</div>
+                    <div class="lesson-desc">Bên nào nhiều thú cưng hơn?</div>
+                </a>
+
+                <a href="{{ url_for('shizuka_ordering') }}" class="lesson-card hard">
+                    <span class="badge">Cấp độ 3</span>
+                    <div class="lesson-title">Sắp xếp dãy số</div>
+                    <div class="lesson-desc">Xếp hàng từ bé đến lớn nào!</div>
+                </a>
             </div>
-        </section>
+
+            <div id="tab-tinh-toan" class="submenu">
+                <div class="group-title">Học tính toán</div>
+                
+                <a href="{{ url_for('plus_minus_game') }}" class="lesson-card easy">
+                    <span class="badge">Cấp độ 1</span>
+                    <div class="lesson-title">Cộng đơn giản</div>
+                    <div class="lesson-desc">Phép cộng trong phạm vi 10.</div>
+                </a>
+
+                <a href="{{ url_for('chaien_subtraction') }}" class="lesson-card medium">
+                    <span class="badge">Cấp độ 2</span>
+                    <div class="lesson-title">Phép trừ Chaien</div>
+                    <div class="lesson-desc">Tập làm phép trừ (1 chữ số).</div>
+                </a>
+
+                <a href="{{ url_for('chaien_fast_math') }}" class="lesson-card hard">
+                    <span class="badge">Cấp độ 3</span>
+                    <div class="lesson-title">Tính nhanh siêu tốc</div>
+                    <div class="lesson-desc">Vừa cộng vừa trừ, nhanh tay lẹ mắt!</div>
+                </a>
+            </div>
+
+            <div id="tab-tro-choi" class="submenu">
+                <div class="group-title">Trò chơi toán học</div>
+                
+                <a href="{{ url_for('practice') }}" class="lesson-card medium">
+                    <span class="badge">AI Camera</span>
+                    <div class="lesson-title">Đếm ngón tay</div>
+                    <div class="lesson-desc">Sử dụng Camera để AI đếm ngón tay của bé.</div>
+                </a>
+                
+                <a href="{{ url_for('ocean_rescue_game') }}" class="lesson-card hard">
+                    <span class="badge">Game</span>
+                    <div class="lesson-title">Giải cứu mimi</div>
+                    <div class="lesson-desc">Vượt qua những chướng ngại vật bằng cách trả lời toán.</div>
+                </a>
+            </div>
+
+        </div>
     </main>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Học Toán Cùng Doraemon. All rights reserved.</p>
-        </div>
-    </footer>
+    <script>
+        function selectTab(tabId, buttonElement) {
+            // 1. Ẩn tất cả nội dung tab cũ
+            const allTabs = document.querySelectorAll('.submenu');
+            allTabs.forEach(tab => tab.classList.remove('active'));
 
-    <div id="about-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Về chúng tôi</h2>
-            <p>
-                <b>Sinh viên thực hiện:</b><br>
-                Nguyễn Minh Đức<br>
-                Phạm Trung Dũng<br><br>
-                <b>Giáo viên hướng dẫn:</b><br>
-                Thầy Hoàng Quang Huy BME
-            </p>
-        </div>
-    </div>
+            // 2. Bỏ trạng thái 'active' của tất cả nút
+            const allButtons = document.querySelectorAll('.category-card');
+            allButtons.forEach(btn => btn.classList.remove('active'));
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
+            // 3. Hiện nội dung tab được chọn
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+
+            // 4. Đánh dấu nút đang được chọn
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            }
+        }
+
+        // TỰ ĐỘNG CHỌN TAB ĐẦU TIÊN KHI VÀO TRANG (FIX LỖI TRỐNG TRƠN)
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstTabBtn = document.getElementById('btn-hoc-so');
+            if (firstTabBtn) {
+                // Giả lập cú click vào nút đầu tiên
+                firstTabBtn.click(); 
+            }
+        });
+    </script>
+    
+    </body>
 </html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Phép Trừ Cùng Chaien - Học Toán Cùng Doraemon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* =================================================================
+           1. THIẾT LẬP NỀN (BLUE THEME)
+           ================================================================= */
+        html, body {
+            background: linear-gradient(135deg, #E3F2FD 0%, #90CAF9 100%) !important;
+            background-image: none !important; 
+            min-height: 100vh;
+            margin: 0; padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body::before, body::after { display: none !important; content: none !important; }
+
+        /* =================================================================
+           2. KHUNG GAME
+           ================================================================= */
+        .game-container {
+            background-color: #E3F2FD; 
+            border: 6px solid #1976D2; 
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(21, 101, 192, 0.3);
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 25px;
+            position: relative; 
+            z-index: 10;
+        }
+
+        .btn-exit-game {
+            position: absolute; top: 20px; left: 20px;
+            background-color: #BBDEFB; color: #0D47A1;
+            padding: 8px 15px; border-radius: 20px;
+            font-weight: 800; font-size: 0.9rem;
+            border: 2px solid #1976D2; text-decoration: none;
+            display: flex; align-items: center; gap: 5px; 
+            transition: all 0.2s; z-index: 10;
+        }
+        .btn-exit-game:hover { background-color: #90CAF9; transform: translateY(-2px); }
+
+        .game-header {
+            display: flex; justify-content: center; gap: 40px;
+            margin-bottom: 30px; padding-top: 5px;
+        }
+
+        .game-info-box {
+            background: #BBDEFB; color: #0D47A1;
+            border: 2px solid #1976D2; border-radius: 15px;
+            padding: 8px 25px;
+            display: flex; flex-direction: column; align-items: center; min-width: 100px;
+        }
+        .game-info-box span { font-size: 0.85rem; opacity: 0.9; font-weight: 800; }
+        .game-info-box div { font-size: 1.8rem; font-weight: 900; }
+
+        /* =================================================================
+           3. CÂU HỎI (ĐÃ SỬA LỖI KHÔNG NHÌN THẤY)
+           ================================================================= */
+        
+        .question-box {
+            background-color: #FFFFFF; /* Nền trắng tuyệt đối */
+            border: 4px dashed #1E88E5;
+            border-radius: 25px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.1);
+        }
+
+        .math-problem {
+            font-size: 5rem;
+            font-weight: 900; 
+            
+            /* --- KHẮC PHỤC LỖI TẠI ĐÂY --- */
+            color: #01579B !important; /* Màu xanh đậm cực rõ */
+            text-shadow: none !important; /* Bỏ bóng mờ gây lóa */
+            
+            margin-top: 5px;
+            letter-spacing: 2px; /* Tách chữ ra cho thoáng */
+        }
+
+        .question-label {
+            color: #1565C0; font-weight: 800; font-size: 1.1rem;
+            margin-bottom: 5px; text-transform: uppercase;
+        }
+
+        /* Lưới đáp án */
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .answer-btn {
+            background-color: #BBDEFB;
+            border: 3px solid #1976D2;
+            border-radius: 20px;
+            padding: 15px;
+            font-size: 2.5rem; /* Số to rõ */
+            font-weight: 900;
+            
+            /* --- MÀU SỐ TRONG NÚT CŨNG PHẢI ĐẬM --- */
+            color: #0D47A1 !important; 
+            
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 5px 0 #1565C0;
+            text-align: center;
+        }
+
+        .answer-btn:hover {
+            transform: translateY(-2px);
+            background-color: #90CAF9;
+            color: #002171 !important;
+        }
+
+        .answer-btn:active { transform: translateY(2px); box-shadow: none; }
+
+        .answer-btn.correct { 
+            background-color: #00C853 !important; color: white !important; 
+            border-color: #00695C !important; box-shadow: 0 4px 0 #004D40 !important;
+        }
+        
+        .answer-btn.wrong { 
+            background-color: #D50000 !important; color: white !important; 
+            border-color: #B71C1C !important; box-shadow: 0 4px 0 #7F0000 !important;
+        }
+
+        #game-feedback {
+            font-size: 1.4rem; font-weight: 900;
+            height: 30px; margin-top: 20px; text-align: center; color: #0D47A1;
+        }
+
+        @media (max-width: 600px) {
+            .math-problem { font-size: 3.5rem; }
+            .answer-btn { font-size: 1.8rem; padding: 10px; }
+            .btn-exit-game span { display: none; }
+            .game-container { padding: 15px; margin-top: 10px; }
+        }
+    </style>
+</head>
+<body>
+    {% include '_header_2.html' %}
+
+    <main class="container">
+        <div class="game-container">
+            <a href="{{ url_for('learning') }}" class="btn-exit-game">⬅ <span>Quay lại</span></a>
+
+            <div class="game-header">
+                <div class="game-info-box">
+                    <span>Thời gian</span>
+                    <div id="timer">60</div>
+                </div>
+                <div class="game-info-box">
+                    <span>Điểm</span>
+                    <div id="score">0</div>
+                </div>
+            </div>
+
+            <div class="question-box">
+                <div class="question-label">Tính phép trừ:</div>
+                <div class="math-problem" id="question-text">
+                    </div>
+            </div>
+
+            <div class="answers-grid" id="answers-area">
+                </div>
+
+            <p id="game-feedback"></p>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/chaien_medium.js') }}"></script> 
+
+</body>
+</html>

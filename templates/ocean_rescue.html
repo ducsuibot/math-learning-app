@@ -6,11 +6,222 @@
     <title>Giải Cứu Đại Dương - Học Toán Cùng Doraemon</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
+    
+    <style>
+        /* =================================================================
+           STYLE FIX: CHO PHÉP CUỘN TRANG (SCROLLABLE)
+           ================================================================= */
+        :root {
+            --ocean-dark: #0077be;
+            --ocean-light: #48cae4;
+            --mimi-pink: #ff85a1;
+            --doraemon-blue: #00a1e9;
+            --bubble-white: rgba(255, 255, 255, 0.9);
+            --coral-red: #ff6b6b;
+        }
+
+        /* --- QUAN TRỌNG: FIX LỖI KHÔNG CUỘN ĐƯỢC --- */
+        html, body {
+            height: auto !important;
+            min-height: 100vh;
+            overflow-y: auto !important; /* Bắt buộc cho phép cuộn dọc */
+            overflow-x: hidden; /* Chỉ chặn cuộn ngang */
+            margin: 0;
+            padding: 0;
+        }
+
+        body.game-body-ocean {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #caf0f8 0%, #90e0ef 100%);
+        }
+
+        /* Nút quay lại kiểu bong bóng nổi */
+        .btn-exit-game {
+            display: inline-block;
+            text-decoration: none;
+            background: var(--coral-red);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 0 #d14d4d;
+            transition: all 0.2s ease;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border: 3px solid white;
+        }
+
+        .btn-exit-game:hover {
+            transform: translateY(-3px);
+            background: #ff8787;
+            box-shadow: 0 9px 0 #d14d4d;
+            color: white;
+        }
+
+        .btn-exit-game:active {
+            transform: translateY(3px);
+            box-shadow: 0 0 0;
+        }
+
+        /* Hiệu ứng bong bóng bay lặn phía sau (Fixed để không trôi theo khi cuộn) */
+        .ocean-bg-decor {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Container chính */
+        main.container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 60px; /* Để chừa khoảng trống dưới cùng */
+        }
+
+        .game-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bubble-white);
+            border-radius: 40px;
+            padding: 25px;
+            box-shadow: 0 20px 0 rgba(0, 119, 190, 0.2);
+            border: 8px solid #fff;
+            position: relative;
+        }
+
+        /* Bảng thông tin (Điểm & Thời gian) */
+        .game-score-info {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* Cho phép xuống dòng trên điện thoại */
+            gap: 10px;
+        }
+
+        .info-box {
+            background: #fff;
+            padding: 10px 30px;
+            border-radius: 30px;
+            border: 4px solid var(--ocean-light);
+            text-align: center;
+            box-shadow: 0 8px 0 var(--ocean-light);
+            min-width: 120px;
+        }
+
+        .info-box span {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: var(--ocean-dark);
+            text-transform: uppercase;
+        }
+
+        .info-box div {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ff5d8f;
+            font-family: 'Pacifico', cursive;
+        }
+
+        /* Thanh tiến độ ngộ nghĩnh */
+        .progress-bar-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar-container span {
+            font-weight: 900;
+            color: var(--ocean-dark);
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e0f7fa;
+            border-radius: 20px;
+            border: 3px solid #fff;
+            overflow: hidden;
+            box-shadow: inset 0 4px 4px rgba(0,0,0,0.1);
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff85a1, #ffb3c1);
+            border-radius: 20px;
+            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        /* Canvas Game */
+        #game-canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 20px;
+            background: #000;
+            width: 100%;
+            max-width: 800px;
+            height: auto; /* Tự động chỉnh chiều cao theo tỉ lệ */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 5px solid #333;
+        }
+
+        /* Modal Câu hỏi */
+        .modal-overlay {
+            position: fixed; /* Luôn phủ toàn màn hình kể cả khi cuộn */
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: none; /* JS sẽ bật cái này */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .question-modal {
+            background: #fff !important;
+            border-radius: 40px !important;
+            border: 8px solid var(--ocean-light) !important;
+            padding: 30px !important;
+        }
+
+        #question-text {
+            font-size: 2.5rem !important;
+            color: var(--ocean-dark);
+            margin-bottom: 25px;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        /* Animation cho text thắng/thua */
+        .win-modal h2 { font-family: 'Pacifico', cursive; color: #ff5d8f; font-size: 3rem; }
+        .game-over-modal h2 { font-family: 'Pacifico', cursive; color: #666; font-size: 2.5rem; }
+
+        .low-time {
+            animation: shake 0.5s infinite;
+            color: #ff0000 !important;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            50% { transform: translate(-1px, 2px) rotate(1deg); }
+            100% { transform: translate(1px, 1px) rotate(0deg); }
+        }
+    </style>
 </head>
 <body class="game-body-ocean">
+    <div class="ocean-bg-decor">
+        <svg width="100%" height="100%"><circle cx="10%" cy="20%" r="20" fill="white" fill-opacity="0.3"/><circle cx="90%" cy="80%" r="30" fill="white" fill-opacity="0.3"/><circle cx="80%" cy="15%" r="15" fill="white" fill-opacity="0.3"/></svg>
+    </div>
+    
     <header>
         <div class="container">
             <div class="header-title">
@@ -24,7 +235,6 @@
                     <li><a href="{{ url_for('my_stats') }}">Báo cáo</a></li> 
                     <li><a href="{{ url_for('practice') }}">Luyện tập AI</a></li>
                     <li><a href="{{ url_for('chatbot_page') }}">Chat với Doraemon</a></li>
-                    
                     {% if current_user.is_authenticated %}
                         <li class="user-menu-container">
                             <a href="#" class="nav-username" id="user-menu-toggle"> 
@@ -33,7 +243,7 @@
                             <ul class="user-dropdown-menu" id="user-dropdown"> 
                                 <li><a href="{{ url_for('profile') }}">Thông tin người dùng</a></li> 
                                 <li><a href="{{ url_for('edit_profile') }}">Cập nhật thông tin</a></li> 
-                                <li><hr></li> {/* Đường kẻ ngăn cách */}
+                                <li><hr></li>
                                 <li><a href="{{ url_for('logout') }}">Đăng xuất</a></li>
                             </ul>
                         </li>
@@ -41,27 +251,29 @@
                         <li><a href="{{ url_for('login') }}">Đăng nhập</a></li>
                         <li><a href="{{ url_for('register') }}">Đăng ký</a></li>
                     {% endif %}
-                    
-                    <li><a href="#" id="about-link">Về chúng tôi</a></li> 
                 </ul>
             </nav>
         </div>
     </header>
+
     {% include '_header_fake.html' %} 
+
     <main class="container">
+        <a href="{{ url_for('learning') }}" class="btn-exit-game">⬅ Thoát Game</a>
+        
         <div class="game-wrapper">
             <div class="game-score-info">
                 <div class="info-box">
-                    <span>ĐIỂM</span>
+                    <span>⭐ ĐIỂM</span>
                     <div id="score-display">0</div>
                 </div>
                 <div class="info-box">
-                    <span>THỜI GIAN</span>
+                    <span>⏰ THỜI GIAN</span>
                     <div id="timer-display">60</div>
                 </div>
             </div>
             <div class="progress-bar-container">
-                <span>TIẾN ĐỘ GIẢI CỨU</span>
+                <span>🌊 TIẾN ĐỘ GIẢI CỨU</span>
                 <div class="progress-bar">
                     <div id="progress-fill"></div>
                 </div>

@@ -622,6 +622,55 @@ def submit_mission():
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "msg": f"Lỗi server: {str(e)}"})
+    
+
+# Ngày 29/12/2025
+# ==========================================
+# 1. ROUTE CHO XEKO (HỌC SỐ)
+# ==========================================
+# Cấp độ 1: Dễ
+@app.route('/hoc-so/co-ban')
+def suneo_learning_basic():
+    return render_template('suneo_basic.html') 
+
+# Cấp độ 3: Khó (Cấp độ 2 là game siêu thị có sẵn rồi)
+@app.route('/hoc-so/nang-cao')
+def suneo_challenge_hard():
+    return render_template('suneo_hard.html')
+
+
+# ==========================================
+# 2. ROUTE CHO SHIZUKA (SO SÁNH)
+# ==========================================
+# Cấp độ 2: So sánh hai số (Vừa)
+# ⭐ Level 1: So sánh hai số (Dễ)
+@app.route('/so-sanh/hai-so')
+def shizuka_compare_numbers():
+    # File HTML này bạn đã tạo ở bước trước
+    return render_template('shizuka_compare_numbers.html')
+
+# Cấp độ 3: Sắp xếp dãy số (Khó)
+@app.route('/so-sanh/sap-xep')
+def shizuka_ordering():
+    # SỬA LẠI TÊN FILE CHO ĐÚNG VỚI FILE VỪA TẠO
+    return render_template('shizuka_ordering.html')
+
+
+# ==========================================
+# 3. ROUTE CHO CHAIEN (LUYỆN TẬP)
+# ==========================================
+# Cấp độ 2: Phép trừ (Vừa)
+@app.route('/luyen-tap/phep-tru')
+def chaien_subtraction():
+    # Bạn cần tạo file chaien_medium.html
+    return render_template('chaien_medium.html')
+
+# Cấp độ 3: Tính nhanh (Khó)
+@app.route('/luyen-tap/tinh-nhanh')
+def chaien_fast_math():
+    # Bạn cần tạo file chaien_hard.html
+    return render_template('chaien_hard.html')
+
 # --------------------------------------------------------
 # ... (giữ nguyên các route cũ)
 # === 9. CHẠY SERVER (ĐÃ VÔ HIỆU HÓA ĐỂ DEPLOY) ===
