@@ -10,13 +10,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* === CẤU TRÚC & GIAO DIỆN MỚI === */
+        /* === CẤU TRÚC & GIAO DIỆN === */
         :root {
             --dora-blue: #0096E2;
             --dora-red: #E60033;
             --dora-yellow: #F0C420;
-            --bg-soft: #F4F7FE; /* Màu nền dịu mắt */
-            --card-shadow: 0 20px 40px rgba(0, 150, 226, 0.1); /* Đổ bóng mềm */
+            --bg-soft: #F4F7FE;
+            --card-shadow: 0 20px 40px rgba(0, 150, 226, 0.1);
         }
 
         body {
@@ -30,10 +30,10 @@
             margin: 0 auto;
         }
 
-        /* Header tiêu đề nổi bật */
+        /* Header tiêu đề */
         .page-title-box {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         .page-title-box h2 {
             display: inline-block;
@@ -43,40 +43,30 @@
             color: var(--dora-blue);
             font-weight: 900;
             font-size: 1.8rem;
-            border-radius: 60px; /* Bo tròn kiểu viên thuốc */
+            border-radius: 60px;
             box-shadow: var(--card-shadow);
             position: relative;
         }
-        /* Trang trí thêm cái chuông */
         .page-title-box h2::after {
             content: '🔔'; position: absolute; right: 20px; animation: ring 2s infinite ease-in-out;
         }
         @keyframes ring { 0%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(15deg); } 20% { transform: rotate(-15deg); } }
 
-
-        /* === BỐ CỤC LƯỚI MỚI (BENTO GRID) === */
+        /* === BỐ CỤC LƯỚI (GRID) === */
         .stats-grid-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 cột đều nhau */
-            gap: 30px; /* Khoảng cách giữa các ô */
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px; 
             margin-bottom: 40px;
         }
 
-        /* Class cho các ô chiếm 1 cột */
-        .grid-item-half {
-            grid-column: span 1;
-        }
-        
-        /* Class cho ô chiếm trọn 2 cột (Biểu đồ tiến độ) */
-        .grid-item-full {
-            grid-column: span 2;
-        }
+        .grid-item-half { grid-column: span 1; }
+        .grid-item-full { grid-column: span 2; }
 
-
-        /* === CẤU TRÚC HÌNH HỌC THẺ (SOFT UI CARDS) === */
+        /* === THẺ CARD (SOFT UI) === */
         .glass-card {
             background: white;
-            border-radius: 24px; /* Bo góc mạnh (Squircle) */
+            border-radius: 24px;
             padding: 25px;
             box-shadow: var(--card-shadow);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -90,7 +80,6 @@
             box-shadow: 0 25px 50px rgba(0, 150, 226, 0.2);
         }
 
-        /* Thanh màu trang trí trên đầu mỗi thẻ */
         .accent-red { border-top: 5px solid var(--dora-red); }
         .accent-yellow { border-top: 5px solid var(--dora-yellow); }
         .accent-blue { border-top: 5px solid var(--dora-blue); }
@@ -103,20 +92,19 @@
             font-size: 1.1rem;
         }
 
-        /* Wrapper để biểu đồ tiến độ có thể co giãn chiều cao */
         .chart-tall-wrapper {
             min-height: 400px;
             position: relative;
         }
 
-
-        /* === KHU VỰC AI (Tách biệt phía dưới) === */
+        /* === KHU VỰC AI (ĐÃ CHỈNH LÊN TRÊN) === */
         .ai-interaction-zone {
             background: #FFF9C4; /* Nền vàng nhạt */
             border-radius: 30px;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
             border: 3px dashed var(--dora-yellow);
+            margin-bottom: 40px; /* Thêm khoảng cách với lưới biểu đồ bên dưới */
         }
 
         .button-doraemon {
@@ -135,11 +123,10 @@
         .button-doraemon:hover { transform: scale(1.05); box-shadow: 0 15px 30px -10px rgba(0, 150, 226, 0.7); }
         .button-doraemon:active { transform: scale(0.98); }
 
-        /* Chat Bubble AI */
         .ai-chat-bubble {
             display: flex; align-items: flex-start; gap: 20px;
             background: white; padding: 25px; border-radius: 25px;
-            margin-top: 30px; text-align: left;
+            margin-top: 20px; text-align: left;
             box-shadow: var(--card-shadow);
             animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -150,9 +137,8 @@
         .typing-dots span { display: inline-block; width: 8px; height: 8px; background: var(--dora-blue); border-radius: 50%; margin-right: 5px; animation: wave 1.3s infinite; }
         @keyframes wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .stats-grid-container { grid-template-columns: 1fr; } /* Điện thoại thì về 1 cột dọc */
+            .stats-grid-container { grid-template-columns: 1fr; }
             .grid-item-full { grid-column: span 1; }
             .chart-tall-wrapper { min-height: 300px; }
         }
@@ -169,6 +155,24 @@
         </div>
         
         {% if chart_data_avg %} 
+            
+            <section class="ai-interaction-zone">
+                <button id="generate-report-btn" class="button-doraemon">
+                    <span>✨</span> Nhờ Doraemon Phân Tích Kết Quả <span>✨</span>
+                </button>
+                
+                <div id="ai-report-container" class="ai-chat-bubble" style="display:none;">
+                    <img src="/static/img/doraemon_stand.png" alt="Doraemon" class="ai-avatar">
+                    <div class="ai-content">
+                        <div class="typing-dots" id="ai-report-loader">
+                            <span></span><span></span><span></span> Đang suy nghĩ...
+                        </div>
+                        <p id="ai-report-text" style="margin: 0; font-weight: 600;"></p>
+                    </div>
+                </div>
+                <div id="data-for-ai" style="display: none;">{{ data_summary_for_ai }}</div>
+            </section>
+
             <div class="stats-grid-container">
                 
                 <div class="glass-card grid-item-half accent-red">
@@ -192,23 +196,6 @@
                     </div>
                 </div>
             </div>
-
-            <section class="ai-interaction-zone">
-                <button id="generate-report-btn" class="button-doraemon">
-                    <span>✨</span> Nhờ Doraemon Phân Tích Kết Quả <span>✨</span>
-                </button>
-                
-                <div id="ai-report-container" class="ai-chat-bubble" style="display:none;">
-                    <img src="/static/img/doraemon_stand.png" alt="Doraemon" class="ai-avatar">
-                    <div class="ai-content">
-                        <div class="typing-dots" id="ai-report-loader">
-                            <span></span><span></span><span></span> Đang suy nghĩ...
-                        </div>
-                        <p id="ai-report-text" style="margin: 0; font-weight: 600;"></p>
-                    </div>
-                </div>
-                <div id="data-for-ai" style="display: none;">{{ data_summary_for_ai }}</div>
-            </section>
 
         {% else %}
             <div class="no-stats-box">
@@ -245,7 +232,7 @@
             });
         }
 
-        // 2. Đường (Tiến độ) - Cấu hình để nó to và giãn
+        // 2. Đường (Tiến độ) - Đã chỉnh max: 110
         if (chartDataLine?.labels?.length) {
             new Chart(document.getElementById('scoreChartLine'), {
                 type: 'line',
@@ -259,8 +246,10 @@
                 },
                 options: { 
                     responsive: true,
-                    maintainAspectRatio: false, // QUAN TRỌNG: Để nó giãn theo div cha (.chart-tall-wrapper)
-                    scales: { y: { beginAtZero: true, max: 110 } }
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        y: { beginAtZero: true, max: 500 } 
+                    }
                 }
             });
         }

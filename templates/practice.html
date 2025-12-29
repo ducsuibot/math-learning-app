@@ -3,46 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luyện Tập Đếm Số với AI</title>
+    <title>Luyện Tập Đếm Số với AI - Doraemon</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="/static/css/style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --dora-blue: #0096E2;
+            --dora-red: #E60033;
+            --dora-yellow: #F0C420;
+            --bg-soft: #F4F7FE;
+        }
+
+        body {
+            background-color: var(--bg-soft);
+            font-family: 'Nunito', sans-serif;
+            margin: 0; padding-bottom: 50px;
+        }
+
+        /* Tiêu đề trang */
+        .page-header {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .page-header h2 {
+            display: inline-block;
+            background: white;
+            color: var(--dora-blue);
+            font-weight: 900;
+            padding: 15px 40px;
+            border-radius: 50px;
+            box-shadow: 0 10px 20px rgba(0, 150, 226, 0.15);
+            border: 4px solid white;
+        }
+
+        /* Layout chia cột */
+        .ai-practice-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr; /* Camera to hơn chút */
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- PHẦN 1: CAMERA (BÊN TRÁI) --- */
+        .camera-card {
+            background: white;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            border: 3px solid #E1F5FE;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Tỉ lệ 16:9 */
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 5px solid var(--dora-blue);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* Chồng canvas lên video và lật ngược hình (Mirror) */
+        #webcam, #output_canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            transform: scaleX(-1); /* Lật gương để bé dễ thao tác */
+            object-fit: cover;
+        }
+
+        .camera-status {
+            margin-top: 15px;
+            font-weight: 700;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .blinking-dot {
+            width: 12px; height: 12px;
+            background: var(--dora-red);
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- PHẦN 2: THỬ THÁCH & KẾT QUẢ (BÊN PHẢI) --- */
+        .sidebar-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Hộp hiển thị số ngón tay */
+        .result-card {
+            background: #FFF9C4; /* Vàng nhạt */
+            border-radius: 30px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 3px dashed var(--dora-yellow);
+        }
+
+        .result-avatar { width: 80px; animation: bounce 2s infinite; }
+        
+        .result-text { text-align: right; flex: 1; }
+        .result-text p { margin: 0; font-weight: 700; color: #555; }
+        .finger-number {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--dora-red);
+            margin: 0;
+            line-height: 1;
+            text-shadow: 2px 2px 0px white;
+        }
+
+        /* Hộp câu hỏi */
+        .challenge-card {
+            background: white;
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 3px solid var(--dora-blue);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .challenge-title {
+            color: var(--dora-blue);
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .challenge-content {
+            background: #F0F7FF;
+            border-radius: 20px;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            min-height: 150px;
+            border: 2px solid #B3E5FC;
+        }
+
+        /* Style cho ảnh con mèo/táo trong thử thách */
+        .challenge-content img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            animation: popIn 0.5s ease;
+        }
+
+        .btn-check {
+            background: var(--dora-blue);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #007bb5;
+            transition: all 0.2s;
+        }
+        .btn-check:hover { transform: translateY(-2px); }
+        .btn-check:active { transform: translateY(2px); box-shadow: 0 0 0; }
+
+        .feedback-msg {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            min-height: 1.5em;
+        }
+        .feedback-correct { color: #4CAF50; }
+        .feedback-wrong { color: var(--dora-red); }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .ai-practice-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
     {% include '_header_2.html' %}
 
-    <main class="container practice-page">
-        <h2>Bé hãy giơ ngón tay để đếm số nào!</h2>
-        <p>Hệ thống sẽ nhận diện và đếm số ngón tay bé giơ lên.</p>
-        
-        <div class="ai-interaction-area">
-            <div class="video-container">
+    <div class="page-header">
+        <h2>✌️ Cùng Đếm Ngón Tay Với Doraemon 🖐️</h2>
+    </div>
+
+    <main class="ai-practice-grid">
+        <div class="camera-card">
+            <div class="video-wrapper">
                 <video id="webcam" autoplay playsinline></video>
                 <canvas id="output_canvas"></canvas>
             </div>
-            <div class="result-box">
-                <p>Số ngón tay được nhận diện:</p>
-                <h2 id="finger_count">0</h2>
+            <div class="camera-status">
+                <div class="blinking-dot"></div> Camera AI đang hoạt động...
             </div>
+            <p style="font-size: 0.9rem; margin-top: 10px; color: #888;">
+                (Bé hãy giơ tay trước camera, nhớ bật đèn sáng nhé!)
+            </p>
         </div>
 
-        <div class="math-challenge">
-            <h3>Thử thách Toán học: Giơ ngón tay đếm số</h3>
-            <p>Giơ tay để trả lời câu hỏi: <strong>Có bao nhiêu con mèo?</strong></p>
+        <div class="sidebar-panel">
             
-            <div id="apple_container" class="challenge-content">
+            <div class="result-card">
+                <img src="/static/img/doraemon_stand.png" alt="Doraemon" class="result-avatar">
+                <div class="result-text">
+                    <p>Doraemon nhìn thấy:</p>
+                    <div style="display: flex; align-items: baseline; justify-content: flex-end; gap: 10px;">
+                        <h2 id="finger_count" class="finger-number">0</h2>
+                        <span style="font-weight: 800; color: #555; font-size: 1.2rem;">ngón tay</span>
+                    </div>
                 </div>
+            </div>
 
-             <button id="check_answer_btn" class="button-primary">Kiểm tra đáp án</button>
-             <p id="feedback_message"></p>
+            <div class="challenge-card">
+                <div class="challenge-title">
+                    <span>📝</span> Thử thách: Đếm số lượng
+                </div>
+                <p style="margin: 0 0 15px 0; color: #555;">Bé hãy giơ số ngón tay bằng với số vật trong hình:</p>
+                
+                <div id="apple_container" class="challenge-content">
+                    </div>
+
+                <button id="check_answer_btn" class="btn-check">
+                    Kiểm tra đáp án ✨
+                </button>
+                <p id="feedback_message" class="feedback-msg"></p>
+            </div>
         </div>
     </main>
 
     <footer>
-        <div class="container">
+        <div class="container" style="text-align: center; margin-top: 30px; color: #888;">
             <p>&copy; 2025 Học Toán Cùng Doraemon. All rights reserved.</p>
         </div>
     </footer>
