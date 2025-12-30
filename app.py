@@ -419,7 +419,7 @@ def generate_student_report():
     data = request.json.get('data')
     if not data: return jsonify({"report": "Không có dữ liệu."})
     try:
-        prompt = f"Bạn là Doraemon. Viết báo cáo học tập ngắn, vui vẻ cho bé dựa trên: {data}"
+        prompt = f"Bạn là Doraemon. Viết nhận xét học tập ngắn gọn khoảng 2 - 3 dòng cho bé dựa trên: {data}"
         completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}], model="openai/gpt-oss-20b"
         )
