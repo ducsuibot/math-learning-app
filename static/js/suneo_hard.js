@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         retryBtn.style.display = 'block'; 
         retryBtn.innerText = "Chơi lại từ đầu";
 
-        sendScoreToBackend('Thử thách số lớn (Xeko)', score);
+        sendScoreToBackend('Thử thách số lớn (Level 3)', score);
     }
 
     function startTimer() {

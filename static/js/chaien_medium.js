@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function endGame() {
         clearInterval(timerInterval);
         gameEnded = true;
-        sendScoreToBackend('Phép trừ Chaien (Level 2)', score);
+        sendScoreToBackend('Phép trừ đơn giản (Level 2)', score);
         
         gameContainer.innerHTML = `
             <a href="/learning" class="btn-exit-game">⬅ <span>Quay lại</span></a>

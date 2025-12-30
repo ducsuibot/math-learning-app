@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sổ Liên Lạc Điện Tử - {{ current_user.username }}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #0096E2; /* Xanh Doraemon đậm */
+            --secondary-color: #f4f6f9; /* Màu nền xám nhạt */
+            --text-color: #333;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--secondary-color);
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- 1. SIDEBAR (THANH BÊN TRÁI) --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100%;
+            left: 0; top: 0;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        .sidebar-header h2 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .user-info {
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .avatar-circle {
+            width: 80px; height: 80px;
+            background: #E3F2FD;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: var(--primary-color);
+            border: 3px solid var(--primary-color);
+        }
+        .user-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 5px; }
+        .user-role { color: #777; font-size: 0.9rem; }
+
+        .menu-items { flex: 1; padding: 20px; }
+        .menu-link {
+            display: block; padding: 12px 15px;
+            color: var(--text-color); text-decoration: none;
+            border-radius: 8px; margin-bottom: 5px;
+            transition: 0.2s; font-weight: 500;
+        }
+        .menu-link.active { background: #E3F2FD; color: var(--primary-color); }
+        .menu-link:hover { background: #f0f0f0; }
+
+        .logout-btn {
+            margin: 20px;
+            padding: 12px;
+            background: #ffebee;
+            color: #d32f2f;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .logout-btn:hover { background: #ffcdd2; }
+
+        /* --- 2. MAIN CONTENT (NỘI DUNG CHÍNH) --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px;
+        }
+        .page-title h1 { font-size: 1.8rem; margin: 0; color: #2c3e50; }
+        .breadcrumb { color: #888; font-size: 0.9rem; margin-top: 5px; }
+
+        /* CARD STYLES */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .card-full { grid-column: span 2; }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border: 1px solid #e0e0e0;
+        }
+        .card-title {
+            font-size: 1.1rem; font-weight: 700; color: #444;
+            margin-bottom: 20px; border-bottom: 2px solid #f5f5f5;
+            padding-bottom: 10px;
+        }
+
+        /* TABLE STYLE */
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        .history-table th { text-align: left; padding: 12px; background: #f8f9fa; color: #666; }
+        .history-table td { padding: 12px; border-bottom: 1px solid #eee; }
+        .badge-good { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
+        .badge-bad { background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 600; }
+
+        /* FORM */
+        textarea {
+            width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 8px;
+            font-family: inherit; resize: vertical; min-height: 100px;
+            box-sizing: border-box;
+        }
+        .btn-primary {
+            background: var(--primary-color); color: white; border: none;
+            padding: 10px 25px; border-radius: 6px; cursor: pointer;
+            font-weight: 600; margin-top: 15px;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* AI ADVICE */
+        .ai-box { background: #fffde7; border: 1px solid #fff9c4; padding: 20px; border-radius: 8px; }
+        .btn-ai { background: #fbc02d; color: #333; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; float: right; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { width: 70px; }
+            .sidebar-header h2, .user-name, .user-role, .menu-link span { display: none; }
+            .user-info { padding: 10px; }
+            .avatar-circle { width: 40px; height: 40px; font-size: 1.2rem; }
+            .main-content { margin-left: 70px; padding: 15px; }
+            .grid-container { grid-template-columns: 1fr; }
+            .card-full { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>📘 Sổ Liên Lạc</h2>
+        </div>
+        
+        <div class="user-info">
+            <div class="avatar-circle">
+                {{ current_user.username[0].upper() }}
+            </div>
+            <div class="user-name">{{ current_user.full_name or current_user.username }}</div>
+            <div class="user-role">Phụ huynh học sinh</div>
+        </div>
+
+        <nav class="menu-items">
+            <a href="#" class="menu-link active">📊 Tổng quan</a>
+            <a href="#history" class="menu-link">🕒 Lịch sử học tập</a>
+            <a href="#feedback" class="menu-link">✉️ Gửi phản hồi</a>
+            <a href="{{ url_for('learning') }}" class="menu-link" style="color: #0096E2;">📘 Vào giao diện Web của con</a>
+        </nav>
+
+        <a href="{{ url_for('logout') }}" class="logout-btn">
+            🚪 Đăng Xuất
+        </a>
+    </aside>
+
+    <main class="main-content">
+        
+        <div class="page-header">
+            <div>
+                <h1>Báo Cáo Học Tập</h1>
+                <div class="breadcrumb">Cập nhật lúc: {{ now }}</div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            
+            <div class="card">
+                <div class="card-title">Điểm Trung Bình Các Môn</div>
+                <div style="height: 250px;">
+                    {% if chart_data_avg %}
+                        <canvas id="parentChart"></canvas>
+                    {% else %}
+                        <p style="text-align:center; color:#999; line-height: 250px;">Chưa có dữ liệu</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    Nhận Xét Từ Trợ Lý Ảo
+                    <button id="btn-get-advice" class="btn-ai">Phân tích mới</button>
+                </div>
+                <div class="ai-box">
+                    <p id="ai-advice-content" style="margin:0; line-height:1.6; color:#444;">
+                        Bấm nút phân tích để xem đánh giá chi tiết về quá trình học của bé...
+                    </p>
+                    <div id="ai-loading" style="display:none; color:#fbc02d; font-weight:bold; margin-top:10px;">
+                        Đang phân tích dữ liệu...
+                    </div>
+                </div>
+                <div id="data-for-ai" style="display:none;">{{ data_summary_for_ai }}</div>
+            </div>
+
+            <div class="card card-full" id="history">
+                <div class="card-title">Lịch Sử Hoạt Động (20 lần gần nhất)</div>
+                <div style="overflow-x: auto;">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Nội dung bài học / Game</th>
+                                <th>Điểm số</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if recent_history %}
+                                {% for item in recent_history %}
+                                <tr>
+                                    <td>{{ item.timestamp.strftime('%H:%M %d/%m/%Y') }}</td>
+                                    <td>
+                                        {% if item.game_name == 'ocean_rescue' %}Giải cứu Mimi (Toán)
+                                        {% elif item.game_name == 'compare_images' %}So sánh hình ảnh
+                                        {% else %}{{ item.game_name }}{% endif %}
+                                    </td>
+                                    <td style="font-weight:bold;">{{ item.score }}/100</td>
+                                    <td>
+                                        {% if item.score >= 80 %}
+                                            <span class="badge-good">Xuất sắc</span>
+                                        {% elif item.score >= 50 %}
+                                            <span style="background:#e3f2fd; color:#1976d2; padding:4px 8px; border-radius:4px; font-size:0.85rem; font-weight:600;">Đạt</span>
+                                        {% else %}
+                                            <span class="badge-bad">Cần cố gắng</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr><td colspan="4" style="text-align:center;">Chưa có lịch sử học tập</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card card-full" id="feedback">
+                <div class="card-title">Góp Ý Cho Admin</div>
+                <form action="{{ url_for('send_feedback') }}" method="POST">
+                    <textarea name="content" placeholder="Nhập nội dung phản hồi của quý phụ huynh tại đây..." required></textarea>
+                    <button type="submit" class="btn-primary">Gửi Phản Hồi</button>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Chart Config
+        const chartData = {{ chart_data_avg | tojson }};
+        if (chartData && chartData.labels) {
+            new Chart(document.getElementById('parentChart'), {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Điểm số',
+                        data: chartData.data,
+                        backgroundColor: 'rgba(0, 150, 226, 0.7)',
+                        borderColor: '#0096E2',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+        }
+
+        // AI Advice Logic
+        const btnAdvice = document.getElementById('btn-get-advice');
+        const adviceContent = document.getElementById('ai-advice-content');
+        const aiLoading = document.getElementById('ai-loading');
+        const dataAI = document.getElementById('data-for-ai') ? document.getElementById('data-for-ai').innerText : "";
+
+        if(btnAdvice){
+            btnAdvice.addEventListener('click', async () => {
+                adviceContent.style.display = 'none';
+                aiLoading.style.display = 'block';
+                btnAdvice.disabled = true;
+                try {
+                    const res = await fetch('/generate_student_report', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({data: dataAI})
+                    });
+                    const result = await res.json();
+                    adviceContent.innerText = result.report;
+                } catch {
+                    adviceContent.innerText = "Hệ thống đang bảo trì AI.";
+                } finally {
+                    aiLoading.style.display = 'none';
+                    adviceContent.style.display = 'block';
+                    btnAdvice.disabled = false;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

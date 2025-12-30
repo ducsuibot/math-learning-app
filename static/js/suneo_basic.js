@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         retryBtn.style.display = 'block'; 
         retryBtn.innerText = "Chơi lại từ đầu";
 
-        sendScoreToBackend('Làm quen số (Xeko)', score);
+        sendScoreToBackend('Làm quen số (Level 1)', score);
     }
 
     function startTimer() {

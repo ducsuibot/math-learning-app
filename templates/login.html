@@ -2,45 +2,172 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }} - Học Toán Cùng Doraemon</title>
-    <link rel="stylesheet" href="/static/css/style.css"> 
-    <link rel="stylesheet" href="/static/css/forms.css"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Doraemon Math</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            background-color: #E3F2FD;
+            background-image: radial-gradient(#90CAF9 1px, transparent 1px);
+            background-size: 20px 20px;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .login-wrapper {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 150, 226, 0.2);
+            width: 100%;
+            max-width: 500px;
+            border: 5px solid #fff;
+            position: relative;
+        }
+
+        .dora-head {
+            position: absolute;
+            top: -60px; left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+        }
+
+        h2 {
+            text-align: center; color: #0096E2; 
+            font-weight: 900; margin-top: 30px; margin-bottom: 30px;
+        }
+
+        /* TABS CHUYỂN ĐỔI */
+        .login-tabs {
+            display: flex;
+            background: #f0f7ff;
+            padding: 5px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 800;
+            transition: all 0.3s;
+            color: #777;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tab-item.active {
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Màu sắc riêng cho từng tab */
+        .tab-student.active { background-color: #0096E2; } /* Xanh Doraemon */
+        .tab-parent.active { background-color: #E60033; } /* Đỏ (Mẹ/Bố) */
+
+        /* FORM STYLE */
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-weight: 700; margin-bottom: 8px; color: #555; }
+        .form-control {
+            width: 100%; padding: 15px; border-radius: 15px;
+            border: 2px solid #eee; background: #fafafa;
+            font-size: 1rem; box-sizing: border-box;
+            transition: 0.3s;
+        }
+        .form-control:focus { border-color: #0096E2; outline: none; background: white; }
+
+        .btn-login {
+            width: 100%; padding: 15px; border: none;
+            border-radius: 50px; font-weight: 900; font-size: 1.1rem;
+            color: white; cursor: pointer; transition: 0.2s;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.1);
+        }
+        .btn-login:active { transform: translateY(3px); box-shadow: none; }
+
+        /* Nút màu theo tab */
+        .btn-student { background: #0096E2; }
+        .btn-student:hover { background: #0085c7; }
+        
+        .btn-parent { background: #E60033; }
+        .btn-parent:hover { background: #cc002e; }
+
+        .links { text-align: center; margin-top: 20px; font-size: 0.9rem; }
+        .links a { color: #0096E2; text-decoration: none; font-weight: 700; }
+    </style>
 </head>
-<body class="form-page">
-    <div class="form-container">
-        <h2>Đăng Nhập</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
+<body>
+
+    <div class="login-wrapper">
+        <img src="/static/img/doraemon_avatar.png" class="dora-head" alt="Doraemon">
+        
+        <h2 id="login-title">Chào Bé Yêu! 👋</h2>
+
+        <div class="login-tabs">
+            <div class="tab-item tab-student active" onclick="switchTab('student')">
+                👶 Bé Học Bài
+            </div>
+            <div class="tab-item tab-parent" onclick="switchTab('parent')">
+                👨‍👩‍👧‍👦 Phụ Huynh
+            </div>
+        </div>
 
         <form method="POST" action="">
             {{ form.hidden_tag() }}
+            
+            <input type="hidden" name="login_type" id="login_type" value="student">
 
             <div class="form-group">
-                {{ form.username.label }}
-                {{ form.username(class="form-control") }}
-                {% for error in form.username.errors %}
-                    <span class="error-message">{{ error }}</span>
-                {% endfor %}
+                <label class="form-label">Tên đăng nhập</label>
+                {{ form.username(class="form-control", placeholder="Ví dụ: nobita123") }}
             </div>
 
             <div class="form-group">
-                {{ form.password.label }}
-                {{ form.password(class="form-control") }}
-                {% for error in form.password.errors %}
-                    <span class="error-message">{{ error }}</span>
-                {% endfor %}
+                <label class="form-label">Mật khẩu</label>
+                {{ form.password(class="form-control", placeholder="Nhập mật khẩu bí mật...") }}
             </div>
 
-            <div class="form-group">
-                {{ form.submit(class="button-primary") }}
-            </div>
+            <button type="submit" class="btn-login btn-student" id="btn-submit">
+                Vào Học Ngay 🚀
+            </button>
         </form>
-        <p>Chưa có tài khoản? <a href="{{ url_for('register') }}">Đăng ký ngay</a></p>
+
+        <div class="links">
+            Chưa có tài khoản? <a href="{{ url_for('register') }}">Đăng ký ngay</a>
+        </div>
     </div>
+
+    <script>
+        function switchTab(role) {
+            const title = document.getElementById('login-title');
+            const btn = document.getElementById('btn-submit');
+            const inputType = document.getElementById('login_type');
+            
+            // Xóa active cũ
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+
+            if (role === 'student') {
+                document.querySelector('.tab-student').classList.add('active');
+                title.innerText = "Chào Bé Yêu! 👋";
+                btn.className = "btn-login btn-student";
+                btn.innerHTML = "Vào Học Ngay 🚀";
+                inputType.value = 'student'; // Gửi về server là student
+            } else {
+                document.querySelector('.tab-parent').classList.add('active');
+                title.innerText = "Góc Phụ Huynh 📊";
+                btn.className = "btn-login btn-parent";
+                btn.innerHTML = "Xem Báo Cáo 🔍";
+                inputType.value = 'parent'; // Gửi về server là parent
+            }
+        }
+    </script>
 </body>
 </html>

@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isClickable = false;
 
         // === CẬP NHẬT 3: GỌI HÀM LƯU ĐIỂM KHI HẾT GIỜ ===
-        sendScoreToBackend('So sánh hình', score);
+        sendScoreToBackend('So sánh hình (Level 2)', score);
         // ===========================================
         
         gameContainer.innerHTML = `

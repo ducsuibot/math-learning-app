@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
         retryBtn.style.display = 'block'; 
         retryBtn.innerText = "Chơi lại";
 
-        sendScoreToBackend('Siêu thị Xeko (Level 2)', score);
+        sendScoreToBackend('Chọn số lượng (Level 2)', score);
     }
 
     // === ĐỒNG HỒ ĐẾM NGƯỢC ===

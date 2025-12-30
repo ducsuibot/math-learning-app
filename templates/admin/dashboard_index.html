@@ -1,0 +1,72 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <h1 class="mb-4 text-center" style="color: #0096E2; font-weight: 900;">
+        🔔 Trung Tâm Điều Hành Doraemon 🔔
+    </h1>
+
+    <div class="row">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-header">Phụ huynh đăng ký</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ stats.total_users }}</h2>
+                    <p class="card-text">Tài khoản</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-success h-100">
+                <div class="card-header">Học sinh đang học</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ stats.total_children }}</h2>
+                    <p class="card-text">Hồ sơ bé</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-warning h-100">
+                <div class="card-header">Ngân hàng câu hỏi</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ stats.total_exercises }}</h2>
+                    <p class="card-text">Câu hỏi / {{ stats.total_lessons }} Bài học</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-header">Tổng điểm đã đạt</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ stats.total_score }}</h2>
+                    <p class="card-text">Điểm</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header font-weight-bold">🚀 Hành động nhanh</div>
+                <div class="card-body">
+                    <a href="/admin/exercise/new/" class="btn btn-outline-primary btn-block mb-2">+ Thêm câu hỏi mới</a>
+                    <a href="/admin/lesson/new/" class="btn btn-outline-success btn-block mb-2">+ Soạn bài học mới</a>
+                    <a href="/admin/user/" class="btn btn-outline-secondary btn-block">Quản lý người dùng</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header font-weight-bold">📝 Ghi chú Admin</div>
+                <div class="card-body">
+                    <p>Chào mừng quay trở lại! Đừng quên kiểm tra phần <b>Phản hồi</b> từ phụ huynh mỗi ngày nhé.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
