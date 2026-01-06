@@ -108,6 +108,20 @@ def setup_admin(app):
 # Kích hoạt Admin
 setup_admin(app)
 
+with app.app_context():
+    db.create_all() # Đảm bảo bảng User đã tồn tại
+    admin_user = User.query.filter_by(username='admin').first()
+    if not admin_user:
+        admin_user = User(username='admin', email='admin@doraemon.com', role='admin')
+        admin_user.set_password('admin123')
+        db.session.add(admin_user)
+        db.session.commit()
+        print(">>> Đã tạo tài khoản admin thành công!")
+    else:
+        # Cập nhật lại role admin nếu tài khoản đã tồn tại nhưng chưa có quyền
+        admin_user.role = 'admin'
+        db.session.commit()
+
 # === 4. CẤU HÌNH GROQ API ===
 GROQ_API_KEY = os.getenv('GROQ_API_KEY') 
 client = None 
