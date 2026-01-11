@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isClickable = true;
 
     // 1. KHAI BÁO BIẾN ĐẾM
-    let correctCount = 0; // <--- MỚI
-    let wrongCount = 0;   // <--- MỚI
+    let correctCount = 0; 
+    let wrongCount = 0;   
 
     function generateQuestion() {
         // Tạo 2 số ngẫu nhiên từ 1 đến 20
@@ -48,14 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (playerChoice === correctAnswer) {
             // === ĐÚNG ===
             score += 10;
-            correctCount++; // <--- MỚI: Tăng số câu đúng
+            correctCount++; 
             
             scoreDisplay.innerText = score;
             feedbackDisplay.innerText = 'Chính xác! Bé giỏi quá!';
             feedbackDisplay.className = 'correct';
         } else {
             // === SAI ===
-            wrongCount++; // <--- MỚI: Tăng số câu sai
+            wrongCount++; 
             
             feedbackDisplay.innerText = 'Sai rồi! Thử lại câu sau nhé!';
             feedbackDisplay.className = 'incorrect';
@@ -80,20 +80,29 @@ document.addEventListener('DOMContentLoaded', () => {
         isClickable = false;
         sendScoreToBackend('So sánh hai số (Level 1)', score);
         
-        // 2. CẬP NHẬT MÀN HÌNH KẾT THÚC
+        // 2. CẬP NHẬT MÀN HÌNH KẾT THÚC (ĐÃ SỬA MÀU SẮC & NỀN)
         gameContainer.innerHTML = `
-            <div class="game-over-screen">
-                <h2>Hết giờ!</h2>
+            <div class="game-over-screen" style="
+                background: rgba(255, 255, 255, 0.95); 
+                padding: 40px; 
+                border-radius: 20px; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+                text-align: center;
+                max-width: 500px;
+                margin: 0 auto;">
                 
-                <div style="font-size: 1.2rem; margin-bottom: 20px;">
-                    <p>✅ Đúng: <b>${correctCount}</b> câu</p>
-                    <p>❌ Sai: <b>${wrongCount}</b> câu</p>
+                <h2 style="color: #D84315; font-size: 2.5rem; margin-bottom: 20px;">Hết giờ!</h2>
+                
+                <div style="font-size: 1.3rem; margin-bottom: 20px;">
+                    <p style="color: #2E7D32; font-weight: bold; margin: 10px 0;">✅ Đúng: <b>${correctCount}</b> câu</p>
+                    <p style="color: #C62828; font-weight: bold; margin: 10px 0;">❌ Sai: <b>${wrongCount}</b> câu</p>
                 </div>
 
-                <p>Tổng điểm của bé: <span class="final-score">${score}</span></p>
+                <p style="font-size: 1.2rem; color: #333; margin-bottom: 5px;">Tổng điểm của bé:</p>
+                <div class="final-score" style="font-size: 3.5rem; font-weight: 900; color: #1565C0; margin-bottom: 25px;">${score}</div>
                 
-                <button onclick="window.location.reload()" class="button-primary">Chơi lại</button>
-                <a href="/learning" class="button-secondary" style="margin-top: 15px;">Thoát ra</a>
+                <button onclick="window.location.reload()" class="button-primary" style="padding: 12px 30px; font-size: 1.2rem; margin-right: 10px;">Chơi lại</button>
+                <a href="/learning" class="button-secondary" style="padding: 12px 30px; font-size: 1.2rem; text-decoration: none; display: inline-block;">Thoát ra</a>
             </div>
         `;
     }
