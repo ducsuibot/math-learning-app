@@ -124,22 +124,15 @@ def setup_admin(app):
                   index_view=MyAdminIndexView(name='Tổng quan', url='/admin')) # Thêm bootstrap4 cho đẹp
     
     # 1. Nhóm Người dùng
-    admin.add_view(UserModelView(User, db.session, name='Phụ huynh', category='Người dùng'))
-    admin.add_view(ChildModelView(Child, db.session, name='Học sinh', category='Người dùng'))
-    
-    # 2. Nhóm Nội dung học tập
-    admin.add_view(SecureModelView(Lesson, db.session, name='Bài học', category='Nội dung'))
-    admin.add_view(ExerciseModelView(Exercise, db.session, name='Câu hỏi', category='Nội dung'))
-    admin.add_view(SecureModelView(Progress, db.session, name='Tiến độ học', category='Nội dung'))
+    admin.add_view(UserModelView(User, db.session, name='User', category='Người dùng'))
 
     # 3. Nhóm Game & Shop (MỚI)
-    admin.add_view(GameScoreModelView(GameScore, db.session, name='Lịch sử chơi Game', category='Game & Shop'))
-    admin.add_view(InventoryModelView(UserInventory, db.session, name='Kho vật phẩm', category='Game & Shop'))
-    admin.add_view(SecureModelView(Reward, db.session, name='Thành tựu/Phần thưởng', category='Game & Shop'))
+    admin.add_view(GameScoreModelView(GameScore, db.session, name='Lịch sử chơi Game', category='Nội dung'))
+    admin.add_view(InventoryModelView(UserInventory, db.session, name='Kho vật phẩm', category='Nội dung'))
+    admin.add_view(SecureModelView(Reward, db.session, name='Thành tựu/Phần thưởng', category='Nội dung'))
 
     # 4. Nhóm Hệ thống
     admin.add_view(SecureModelView(Notification, db.session, name='Thông báo', category='Hệ thống'))
-    admin.add_view(SecureModelView(Setting, db.session, name='Cài đặt', category='Hệ thống'))
     admin.add_view(FeedbackModelView(Feedback, db.session, name='Phản hồi', category='Hệ thống'))
 
 # Kích hoạt Admin
