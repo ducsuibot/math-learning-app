@@ -66,7 +66,7 @@
             box-shadow: 0 0 0;
         }
 
-        /* Hiệu ứng bong bóng bay lặn phía sau (Fixed để không trôi theo khi cuộn) */
+        /* Hiệu ứng bong bóng bay lặn phía sau */
         .ocean-bg-decor {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -79,7 +79,7 @@
             max-width: 1100px;
             margin: 0 auto;
             padding: 20px;
-            padding-bottom: 60px; /* Để chừa khoảng trống dưới cùng */
+            padding-bottom: 60px;
         }
 
         .game-wrapper {
@@ -98,7 +98,7 @@
             display: flex;
             justify-content: space-around;
             margin-bottom: 20px;
-            flex-wrap: wrap; /* Cho phép xuống dòng trên điện thoại */
+            flex-wrap: wrap; 
             gap: 10px;
         }
 
@@ -167,19 +167,19 @@
             background: #000;
             width: 100%;
             max-width: 800px;
-            height: auto; /* Tự động chỉnh chiều cao theo tỉ lệ */
+            height: auto; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             border: 5px solid #333;
         }
 
         /* Modal Câu hỏi */
         .modal-overlay {
-            position: fixed; /* Luôn phủ toàn màn hình kể cả khi cuộn */
+            position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
             background: rgba(0,0,0,0.5);
             z-index: 9999;
-            display: none; /* JS sẽ bật cái này */
+            display: none; 
             justify-content: center;
             align-items: center;
         }
@@ -202,6 +202,22 @@
         /* Animation cho text thắng/thua */
         .win-modal h2 { font-family: 'Pacifico', cursive; color: #ff5d8f; font-size: 3rem; }
         .game-over-modal h2 { font-family: 'Pacifico', cursive; color: #666; font-size: 2.5rem; }
+
+        /* --- MỚI: CSS CHO PHẦN THỐNG KÊ KẾT QUẢ --- */
+        .game-stats-display {
+            background-color: #f0f9ff;
+            border: 2px dashed var(--ocean-dark);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        .game-stats-display p {
+            margin: 5px 0;
+        }
+        /* ------------------------------------------- */
 
         .low-time {
             animation: shake 0.5s infinite;
@@ -293,6 +309,10 @@
         <div class="modal-content game-over-modal">
             <h2>Thử lại nào!</h2>
             <p>Bé đã trả lời sai rồi. Cố gắng hơn ở lần sau nhé!</p>
+            
+            <div class="game-stats-display">
+                </div>
+
             <div class="modal-buttons" id="lose-buttons" style="display: none;">
                 <button id="restart-btn-lose" class="button-primary">Chơi lại</button>
                 <a href="/learning" class="button-secondary">Quay lại</a>
@@ -304,6 +324,10 @@
         <div class="modal-content win-modal">
             <h2>Tuyệt vời!</h2>
             <p>Bé đã giải cứu được Mimi!</p>
+            
+            <div class="game-stats-display">
+                </div>
+
             <div class="modal-buttons" id="win-buttons" style="display: none;">
                 <button id="restart-btn-win" class="button-primary">Chơi lại</button>
                 <a href="/learning" class="button-secondary">Quay lại</a>

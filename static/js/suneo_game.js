@@ -23,12 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === BIẾN TRẠNG THÁI ===
     let score = 0;
-    let timeLeft = 45; // Tăng thời gian lên xíu vì phải đọc chữ
+    let timeLeft = 45; 
     let currentCount = 0;
     let correctAnswer = 0;
     let timerInterval; 
     let isClickable = true; 
     let gameEnded = false; 
+
+    // 1. KHAI BÁO BIẾN ĐẾM
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
 
     /**
      * LOGIC MỚI: CHỈ HIỂN THỊ SỐ DẠNG CHỮ (KHÔNG CỘNG TRỪ)
@@ -48,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let word = numberWords[correctAnswer];
 
         // 3. Hiển thị chữ lên màn hình
-        // Kết quả sẽ là: "Tớ muốn mua chính xác [tám] món đồ chơi!"
         questionText.innerText = word; 
         
         feedbackModal.classList.remove('active');
@@ -73,22 +76,24 @@ document.addEventListener('DOMContentLoaded', () => {
         
         feedbackModal.classList.add('active');
 
-        // Lấy chữ của đáp án đúng để hiện trong thông báo (ví dụ: "tám")
+        // Lấy chữ của đáp án đúng để hiện trong thông báo
         let correctWord = numberWords[correctAnswer];
 
         if (currentCount === correctAnswer) {
             // === ĐÚNG ===
             score += 10; 
+            correctCount++; // <--- MỚI: Tăng số lần đúng
+
             scoreDisplay.innerText = score;
             suneoText.innerText = `Chuẩn luôn! Đúng là ${correctWord} món rồi!`;
-            // suneoImage.src = "/static/img/suneo_happy.png"; 
             
             nextQuestionBtn.style.display = 'block';
             retryBtn.style.display = 'none';
         } else {
             // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng số lần sai
+
             let message = '';
-            // suneoImage.src = "/static/img/suneo_sad.png"; 
             
             if (currentCount < correctAnswer) {
                 message = `Thiếu rồi! Tớ cần mua ${correctWord} món, mà cậu mới lấy có ${currentCount} món thôi.`;
@@ -123,12 +128,17 @@ document.addEventListener('DOMContentLoaded', () => {
         checkoutBtn.disabled = true; 
         
         feedbackModal.classList.add('active');
-        suneoText.innerText = `Hết giờ! Điểm của cậu: ${score}.`;
-        // suneoImage.src = "/static/img/suneo.png";
+        
+        // 2. HIỂN THỊ KẾT QUẢ CHI TIẾT
+        // Dùng innerHTML để xuống dòng
+        suneoText.innerHTML = `Hết giờ!<br>
+        <b>Đúng:</b> ${correctCount} lần<br>
+        <b>Sai:</b> ${wrongCount} lần<br>
+        <b>Tổng điểm:</b> ${score}`;
         
         nextQuestionBtn.style.display = 'none'; 
         retryBtn.style.display = 'block'; 
-        retryBtn.innerText = "Chơi lại";
+        retryBtn.innerText = "Chơi lại"; // Chơi lại từ đầu
 
         sendScoreToBackend('Chọn số lượng (Level 2)', score);
     }
@@ -160,11 +170,18 @@ document.addEventListener('DOMContentLoaded', () => {
     nextQuestionBtn.addEventListener('click', () => { if (!gameEnded) generateQuestion(); });
     
     retryBtn.addEventListener('click', () => {
+        // Nút Retry có 2 trạng thái: "Làm lại" (câu hiện tại) và "Chơi lại" (game over)
         if (retryBtn.innerText === "Chơi lại") {
+            // 3. RESET BIẾN KHI CHƠI LẠI TỪ ĐẦU
             score = 0; 
+            correctCount = 0; // <--- MỚI
+            wrongCount = 0;   // <--- MỚI
+            
             scoreDisplay.innerText = score;
             startTimer(); 
         } 
+        // Nếu là "Làm lại" thì chỉ cần sinh câu hỏi mới (hoặc reset giỏ hàng), 
+        // biến wrongCount đã được cộng rồi nên không reset ở đây.
         generateQuestion();
     });
 

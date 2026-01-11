@@ -38,10 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0; 
     let timeLeft = 60; 
     let timerInterval; 
-    const worldSpeed = 5; // Tăng tốc độ cho mượt
+    const worldSpeed = 5; 
     const gravity = 0.6;
-    const jumpPower = -14; // Nhảy cao hơn chút
+    const jumpPower = -14; 
     let winModalShown = false; 
+
+    // 1. KHAI BÁO BIẾN ĐẾM MỚI
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
 
     let player = {
         x: 100, y: 300,
@@ -58,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         obstacles = [];
         for (let i = 1; i <= 15; i++) {
             obstacles.push({
-                x: i * 600 + 400, // Khoảng cách xa
+                x: i * 600 + 400, 
                 y: 320,
                 width: 70, height: 70,
                 triggered: false
@@ -68,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === 4. XỬ LÝ CÂU HỎI & TRẢ LỜI ===
     function showQuestion() {
-        gameState = 'paused'; // Dừng game để hỏi
+        gameState = 'paused'; 
         
         // Random cộng hoặc trừ
         const isAddition = Math.random() > 0.5;
@@ -102,75 +106,96 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = document.createElement('button');
             button.className = 'option-button';
             button.innerText = answer;
-            // Gắn sự kiện click
             button.onclick = () => checkAnswer(answer, correctAnswer);
             optionButtonsContainer.appendChild(button);
         });
         
-        // Hiện Modal
         questionModal.style.display = 'flex';
     }
 
     function checkAnswer(chosenAnswer, correctAnswer) {
-        // Ẩn bảng câu hỏi ngay lập tức
         questionModal.style.display = 'none';
         
         if (chosenAnswer === correctAnswer) {
             // === TRẢ LỜI ĐÚNG ===
             score += 10;
+            correctCount++; // <--- MỚI: Tăng số câu đúng
+            
             scoreDisplay.innerText = score; 
             
-            // Cập nhật thanh tiến độ
             const progressPercentage = Math.min(100, (score / 100) * 100); 
             progressFill.style.width = `${progressPercentage}%`;
             
             if (score >= 100) { 
                 handleWin();
             } else {
-                // CHO NHẢY
                 performJump();
             }
         } else {
-            // === TRẢ LỜI SAI === (SỬA LỖI TẠI ĐÂY)
-            timeLeft -= 10; // Phạt trừ 10 giây
+            // === TRẢ LỜI SAI ===
+            wrongCount++; // <--- MỚI: Tăng số câu sai
+            
+            timeLeft -= 10; 
             if (timeLeft < 0) timeLeft = 0;
             timerDisplay.innerText = timeLeft;
             
-            // Rung lắc đồng hồ báo hiệu trừ giờ
             timerDisplay.classList.add('low-time');
             setTimeout(() => timerDisplay.classList.remove('low-time'), 500);
 
             if (timeLeft <= 0) {
-                // Nếu trừ xong mà hết giờ -> THUA LUÔN
                 handleGameOver();
             } else {
-                // Nếu vẫn còn giờ -> VẪN CHO NHẢY (Để qua chướng ngại vật)
                 performJump();
             }
         }
     }
 
-    // Hàm thực hiện nhảy (Dùng chung cho cả Đúng và Sai)
     function performJump() {
         player.isJumping = true;
         player.dy = jumpPower;
         player.image = playerJumpImg;
-        gameState = 'running'; // Tiếp tục chạy
+        gameState = 'running'; 
     }
     
     // === 5. XỬ LÝ THUA & THẮNG ===
     
+    // Hàm phụ: Hiển thị thống kê vào Modal (Tự động chèn nếu chưa có)
+    function injectStatsToModal(modalElement) {
+        let statsDiv = modalElement.querySelector('.game-stats-display');
+        if (!statsDiv) {
+            statsDiv = document.createElement('div');
+            statsDiv.className = 'game-stats-display';
+            statsDiv.style.fontSize = "1.2rem";
+            statsDiv.style.marginBottom = "15px";
+            statsDiv.style.color = "#333";
+            
+            // Chèn vào trước danh sách nút bấm
+            const buttons = modalElement.querySelector('.modal-buttons') || modalElement.querySelector('#lose-buttons') || modalElement.querySelector('#win-buttons');
+            if(buttons) {
+                modalElement.insertBefore(statsDiv, buttons);
+            } else {
+                modalElement.appendChild(statsDiv);
+            }
+        }
+        
+        // Cập nhật nội dung
+        statsDiv.innerHTML = `
+            <p>✅ Trả lời đúng: <b>${correctCount}</b></p>
+            <p>❌ Trả lời sai: <b>${wrongCount}</b></p>
+            <p style="margin-top:5px; color:#E65100; font-weight:bold;">Tổng điểm: ${score}</p>
+        `;
+    }
+
     function handleGameOver() {
         clearInterval(timerInterval);
         gameState = 'gameOver';
         
-        // Gửi điểm về server (nếu cần)
         sendScoreToBackend('Giải cứu Mimi', score); 
         
-        // HIỆN MODAL THUA
+        // HIỆN MODAL THUA & CẬP NHẬT THỐNG KÊ
         gameOverModal.style.display = 'flex';
+        injectStatsToModal(gameOverModal); // <--- MỚI
         
-        // QUAN TRỌNG: BẮT BUỘC HIỆN NÚT CHƠI LẠI
         if (loseButtonsContainer) {
             loseButtonsContainer.style.display = 'flex';
         }
@@ -180,12 +205,15 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(timerInterval);
         gameState = 'win';
         sendScoreToBackend('Giải cứu Mimi', score);
+        
+        // Cập nhật thống kê cho Modal Thắng (sẽ hiện sau animation)
+        injectStatsToModal(winModal); // <--- MỚI
     }
 
     // === 6. ĐỒNG HỒ ĐẾM NGƯỢC ===
     function startTimer() {
         clearInterval(timerInterval); 
-        timeLeft = 60; // 60 giây
+        timeLeft = 60; 
         timerDisplay.innerText = timeLeft;
         timerDisplay.classList.remove('low-time');
 
@@ -194,11 +222,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 timeLeft--;
                 timerDisplay.innerText = timeLeft;
 
-                // Cảnh báo khi sắp hết giờ
                 if (timeLeft <= 10) timerDisplay.classList.add('low-time');
 
                 if (timeLeft <= 0) {
-                    handleGameOver(); // Hết giờ -> Gọi hàm thua
+                    handleGameOver(); 
                 }
             }
         }, 1000);
@@ -207,6 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // === 7. RESET GAME (CHƠI LẠI) ===
     function resetGame() {
         score = 0;
+        correctCount = 0; // <--- MỚI: Reset đếm đúng
+        wrongCount = 0;   // <--- MỚI: Reset đếm sai
+        
         scoreDisplay.innerText = score;
         progressFill.style.width = '0%';
         
@@ -216,12 +246,10 @@ document.addEventListener('DOMContentLoaded', () => {
         winModalShown = false;
         generateObstacles();
         
-        // Ẩn hết modal
         gameOverModal.style.display = 'none';
         winModal.style.display = 'none';
         questionModal.style.display = 'none';
         
-        // Ẩn nút để lần sau hiện lại
         if (loseButtonsContainer) loseButtonsContainer.style.display = 'none';
         if (winButtonsContainer) winButtonsContainer.style.display = 'none';
         
@@ -230,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(gameLoop);
     }
 
-    // Gắn sự kiện click cho nút Chơi lại
     if (restartBtnLose) restartBtnLose.onclick = resetGame;
     if (restartBtnWin) restartBtnWin.onclick = resetGame;
 
@@ -263,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!winModalShown) {
                     winModalShown = true;
                     winModal.style.display = 'flex';
-                    // Hiện nút thắng sau 1s
+                    // Đã gọi injectStatsToModal ở handleWin, nên modal sẽ có số liệu
                     setTimeout(() => { 
                         if (winButtonsContainer) winButtonsContainer.style.display = 'flex'; 
                     }, 3000);
@@ -276,18 +303,15 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.drawImage(player.image, player.x, player.y, player.width, player.height);
 
             if (gameState === 'running') {
-                // Di chuyển chướng ngại vật
                 obstacles.forEach(obs => {
                     obs.x -= worldSpeed;
                     
-                    // Va chạm -> Hiện câu hỏi
                     if (obs.x < player.x + 50 && obs.x > player.x && !obs.triggered) {
                         obs.triggered = true;
-                        showQuestion(); // Dừng game, hiện câu hỏi
+                        showQuestion(); 
                     }
                 });
 
-                // Xử lý nhảy
                 if (player.isJumping) {
                     player.y += player.dy;
                     player.dy += gravity;
@@ -298,13 +322,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Vẽ chướng ngại vật
             obstacles.forEach(obs => {
                 ctx.drawImage(obstacleImg, obs.x, obs.y, obs.width, obs.height);
             });
         }
         
-        // Tiếp tục lặp nếu chưa thua
         if (gameState !== 'gameOver') {
             requestAnimationFrame(gameLoop);
         }

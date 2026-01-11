@@ -43,7 +43,6 @@ login_manager.login_message_category = "info"
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
-
 # === 3. CẤU HÌNH ADMIN DASHBOARD ===
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
@@ -56,17 +55,19 @@ class MyAdminIndexView(AdminIndexView):
     @expose('/')
     def index(self):
         try:
+            # Thống kê cơ bản
             stats = {
                 'total_users': User.query.count(),
                 'total_children': Child.query.count(),
                 'total_lessons': Lesson.query.count(),
-                'total_exercises': Exercise.query.count(),
-                'total_score': db.session.query(db.func.sum(Progress.score)).scalar() or 0
+                'total_score': db.session.query(db.func.sum(GameScore.score)).scalar() or 0, # Tổng điểm chơi game
+                'total_feedbacks': Feedback.query.count()
             }
         except:
-            stats = {'total_users':0, 'total_children':0, 'total_lessons':0, 'total_exercises':0, 'total_score':0}
+            stats = {'total_users':0, 'total_children':0, 'total_lessons':0, 'total_score':0, 'total_feedbacks':0}
         return self.render('admin/dashboard_index.html', stats=stats)
 
+# Class cơ bản bảo mật (các view khác sẽ kế thừa từ đây)
 class SecureModelView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.role == 'admin'
@@ -76,34 +77,70 @@ class SecureModelView(ModelView):
     
     page_size = 20
     can_export = True
+    create_modal = True
+    edit_modal = True
+
+# --- CÁC VIEW TÙY CHỈNH CHO TỪNG BẢNG ---
 
 class UserModelView(SecureModelView):
     column_exclude_list = ['password_hash']
-    column_searchable_list = ['username', 'email']
-    column_filters = ['role', 'created_at']
+    column_searchable_list = ['username', 'email', 'full_name']
+    column_filters = ['role', 'created_at', 'current_points']
+    column_labels = {
+        'username': 'Tên đăng nhập', 'email': 'Email', 'full_name': 'Họ tên',
+        'role': 'Quyền', 'current_points': 'Điểm hiện có', 'created_at': 'Ngày tạo'
+    }
 
 class ChildModelView(SecureModelView):
-    column_list = ['name', 'parent', 'birth_date', 'gender']
-    column_filters = ['gender']
+    column_list = ['name', 'parent', 'birth_date', 'gender', 'created_at']
+    column_labels = {'name': 'Tên bé', 'parent': 'Phụ huynh', 'birth_date': 'Sinh nhật', 'gender': 'Giới tính'}
+    column_searchable_list = ['name']
 
 class ExerciseModelView(SecureModelView):
     column_list = ['lesson', 'question', 'correct_answer', 'level']
     column_filters = ['lesson.title', 'correct_answer']
     form_columns = ['lesson', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'correct_answer', 'image_url']
 
+class GameScoreModelView(SecureModelView):
+    column_list = ['player', 'game_name', 'score', 'timestamp']
+    column_labels = {'player': 'Người chơi', 'game_name': 'Tên Game', 'score': 'Điểm số', 'timestamp': 'Thời gian'}
+    column_filters = ['game_name', 'score', 'timestamp']
+    column_searchable_list = ['player.username', 'game_name']
+
+class InventoryModelView(SecureModelView):
+    column_list = ['owner', 'item_id', 'quantity']
+    column_labels = {'owner': 'Sở hữu', 'item_id': 'Mã vật phẩm', 'quantity': 'Số lượng'}
+    column_filters = ['item_id']
+
+class FeedbackModelView(SecureModelView):
+    column_list = ['user', 'content', 'created_at']
+    column_labels = {'user': 'Người gửi', 'content': 'Nội dung', 'created_at': 'Ngày gửi'}
+    can_create = False # Admin chỉ xem phản hồi, không tạo phản hồi giả
+
+# --- HÀM SETUP ADMIN ---
 def setup_admin(app):
-    # SỬA LỖI 2: Xóa tham số 'template_mode' để tránh lỗi TypeError
     admin = Admin(app, 
                   name='Doraemon Admin', 
-                  index_view=MyAdminIndexView(name='Tổng quan', url='/admin'))
+                  index_view=MyAdminIndexView(name='Tổng quan', url='/admin')) # Thêm bootstrap4 cho đẹp
     
-    # Đăng ký các bảng
+    # 1. Nhóm Người dùng
     admin.add_view(UserModelView(User, db.session, name='Phụ huynh', category='Người dùng'))
     admin.add_view(ChildModelView(Child, db.session, name='Học sinh', category='Người dùng'))
+    
+    # 2. Nhóm Nội dung học tập
     admin.add_view(SecureModelView(Lesson, db.session, name='Bài học', category='Nội dung'))
     admin.add_view(ExerciseModelView(Exercise, db.session, name='Câu hỏi', category='Nội dung'))
-    admin.add_view(SecureModelView(Progress, db.session, name='Tiến độ học tập'))
-    admin.add_view(SecureModelView(Feedback, db.session, name='Phản hồi'))
+    admin.add_view(SecureModelView(Progress, db.session, name='Tiến độ học', category='Nội dung'))
+
+    # 3. Nhóm Game & Shop (MỚI)
+    admin.add_view(GameScoreModelView(GameScore, db.session, name='Lịch sử chơi Game', category='Game & Shop'))
+    admin.add_view(InventoryModelView(UserInventory, db.session, name='Kho vật phẩm', category='Game & Shop'))
+    admin.add_view(SecureModelView(Reward, db.session, name='Thành tựu/Phần thưởng', category='Game & Shop'))
+
+    # 4. Nhóm Hệ thống
+    admin.add_view(SecureModelView(Notification, db.session, name='Thông báo', category='Hệ thống'))
+    admin.add_view(SecureModelView(Setting, db.session, name='Cài đặt', category='Hệ thống'))
+    admin.add_view(FeedbackModelView(Feedback, db.session, name='Phản hồi', category='Hệ thống'))
 
 # Kích hoạt Admin
 setup_admin(app)
@@ -139,7 +176,7 @@ else:
 def ask_groq_doraemon(user_message):
     if not groq_configured or not client: return "Lỗi: Không thể kết nối Groq API."
     try:
-        system_prompt = """Bạn là Doraemon, một chú mèo máy thông minh. Hãy trả lời câu hỏi về toán học cho trẻ em thật vui vẻ, hài hước và dễ thương."""
+        system_prompt = """Bạn là Doraemon, một chú mèo máy thông minh. Hãy trả lời câu hỏi thật ngắn trong 2 đến 3 dòng."""
         chat_completion = client.chat.completions.create(
             messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}],
             model="openai/gpt-oss-20b",
@@ -151,7 +188,7 @@ def ask_groq_doraemon(user_message):
 def ask_groq_story_teller(story_prompt):
     if not groq_configured or not client: return "Lỗi: Không thể kết nối Groq API."
     try:
-        system_prompt = """Bạn là Nobita, đang nói chuyện với Doraemon. Hãy bịa ra một lý do khẩn cấp để xin bảo bối. Giọng văn khẩn khoản, gọi "Doraemon ơi"."""
+        system_prompt = """Bạn là Nobita, đang nói chuyện với Doraemon thật ngắn gọn trong 2 đến 3 dòng. Hãy nghĩ ra một lý do khẩn cấp để xin bảo bối. Giọng văn khẩn khoản, gọi "Doraemon ơi"."""
         chat_completion = client.chat.completions.create(
             messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": story_prompt}],
             model="openai/gpt-oss-20b",
@@ -368,7 +405,7 @@ def generate_mission():
         req_info.append({"id": i_id, "name": item['name'], "img": item['img'], "qty": qty})
         names += f"{qty} cái {item['name']}, "
     
-    prompt = f"Hãy nghĩ ra lý do khẩn cấp để xin tớ: {names}."
+    prompt = f"Hãy nghĩ ra lý do khẩn cấp để xin bảo bối của doraemon thật ngắn gọn trong 2 đến 3 dòng: {names}."
     try: story = ask_groq_story_teller(prompt)
     except: story = f"Cứu tớ với! Tớ cần {names} gấp!"
     return jsonify({"story": story, "requirements": req_info})
@@ -525,5 +562,15 @@ if __name__ == '__main__':
             db.session.add(admin)
             db.session.commit()
             print(">>> Đã tạo tài khoản admin mẫu (User: admin / Pass: admin123)")
+
+        # 2. THÊM MỚI: Tạo tài khoản user mẫu (user / 123123)
+        if not User.query.filter_by(username='user').first():
+            # Cần email giả vì model yêu cầu email
+            test_user = User(username='user', email='user@doraemon.com', role='user') 
+            test_user.set_password('123123')
+            db.session.add(test_user)
+            db.session.commit()
+            print(">>> Đã tạo tài khoản test (User: user / Pass: 123123)")
+
     print(">>> Khởi động server...")
     app.run(debug=True, port=5000)

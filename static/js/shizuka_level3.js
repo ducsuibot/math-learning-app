@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let gameEnded = false;
 
+    // 1. KHAI BÁO BIẾN ĐẾM
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
+
     /**
      * Hàm tạo mảng số ngẫu nhiên không trùng nhau
      */
@@ -64,14 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Kiểm tra xem số vừa bấm có phải là số nhỏ nhất TRONG CÁC SỐ CÒN LẠI không?
         if (value === sortedSequence[currentStep]) {
-            // === ĐÚNG ===
+            // === ĐÚNG BƯỚC NÀY ===
             bubbleElement.classList.add('clicked');
             currentStep++; 
 
-            // Nếu đã chọn hết 4 số
+            // Nếu đã chọn hết 4 số (Hoàn thành màn chơi)
             if (currentStep === sortedSequence.length) {
-                // --- THAY ĐỔI Ở ĐÂY: CỘNG 10 ĐIỂM ---
                 score += 10; 
+                correctCount++; // <--- MỚI: Chỉ tính là 1 câu đúng khi xếp xong cả dãy
+                
                 scoreDisplay.innerText = score;
                 feedbackDisplay.innerText = "Giỏi quá! Đúng thứ tự rồi!";
                 feedbackDisplay.className = 'correct';
@@ -83,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng số lần bấm sai
+            
             feedbackDisplay.innerText = `Sai rồi! Số ${value} chưa phải là số bé nhất đâu!`;
             feedbackDisplay.className = 'incorrect';
             
@@ -111,12 +118,20 @@ document.addEventListener('DOMContentLoaded', () => {
         gameEnded = true;
         sendScoreToBackend('Sắp xếp dãy số (Level 3)', score);
         
+        // 2. CẬP NHẬT GIAO DIỆN KẾT THÚC VỚI THỐNG KÊ CHI TIẾT
         gameContainer.innerHTML = `
             <a href="/learning" class="btn-exit-game">⬅ <span>Quay lại</span></a>
             <div style="text-align: center; padding: 40px;">
-                <h2 style="color: #D32F2F; font-size: 2.5rem; margin-bottom: 20px;">Hết giờ!</h2>
-                <p style="font-size: 1.2rem;">Điểm cuối cùng của bé là:</p>
-                <div style="font-size: 4rem; font-weight: 900; color: #0288D1; margin: 20px 0;">${score}</div>
+                <h2 style="color: #D32F2F; font-size: 2.5rem; margin-bottom: 10px;">Hết giờ!</h2>
+                
+                <div style="font-size: 1.2rem; margin-bottom: 20px;">
+                    <p>✅ Hoàn thành: <b>${correctCount}</b> dãy số</p>
+                    <p>❌ Bấm sai: <b>${wrongCount}</b> lần</p>
+                </div>
+
+                <p style="font-size: 1.2rem;">Tổng điểm của bé:</p>
+                <div style="font-size: 4rem; font-weight: 900; color: #0288D1; margin: 10px 0;">${score}</div>
+                
                 <button onclick="window.location.reload()" class="button-primary" style="font-size: 1.2rem; padding: 15px 30px;">Chơi lại</button>
             </div>
         `;

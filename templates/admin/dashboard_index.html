@@ -1,69 +1,233 @@
 {% extends 'admin/master.html' %}
 
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --doraemon-blue: #00A1E9;
+            --doraemon-red: #E60033;
+            --doraemon-bell: #FCC800;
+            --soft-bg: #F0F4F8;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif !important;
+            background-color: var(--soft-bg);
+            color: #333;
+        }
+
+        .dashboard-title {
+            color: var(--doraemon-blue);
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.05);
+            font-size: 2rem;
+        }
+
+        /* STAT CARDS */
+        .stat-card {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            position: relative;
+            background: #fff;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 161, 233, 0.2);
+        }
+
+        .stat-card .card-body {
+            padding: 25px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            font-size: 4rem;
+            opacity: 0.15;
+            transform: rotate(-15deg);
+            z-index: 1;
+        }
+
+        /* Màu sắc Card */
+        .bg-blue-gradient { background: linear-gradient(135deg, #00A1E9 0%, #0077be 100%); color: white; }
+        .bg-green-gradient { background: linear-gradient(135deg, #2ECC71 0%, #27ae60 100%); color: white; }
+        .bg-yellow-gradient { background: linear-gradient(135deg, #F1C40F 0%, #F39C12 100%); color: white; }
+        .bg-red-gradient { background: linear-gradient(135deg, #FF6B6B 0%, #EE5253 100%); color: white; }
+
+        /* ACTION BUTTONS */
+        .action-card {
+            background: white;
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .action-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: 800;
+            color: var(--doraemon-blue);
+            font-size: 1.2rem;
+        }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-align: left;
+            transition: all 0.2s;
+            text-decoration: none !important;
+            border: 2px solid transparent;
+        }
+
+        .btn-action i { margin-right: 10px; width: 25px; text-align: center; }
+
+        .btn-blue { background: #E1F5FE; color: #0277BD; }
+        .btn-blue:hover { background: #0277BD; color: white; }
+
+        .btn-orange { background: #FFF3E0; color: #EF6C00; }
+        .btn-orange:hover { background: #EF6C00; color: white; }
+
+        .btn-purple { background: #F3E5F5; color: #8E24AA; }
+        .btn-purple:hover { background: #8E24AA; color: white; }
+        
+        .welcome-alert {
+            background: white;
+            border-left: 5px solid var(--doraemon-bell);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-<div class="container-fluid">
-    <h1 class="mb-4 text-center" style="color: #0096E2; font-weight: 900;">
-        🔔 Trung Tâm Điều Hành Doraemon 🔔
+<div class="container-fluid pt-4 pb-5">
+    
+    <h1 class="dashboard-title">
+        <i class="fas fa-rocket"></i> Trung Tâm Điều Hành Doraemon
     </h1>
 
-    <div class="row">
+    <div class="welcome-alert">
+        <div style="flex-grow: 1;">
+            <h4 style="font-weight: 800; margin-bottom: 5px;">Xin chào Admin! 👋</h4>
+            <p class="mb-0 text-muted">Hệ thống đã sẵn sàng. Hãy kiểm tra các phản hồi mới nhất từ phụ huynh nhé.</p>
+        </div>
+        <div>
+            <i class="fas fa-bell fa-2x" style="color: #FCC800;"></i>
+        </div>
+    </div>
+
+    <div class="row mb-4">
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-white bg-primary h-100">
-                <div class="card-header">Phụ huynh đăng ký</div>
+            <div class="stat-card bg-blue-gradient">
                 <div class="card-body">
-                    <h2 class="card-title">{{ stats.total_users }}</h2>
-                    <p class="card-text">Tài khoản</p>
+                    <div class="stat-number">{{ stats.total_users }}</div>
+                    <div class="stat-label">User</div>
+                    <i class="fas fa-user-shield stat-icon"></i>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card bg-yellow-gradient">
+                <div class="card-body">
+                    <div class="stat-number">{{ stats.total_score }}</div>
+                    <div class="stat-label">Điểm Tích Lũy</div>
+                    <i class="fas fa-star stat-icon"></i>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-white bg-success h-100">
-                <div class="card-header">Học sinh đang học</div>
+            <div class="stat-card bg-red-gradient">
                 <div class="card-body">
-                    <h2 class="card-title">{{ stats.total_children }}</h2>
-                    <p class="card-text">Hồ sơ bé</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-white bg-warning h-100">
-                <div class="card-header">Ngân hàng câu hỏi</div>
-                <div class="card-body">
-                    <h2 class="card-title">{{ stats.total_exercises }}</h2>
-                    <p class="card-text">Câu hỏi / {{ stats.total_lessons }} Bài học</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-white bg-danger h-100">
-                <div class="card-header">Tổng điểm đã đạt</div>
-                <div class="card-body">
-                    <h2 class="card-title">{{ stats.total_score }}</h2>
-                    <p class="card-text">Điểm</p>
+                    <div class="stat-number">{{ stats.total_feedbacks }}</div>
+                    <div class="stat-label">Phản Hồi</div>
+                    <i class="fas fa-comment-dots stat-icon"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header font-weight-bold">🚀 Hành động nhanh</div>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="action-card h-100">
+                <div class="action-header">
+                    <i class="fas fa-bolt"></i> Truy cập nhanh
+                </div>
                 <div class="card-body">
-                    <a href="/admin/exercise/new/" class="btn btn-outline-primary btn-block mb-2">+ Thêm câu hỏi mới</a>
-                    <a href="/admin/lesson/new/" class="btn btn-outline-success btn-block mb-2">+ Soạn bài học mới</a>
-                    <a href="/admin/user/" class="btn btn-outline-secondary btn-block">Quản lý người dùng</a>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <a href="/admin/user/" class="btn-action btn-blue">
+                                <i class="fas fa-users"></i> Quản lý User
+                            </a>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <a href="/admin/gamescore/" class="btn-action btn-orange">
+                                <i class="fas fa-gamepad"></i> Lịch sử Game
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header font-weight-bold">📝 Ghi chú Admin</div>
+
+        <div class="col-md-6 mb-4">
+            <div class="action-card h-100">
+                <div class="action-header" style="color: #E60033;">
+                    <i class="fas fa-envelope-open-text"></i> Hộp thư & Hệ thống
+                </div>
                 <div class="card-body">
-                    <p>Chào mừng quay trở lại! Đừng quên kiểm tra phần <b>Phản hồi</b> từ phụ huynh mỗi ngày nhé.</p>
+                    <a href="/admin/feedback/" class="btn-action btn-purple">
+                        <i class="fas fa-comments"></i> Xem Phản Hồi từ Phụ Huynh 
+                        <span class="badge badge-danger float-right">{{ stats.total_feedbacks }}</span>
+                    </a>
+                    
+                    <a href="/admin/userinventory/" class="btn-action btn-purple">
+                        <i class="fas fa-box-open"></i> Kiểm tra Kho Vật Phẩm User
+                    </a>
+
+                    <div class="mt-3 text-muted" style="font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> <em>Mẹo: Hãy kiểm tra mục "Phản hồi" thường xuyên để hỗ trợ phụ huynh kịp thời.</em>
+                    </div>
                 </div>
             </div>
         </div>

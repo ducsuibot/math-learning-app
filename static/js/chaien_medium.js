@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameEnded = false;
     let isClickable = true;
 
+    // 1. KHAI BÁO BIẾN ĐẾM
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
+
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -30,11 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
         answersArea.innerHTML = '';
 
         // 1. Số bị trừ (num1) từ 2 đến 9
-        // (Để đảm bảo là 1 chữ số và đủ lớn để trừ)
         let num1 = getRandomInt(2, 9);
         
         // 2. Số trừ (num2) từ 1 đến num1
-        // (Để đảm bảo kết quả không âm và là 1 chữ số)
         let num2 = getRandomInt(1, num1);
         
         correctAnswer = num1 - num2;
@@ -45,14 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Tạo 4 đáp án (gồm 1 đúng + 3 sai)
         let options = [correctAnswer];
         while (options.length < 4) {
-            // Tạo đáp án sai lệch nhỏ (-3 đến +3)
             let offset = getRandomInt(-3, 3);
             let wrongAns = correctAnswer + offset;
             
-            // Đảm bảo: 
-            // - Khác đáp án đúng
-            // - Không âm (>= 0)
-            // - Là số có 1 chữ số (<= 9)
             if (wrongAns >= 0 && wrongAns <= 9 && !options.includes(wrongAns)) {
                 options.push(wrongAns);
             }
@@ -80,14 +77,18 @@ document.addEventListener('DOMContentLoaded', () => {
         isClickable = false;
 
         if (value === correctAnswer) {
-            // ĐÚNG
+            // === ĐÚNG ===
             score += 10;
+            correctCount++; // <--- MỚI: Tăng số câu đúng
+            
             scoreDisplay.innerText = score;
             feedbackDisplay.innerText = "Chính xác! Bé giỏi quá! 🎤";
             feedbackDisplay.style.color = "#4CAF50";
             btn.classList.add('correct');
         } else {
-            // SAI
+            // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng số câu sai
+            
             feedbackDisplay.innerText = `Sai rồi! Kết quả là ${correctAnswer} nhé!`;
             feedbackDisplay.style.color = "#F44336";
             btn.classList.add('wrong');
@@ -122,12 +123,20 @@ document.addEventListener('DOMContentLoaded', () => {
         gameEnded = true;
         sendScoreToBackend('Phép trừ đơn giản (Level 2)', score);
         
+        // 2. CẬP NHẬT GIAO DIỆN KẾT THÚC
         gameContainer.innerHTML = `
             <a href="/learning" class="btn-exit-game">⬅ <span>Quay lại</span></a>
             <div style="text-align: center; padding: 40px;">
-                <h2 style="color: #E65100; font-size: 2.5rem; margin-bottom: 20px;">Hết giờ!</h2>
-                <p style="font-size: 1.2rem;">Điểm của bé:</p>
-                <div style="font-size: 4rem; font-weight: 900; color: #1976D2; margin: 20px 0;">${score}</div>
+                <h2 style="color: #E65100; font-size: 2.5rem; margin-bottom: 10px;">Hết giờ!</h2>
+                
+                <div style="font-size: 1.2rem; margin-bottom: 20px;">
+                    <p>✅ Đúng: <b>${correctCount}</b> câu</p>
+                    <p>❌ Sai: <b>${wrongCount}</b> câu</p>
+                </div>
+
+                <p style="font-size: 1.2rem;">Tổng điểm của bé:</p>
+                <div style="font-size: 4rem; font-weight: 900; color: #1976D2; margin: 10px 0;">${score}</div>
+                
                 <button onclick="window.location.reload()" 
                         style="padding: 15px 30px; font-size: 1.2rem; background: #FF9800; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
                     Chơi lại

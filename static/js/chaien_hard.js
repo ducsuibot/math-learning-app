@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameEnded = false;
     let isClickable = true;
 
+    // 1. KHAI BÁO BIẾN ĐẾM
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
+
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -34,13 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let num1, num2;
 
         if (operator === '+') {
-            // PHÉP CỘNG: Hai số 1 chữ số (0-9)
+            // PHÉP CỘNG
             num1 = getRandomInt(0, 9);
             num2 = getRandomInt(0, 9);
             correctAnswer = num1 + num2;
         } else {
-            // PHÉP TRỪ: Hai số 1 chữ số
-            // Đảm bảo số bị trừ >= số trừ để không ra âm
+            // PHÉP TRỪ
             num1 = getRandomInt(1, 9);
             num2 = getRandomInt(0, num1);
             correctAnswer = num1 - num2;
@@ -52,11 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Tạo 4 đáp án (1 đúng, 3 sai)
         let options = [correctAnswer];
         while (options.length < 4) {
-            // Sai lệch từ -5 đến +5
             let offset = getRandomInt(-5, 5);
             let wrongAns = correctAnswer + offset;
             
-            // Đảm bảo: Khác đáp án đúng, Không âm
             if (wrongAns >= 0 && !options.includes(wrongAns)) {
                 options.push(wrongAns);
             }
@@ -84,14 +85,18 @@ document.addEventListener('DOMContentLoaded', () => {
         isClickable = false;
 
         if (value === correctAnswer) {
-            // ĐÚNG
+            // === ĐÚNG ===
             score += 10;
+            correctCount++; // <--- MỚI: Tăng số câu đúng
+            
             scoreDisplay.innerText = score;
             feedbackDisplay.innerText = "Tuyệt vời! Tính nhanh quá! ⚡";
             feedbackDisplay.style.color = "#00C853";
             btn.classList.add('correct');
         } else {
-            // SAI
+            // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng số câu sai
+            
             feedbackDisplay.innerText = `Chậm một chút! Đáp án là ${correctAnswer}.`;
             feedbackDisplay.style.color = "#D50000";
             btn.classList.add('wrong');
@@ -105,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Chuyển câu nhanh hơn (1.2s) vì là game tính nhanh
+        // Chuyển câu nhanh hơn (1.2s)
         setTimeout(generateQuestion, 1200);
     }
 
@@ -124,12 +129,20 @@ document.addEventListener('DOMContentLoaded', () => {
         gameEnded = true;
         sendScoreToBackend('Tính cộng trừ (Level 3)', score);
         
+        // 2. CẬP NHẬT GIAO DIỆN KẾT THÚC
         gameContainer.innerHTML = `
             <a href="/learning" class="btn-exit-game">⬅ <span>Quay lại</span></a>
             <div style="text-align: center; padding: 40px;">
-                <h2 style="color: #D84315; font-size: 2.5rem; margin-bottom: 20px;">Hết giờ!</h2>
+                <h2 style="color: #D84315; font-size: 2.5rem; margin-bottom: 10px;">Hết giờ!</h2>
+                
+                <div style="font-size: 1.2rem; margin-bottom: 20px;">
+                    <p>✅ Đúng: <b>${correctCount}</b> câu</p>
+                    <p>❌ Sai: <b>${wrongCount}</b> câu</p>
+                </div>
+
                 <p style="font-size: 1.2rem;">Điểm cao của bé:</p>
-                <div style="font-size: 4rem; font-weight: 900; color: #BF360C; margin: 20px 0;">${score}</div>
+                <div style="font-size: 4rem; font-weight: 900; color: #BF360C; margin: 10px 0;">${score}</div>
+                
                 <button onclick="window.location.reload()" 
                         style="padding: 15px 30px; font-size: 1.2rem; background: #FF5722; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
                     Chơi lại

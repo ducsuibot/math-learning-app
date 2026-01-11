@@ -15,8 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let isClickable = true;
 
+    // 1. KHAI BÁO BIẾN ĐẾM
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
+
     function generateQuestion() {
-        // Tạo 2 số ngẫu nhiên từ 1 đến 20 (Khác với đếm ảnh chỉ đến 10)
+        // Tạo 2 số ngẫu nhiên từ 1 đến 20
         leftNumber = Math.floor(Math.random() * 20) + 1;
         rightNumber = Math.floor(Math.random() * 20) + 1;
         
@@ -42,11 +46,17 @@ document.addEventListener('DOMContentLoaded', () => {
         answerBox.innerText = playerChoice;
 
         if (playerChoice === correctAnswer) {
+            // === ĐÚNG ===
             score += 10;
+            correctCount++; // <--- MỚI: Tăng số câu đúng
+            
             scoreDisplay.innerText = score;
             feedbackDisplay.innerText = 'Chính xác! Bé giỏi quá!';
             feedbackDisplay.className = 'correct';
         } else {
+            // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng số câu sai
+            
             feedbackDisplay.innerText = 'Sai rồi! Thử lại câu sau nhé!';
             feedbackDisplay.className = 'incorrect';
         }
@@ -70,10 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
         isClickable = false;
         sendScoreToBackend('So sánh hai số (Level 1)', score);
         
+        // 2. CẬP NHẬT MÀN HÌNH KẾT THÚC
         gameContainer.innerHTML = `
             <div class="game-over-screen">
                 <h2>Hết giờ!</h2>
-                <p>Điểm của bé: <span class="final-score">${score}</span></p>
+                
+                <div style="font-size: 1.2rem; margin-bottom: 20px;">
+                    <p>✅ Đúng: <b>${correctCount}</b> câu</p>
+                    <p>❌ Sai: <b>${wrongCount}</b> câu</p>
+                </div>
+
+                <p>Tổng điểm của bé: <span class="final-score">${score}</span></p>
+                
                 <button onclick="window.location.reload()" class="button-primary">Chơi lại</button>
                 <a href="/learning" class="button-secondary" style="margin-top: 15px;">Thoát ra</a>
             </div>

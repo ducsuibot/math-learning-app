@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let correctAnswer = 0;
     let timerInterval; 
     let gameEnded = false; 
+    
+    // 1. KHAI BÁO BIẾN ĐẾM MỚI
+    let correctCount = 0; // <--- MỚI: Đếm số câu đúng
+    let wrongCount = 0;   // <--- MỚI: Đếm số câu sai
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -37,11 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (gameEnded) return;
 
         // 1. Tạo số ngẫu nhiên
-        // Chọn số thứ nhất (từ 1 đến 5 để đảm bảo số thứ hai có không gian chọn)
         let num1 = getRandomInt(1, 5);
-        
-        // Chọn số thứ hai sao cho tổng không vượt quá 10
-        // Ví dụ: num1 = 4, thì max của num2 là 10 - 4 = 6. num2 sẽ random từ 1 đến 6.
         let maxNum2 = 10 - num1;
         let num2 = getRandomInt(1, maxNum2);
         
@@ -54,16 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let options = [correctAnswer];
         
         while (options.length < 4) { 
-            // Tạo đáp án sai lệch trong khoảng -3 đến +3
             let offset = getRandomInt(-3, 3);
             if (offset === 0) offset = 1; 
             
             let wrongAns = correctAnswer + offset;
             
-            // Đảm bảo: 
-            // - Không trùng đáp án đã có
-            // - Không âm (>= 0)
-            // - Không quá lớn (<= 15 cho bé đỡ rối)
             if (!options.includes(wrongAns) && wrongAns >= 0 && wrongAns <= 15) {
                 options.push(wrongAns);
             }
@@ -93,19 +88,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (selectedNum === correctAnswer) {
             // === ĐÚNG ===
-            score += 10; // 10 điểm mỗi câu
+            score += 10; 
+            correctCount++; // <--- MỚI: Tăng số câu đúng
+            
             scoreDisplay.innerText = score;
             suneoText.innerText = "Chính xác! Cậu giỏi quá!";
-            
-            // Nếu có ảnh vui/buồn thì uncomment dòng dưới
-            // suneoImage.src = "/static/img/suneo_happy.png";
             
             nextQuestionBtn.style.display = 'block';
             retryBtn.style.display = 'none';
         } else {
             // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng số câu sai
+            
             suneoText.innerText = `Ôi sai rồi! ${mathDisplay.innerText.replace('?', correctAnswer)} mới đúng nhé!`;
-            // suneoImage.src = "/static/img/suneo_sad.png";
             
             nextQuestionBtn.style.display = 'none';
             retryBtn.style.display = 'block';
@@ -132,7 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
         gameEnded = true; 
         
         feedbackModal.classList.add('active');
-        suneoText.innerText = `Hết giờ! Cậu đạt được ${score} điểm!`;
+        
+        // 2. HIỂN THỊ KẾT QUẢ CHI TIẾT
+        // Sử dụng innerHTML để xuống dòng cho đẹp
+        suneoText.innerHTML = `Hết giờ!<br>
+        <b>Đúng:</b> ${correctCount} câu<br>
+        <b>Sai:</b> ${wrongCount} câu<br>
+        <b>Tổng điểm:</b> ${score}`;
         
         nextQuestionBtn.style.display = 'none'; 
         retryBtn.style.display = 'block'; 
@@ -175,7 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     retryBtn.addEventListener('click', () => {
         if (retryBtn.innerText === "Chơi lại từ đầu") {
+            // 3. RESET CÁC BIẾN KHI CHƠI LẠI
             score = 0;
+            correctCount = 0; // <--- MỚI
+            wrongCount = 0;   // <--- MỚI
+            
             scoreDisplay.innerText = score;
             startTimer();
             generateQuestion();

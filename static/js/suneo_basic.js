@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const retryBtn = document.getElementById('retry-btn');
 
     // === DANH SÁCH SỐ BẰNG CHỮ (0 - 10) ===
-    // Index của mảng sẽ trùng với giá trị số (ví dụ: index 1 là "một")
     const numberWords = [
         "không", "một", "hai", "ba", "bốn", 
         "năm", "sáu", "bảy", "tám", "chín", "mười"
@@ -25,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let targetNumber = 0;
     let timerInterval; 
     let gameEnded = false; 
+
+    // 1. KHAI BÁO BIẾN ĐẾM
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
 
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -47,10 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
         targetNumber = getRandomInt(1, 10);
 
         // 2. HIỂN THỊ CÂU HỎI BẰNG CHỮ TIẾNG VIỆT
-        // Thay vì hiện số, ta lấy chữ trong mảng numberWords
         questionText.innerText = numberWords[targetNumber]; 
 
-        // 3. Tạo danh sách các lựa chọn (Vẫn hiển thị số trên thẻ để bé chọn)
+        // 3. Tạo danh sách các lựa chọn
         let options = [targetNumber];
         
         while (options.length < 3) { 
@@ -67,8 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         options.forEach(num => {
             const card = document.createElement('div');
             card.classList.add('number-card');
-            
-            // Trên thẻ bài thì vẫn hiện số (1, 2, 3...)
             card.innerText = num;
             
             card.onclick = () => checkAnswer(num);
@@ -89,15 +89,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedNum === targetNumber) {
             // === ĐÚNG ===
             score += 10;
+            correctCount++; // <--- MỚI: Tăng số câu đúng
+
             scoreDisplay.innerText = score;
-            
-            // Lời khen cũng dùng chữ tiếng Việt cho tự nhiên
             suneoText.innerText = `Giỏi quá! Đúng là số "${numberWords[targetNumber]}" rồi!`;
             
             nextQuestionBtn.style.display = 'block';
             retryBtn.style.display = 'none';
         } else {
             // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng số câu sai
+
             suneoText.innerText = `Sai rồi! Cậu vừa chọn số ${selectedNum}, nhưng tớ cần tìm số "${numberWords[targetNumber]}" cơ!`;
             
             nextQuestionBtn.style.display = 'none';
@@ -125,7 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
         gameEnded = true; 
         
         feedbackModal.classList.add('active');
-        suneoText.innerText = `Hết giờ rồi! Cậu đạt được ${score} điểm.`;
+        
+        // 2. HIỂN THỊ KẾT QUẢ CHI TIẾT
+        // Dùng innerHTML để xuống dòng cho đẹp
+        suneoText.innerHTML = `Hết giờ rồi!<br>
+        <b>Đúng:</b> ${correctCount} câu<br>
+        <b>Sai:</b> ${wrongCount} câu<br>
+        <b>Tổng điểm:</b> ${score}`;
         
         nextQuestionBtn.style.display = 'none'; 
         retryBtn.style.display = 'block'; 
@@ -167,7 +175,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     retryBtn.addEventListener('click', () => {
         if (retryBtn.innerText === "Chơi lại từ đầu") {
+            // 3. RESET BIẾN KHI CHƠI LẠI
             score = 0;
+            correctCount = 0; // <--- MỚI
+            wrongCount = 0;   // <--- MỚI
+            
             scoreDisplay.innerText = score;
             startTimer();
             generateQuestion();

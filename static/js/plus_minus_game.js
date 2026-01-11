@@ -20,17 +20,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let isClickable = true; 
 
+    // 1. KHAI BÁO BIẾN ĐẾM
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
+
     /**
      * Hàm hiển thị pop-up của Chaien
      */
     function showChaienFeedback(isCorrect) {
         if (isCorrect) {
             feedbackText.innerText = "Bé trả lời đúng rồi, tốt lắm!";
-            feedbackText.style.color = "#4CAF50"; // Màu xanh lá (Giữ nguyên)
+            feedbackText.style.color = "#4CAF50"; 
             chaienImage.src = '/static/img/gian.png'; 
         } else {
             feedbackText.innerText = "Sai rồi! Chaien sẽ hát tặng bé 1 bài nhé!";
-            feedbackText.style.color = "#F44336"; // Màu đỏ (Giữ nguyên)
+            feedbackText.style.color = "#F44336"; 
             chaienImage.src = '/static/img/chaa.png'; 
         }
         feedbackModal.classList.add('active');
@@ -88,11 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
         isClickable = false; 
 
         if (chosenAnswer === correctAnswer) {
+            // === ĐÚNG ===
             score += 10;
+            correctCount++; // <--- MỚI: Tăng đếm đúng
+            
             scoreDisplay.innerText = score;
             btn.classList.add('correct'); 
             setTimeout(() => showChaienFeedback(true), 500);
         } else {
+            // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng đếm sai
+            
             btn.classList.add('wrong'); 
             setTimeout(() => showChaienFeedback(false), 500);
         }
@@ -126,9 +136,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 sendScoreToBackend('Cộng đơn giản (Level 1)', score);
                 
-                // === ĐÃ SỬA MÀU SẮC Ở ĐÂY CHO HỢP THEME BIỂN ===
+                // 2. CẬP NHẬT MÀN HÌNH KẾT THÚC
                 document.querySelector('.game-container-space').innerHTML = `
-                    <div style="text-align: center; color: #01579B;"> <h2 style="font-size: 3rem; margin-bottom: 20px;">Hết giờ!</h2>
+                    <div style="text-align: center; color: #01579B;"> 
+                        <h2 style="font-size: 3rem; margin-bottom: 10px;">Hết giờ!</h2>
+                        
+                        <div style="font-size: 1.2rem; margin-bottom: 20px;">
+                            <p>✅ Đúng: <b>${correctCount}</b> câu</p>
+                            <p>❌ Sai: <b>${wrongCount}</b> câu</p>
+                        </div>
+
                         <p style="font-size: 1.5rem;">Điểm của bé là:</p>
                         <div style="font-size: 5rem; font-weight: 900; color: #E65100; margin: 20px 0;">${score}</div>
                         

@@ -17,10 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let isClickable = true;
 
+    // 1. KHAI BÁO BIẾN ĐẾM
+    let correctCount = 0; // <--- MỚI
+    let wrongCount = 0;   // <--- MỚI
+
     // ==========================================================
     // === CẬP NHẬT 1: THÊM NHIỀU ẢNH HƠN VÀO ĐÂY ===
     // ==========================================================
-    // (Hãy thêm các file ảnh của bạn vào /static/img/ và thêm vào danh sách này)
     const availableImages = [
         '/static/img/cat_icon.png',
         '/static/img/dog_icon.png',  
@@ -42,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let index2;
         do {
             index2 = Math.floor(Math.random() * availableImages.length);
-        } while (index1 === index2 && availableImages.length > 1); // Đảm bảo khác nhau nếu có > 1 ảnh
+        } while (index1 === index2 && availableImages.length > 1); 
         let rightImageSrc = availableImages[index2];
 
         // Hàm phụ để tạo hình ảnh
@@ -78,11 +81,17 @@ document.addEventListener('DOMContentLoaded', () => {
         answerBox.innerText = playerChoice;
 
         if (playerChoice === correctAnswer) {
+            // === ĐÚNG ===
             score += 10;
+            correctCount++; // <--- MỚI: Tăng đếm đúng
+            
             scoreDisplay.innerText = score;
             feedbackDisplay.innerText = 'Đúng rồi, Bé giỏi quá!';
             feedbackDisplay.className = 'correct';
         } else {
+            // === SAI ===
+            wrongCount++; // <--- MỚI: Tăng đếm sai
+            
             feedbackDisplay.innerText = 'Chưa đúng rồi, Bé hãy cố gắng làm lại!';
             feedbackDisplay.className = 'incorrect';
         }
@@ -93,35 +102,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================
     // === CẬP NHẬT 2: THÊM HÀM LƯU ĐIỂM ===
     // ==========================================================
-    /**
-     * Hàm gửi điểm số lên server
-     * @param {string} gameName - Tên game, ví dụ: 'compare_images'
-     * @param {number} finalScore - Điểm số cuối cùng
-     */
     async function sendScoreToBackend(gameName, finalScore) {
         try {
-            const response = await fetch('/save_score', { // Gọi đến route /save_score trong app.py
+            const response = await fetch('/save_score', { 
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    game_name: gameName,
-                    score: finalScore
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_name: gameName, score: finalScore }),
             });
-
             if (response.ok) {
-                const result = await response.json();
-                console.log('Server response:', result.message); // In ra "Lưu điểm thành công!"
-            } else {
-                console.error('Không thể lưu điểm lên server.');
+                console.log('Đã lưu điểm thành công!'); 
             }
         } catch (error) {
             console.error('Lỗi khi gửi điểm:', error);
         }
     }
-    // ==========================================================
 
     /**
      * Hàm xử lý khi hết giờ
@@ -130,15 +124,21 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(timerInterval);
         isClickable = false;
 
-        // === CẬP NHẬT 3: GỌI HÀM LƯU ĐIỂM KHI HẾT GIỜ ===
         sendScoreToBackend('So sánh hình (Level 2)', score);
-        // ===========================================
         
+        // 2. CẬP NHẬT GIAO DIỆN KẾT THÚC
         gameContainer.innerHTML = `
             <div class="game-over-screen">
                 <h2>Hết giờ!</h2>
+                
+                <div style="font-size: 1.2rem; margin-bottom: 20px;">
+                    <p>✅ Đúng: <b>${correctCount}</b> câu</p>
+                    <p>❌ Sai: <b>${wrongCount}</b> câu</p>
+                </div>
+
                 <p>Điểm cuối cùng của bé là:</p>
                 <div class="final-score">${score}</div>
+                
                 <button id="restart-btn" class="button-primary">Chơi lại</button>
                 <a href="/learning" class="button-secondary" style="margin-top: 15px;">Quay lại</a>
             </div>
